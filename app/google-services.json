@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "42255710455",
+    "project_id": "quizhero-b302c",
+    "storage_bucket": "quizhero-b302c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42255710455:android:95be667f47cdb06c80bbf2",
+        "android_client_info": {
+          "package_name": "com.joyg.quizhero"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATqiLw9Fqn0BiY-br_2ZCFKwa6A1z-Lio"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
