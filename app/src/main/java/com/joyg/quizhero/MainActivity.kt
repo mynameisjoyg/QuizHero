@@ -36,12 +36,53 @@ class MainActivity : ComponentActivity() {
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
 
-        val myButton = findViewById<Button>(R.id.myButton)
-        myButton.setOnClickListener {
+        val bt_add = findViewById<Button>(R.id.bt_add)
+        val bt_delete = findViewById<Button>(R.id.bt_delete)
 
+        bt_add.setOnClickListener {
             ////呼叫新增資料的方法
             saveDataToFirestore()
         }
+
+        bt_delete.setOnClickListener {
+            deleteDataToFirestore()
+        }
+
+    }
+
+    private fun deleteDataToFirestore(){
+        db.collection("users")
+            .whereEqualTo("name", "張小明")
+            .get()
+            .addOnSuccessListener {
+                querySnapshot ->
+                if(querySnapshot.isEmpty) {
+                    Toast.makeText(this, "找不到張小明", Toast.LENGTH_SHORT).show()
+                }
+                val totalCount = querySnapshot.size()
+                var deleteCount = 0
+                querySnapshot.documents.forEach { document ->
+                    document.reference.delete()
+                        .addOnSuccessListener {
+                            deleteCount ++
+                            Log.d("FirestoreDemo", "成功刪除單筆文件ID: ${document.id}")
+
+                            if(deleteCount == totalCount) {
+                                Toast.makeText(this, "已成功刪除張小明資料共${deleteCount}筆",
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.d("FirestoreDemo", "刪除文件: ${document.id}失敗", e)
+                        }
+
+                }
+            }
+            .addOnFailureListener { e->
+                Log.d("FirestoreDemo", "查詢失敗", e)
+                Toast.makeText(this, "查詢失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            }
 
     }
 
