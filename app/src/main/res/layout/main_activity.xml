@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingTop="26dp">
-
+    android:layout_height="match_parent">
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingTop="26dp">
 
-        <TextView
-            android:id="@+id/tv_question"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="問題："
-            android:textSize="24sp" />
-    </LinearLayout>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_question"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="問題："
+                android:textSize="24sp" />
+        </LinearLayout>
 
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <RadioGroup
-            android:id="@+id/rg_options"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+            <RadioGroup
+                android:id="@+id/rg_options"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
                 <RadioButton
                     android:id="@+id/rb_A"
                     android:layout_width="wrap_content"
@@ -48,73 +52,74 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="D" />
-        </RadioGroup>
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/bt_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="提交" />
+
+            <TextView
+                android:id="@+id/tv_solution"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="詳解：" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已完成：" />
+            <TextView
+                android:id="@+id/tv_correct"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="正確數：" />
+            <TextView
+                android:id="@+id/tv_wrong"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="錯誤數：" />
+            <TextView
+                android:id="@+id/tv_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="百分率：" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bt_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:text="新增"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/bt_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:text="刪除"
+                android:visibility="invisible" />
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <Button
-            android:id="@+id/bt_submit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="提交" />
-
-        <TextView
-            android:id="@+id/tv_solution"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="詳解：" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/tv_total"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="已完成：" />
-        <TextView
-            android:id="@+id/tv_correct"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="正確數：" />
-        <TextView
-            android:id="@+id/tv_wrong"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="錯誤數：" />
-        <TextView
-            android:id="@+id/tv_percent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="百分率：" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/bt_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:text="新增"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/bt_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            android:text="刪除"
-            android:visibility="invisible" />
-    </LinearLayout>
-</LinearLayout>
+</ScrollView>
