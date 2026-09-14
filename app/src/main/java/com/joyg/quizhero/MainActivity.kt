@@ -23,6 +23,21 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.ktx.firestore
 import com.joyg.quizhero.ui.theme.QuizHeroTheme
 
+import com.alibaba.excel.context.AnalysisContext
+import com.alibaba.excel.read.listener.ReadListener
+import com.alibaba.excel.EasyExcel
+import java.io.InputStream
+
+
+import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+
+
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +57,27 @@ class MainActivity : ComponentActivity() {
         bt_add.setOnClickListener {
             ////呼叫新增資料的方法
             saveDataToFirestore()
+
+
+            ////////////
+// 在 Activity 或 Fragment 中：
+            lifecycleScope.launch {
+                readExcelFromAssets(
+                    context = this@MainActivity,
+                    fileName = "EnglishQuiz.xlsx",
+                    onRowRead = { rowIndex, rowData ->
+                        // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
+                        val colA = rowData[0] ?: ""
+                        val colB = rowData[1] ?: ""
+
+                        println("第 $rowIndex 行 - A欄: $colA, B欄: $colB")
+                    },
+                    onComplete = {
+                        println("Excel 檔案全部讀取完成！")
+                    }
+                )
+            }
+            ////////////
         }
 
         bt_delete.setOnClickListener {
@@ -108,5 +144,67 @@ class MainActivity : ComponentActivity() {
                 Log.w("FirestoreDemo", "新增資料時發生錯誤", e)
                 Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+}
+
+
+// 讀取 Excel 的 Listener
+class ExcelRowListener : ReadListener<Map<Int, String>> {
+    override fun invoke(data: Map<Int, String>, context: AnalysisContext) {
+        // data 是一個 Map，key 是第幾欄 (0, 1, 2...)，value 是儲存格數值/字串
+        println("讀取到第 ${context.readRowHolder().rowIndex} 列數據: $data")
+        val col0 = data[0] // 取得 A 欄
+        val col1 = data[1] // 取得 B 欄
+    }
+
+    override fun doAfterAllAnalysed(context: AnalysisContext) {
+        println("全部讀取完成！")
+    }
+}
+
+// 執行讀取
+fun readExcelWithEasyExcel(inputStream: InputStream) {
+    EasyExcel.read(inputStream, ExcelRowListener()).sheet(0).doRead()
+}
+
+/**
+ * 讀取 assets 資料夾內的 Excel 檔案
+ * @param context Android Context
+ * @param fileName assets 資料夾內的檔案名稱 (例: "data.xlsx")
+ * @param onRowRead 每一行讀取到的回呼 (RowIndex, DataMap)
+ * @param onComplete 讀取完成的回呼
+ */
+suspend fun readExcelFromAssets(
+    context: Context,
+    fileName: String,
+    onRowRead: (rowIndex: Int, data: Map<Int, String>) -> Unit,
+    onComplete: () -> Unit
+) {
+    // 切換至 IO 執行續處理檔案讀取
+    withContext(Dispatchers.IO) {
+        try {
+            // 1. 開啟 assets 內的檔案 InputStream
+            context.assets.open(fileName).use { inputStream ->
+
+                // 2. 建立 EasyExcel 的 ReadListener
+                val listener = object : ReadListener<Map<Int, String>> {
+                    override fun invoke(data: Map<Int, String>, context: AnalysisContext) {
+                        val rowIndex = context.readRowHolder().rowIndex
+                        // 讀到一行資料
+                        onRowRead(rowIndex, data)
+                    }
+
+                    override fun doAfterAllAnalysed(context: AnalysisContext) {
+                        // 全部解析完畢
+                        onComplete()
+                    }
+                }
+
+                // 3. 執行讀取 (預設讀取第一個 Sheet)
+                EasyExcel.read(inputStream, listener).sheet(0).doRead()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

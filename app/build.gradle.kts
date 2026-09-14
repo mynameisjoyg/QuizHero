@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         applicationId = "com.joyg.quizhero"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -78,4 +78,9 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
 
     implementation("com.google.firebase:firebase-firestore")
+
+    //
+    implementation("com.alibaba:easyexcel:3.3.3")
+    implementation("javax.xml.stream:stax-api:1.0-2")
+    implementation("com.fasterxml:aalto-xml:1.3.2")
 }
