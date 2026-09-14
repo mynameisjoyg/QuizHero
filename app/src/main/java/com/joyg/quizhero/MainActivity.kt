@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
         val tv_total = findViewById<TextView>(R.id.tv_total)
         val tv_correct = findViewById<TextView>(R.id.tv_correct)
         val tv_wrong = findViewById<TextView>(R.id.tv_wrong)
+        val tv_percent = findViewById<TextView>(R.id.tv_percent)
 
 
         bt_submit.setOnClickListener {
@@ -92,10 +93,11 @@ class MainActivity : ComponentActivity() {
                     else -> ""
                 }
 
+                var c :Int ? = 0
                 if (answer == selectedAnswer) {
                     Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
-                    var c: Int ?= correct?.toInt()
-                    c = c?.plus(1)
+                    c = correct?.toInt()?:0
+                    c = c?.plus(1)?:0
                     correct=""+c
                     tv_correct.setText("正確數："+c)
 
@@ -106,10 +108,21 @@ class MainActivity : ComponentActivity() {
                     wrong=""+w
                     tv_wrong.setText("錯誤數："+w)
                 }
-                var t: Int ?= total?.toInt()
-                t = t?.plus(1)
+                var t: Int? = total?.toInt()?:0
+                t = t?.plus(1)?:0
                 total=""+t
                 tv_total.setText("已完成："+t)
+
+                //var p :Double = c?.div(t)
+                var p :Double = (if (t>0) {
+                    (c?.toDouble()?.div(t.toDouble())?.times(100)) ?: 0
+                }else{
+                    0.0
+                }) as Double
+
+                percent = String.format("%.1f%%", p)
+                tv_percent.setText("正確率："+p+" %")
+
 
             } else {
                 println("使用者還沒選擇任何選項！")
