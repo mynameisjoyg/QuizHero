@@ -105,6 +105,7 @@
             android:id="@+id/bt_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="false"
             android:text="新增"
             android:visibility="invisible" />
 
@@ -112,6 +113,7 @@
             android:id="@+id/bt_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="false"
             android:text="刪除"
             android:visibility="invisible" />
     </LinearLayout>
