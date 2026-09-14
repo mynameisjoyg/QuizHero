@@ -30,6 +30,7 @@ import java.io.InputStream
 
 
 import android.content.Context
+import android.widget.RadioGroup
 import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,9 +40,14 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
-
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 private var tv_question: TextView? = null
+
+private var id: Int = 0
+private var answer: String? = ""
+private var question: String? = ""
+private var solution: String? = ""
+
 
 class MainActivity : ComponentActivity() {
     // 1. 宣告 FirebaseFirestore 變數
@@ -57,11 +63,39 @@ class MainActivity : ComponentActivity() {
         val bt_add = findViewById<Button>(R.id.bt_add)
         val bt_delete = findViewById<Button>(R.id.bt_delete)
         val bt_submit = findViewById<Button>(R.id.bt_submit)
+        val radioGroup = findViewById<RadioGroup>(R.id.rg_options)
         tv_question = findViewById<TextView>(R.id.tv_question)
 
 
         bt_submit.setOnClickListener {
             //取得資料庫內正確解答
+// 假設 RadioGroup 的 ID 是 rg_options
+            val radioGroup = findViewById<RadioGroup>(R.id.rg_options) // 請確保 RadioGroup 在 XML 有設定 id
+
+// 1. 取得目前被選中的 RadioButton ID
+            val selectedId = radioGroup.checkedRadioButtonId
+
+// 2. 判斷是否有選擇選項
+            if (selectedId != -1) {
+                // 依據 ID 判斷選了哪一個
+                val selectedAnswer = when (selectedId) {
+                    R.id.rb_A -> "A"
+                    R.id.rb_B -> "B"
+                    R.id.rb_C -> "C"
+                    R.id.rb_D -> "D"
+                    else -> ""
+                }
+
+                println("使用者選擇了：$selectedAnswer")
+                if (answer == selectedAnswer) {
+                    Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
+                }
+
+            } else {
+                println("使用者還沒選擇任何選項！")
+            }
         }
 
         bt_add.setOnClickListener {
@@ -106,13 +140,17 @@ class MainActivity : ComponentActivity() {
 
                                 // 2. 取出 question 欄位並設定給 TextView
                                 quiz?.let {
+                                    id=it.id
+                                    answer = it.answer
+                                    question=it.question
+                                    solution=it.solution
+
                                     tv_question?.text = it.question
                                 }
                             } else {
                                 tv_question?.text = "找不到題目"
                             }
                         }
-
                     }
             }
             .addOnFailureListener { e->
