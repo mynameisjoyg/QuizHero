@@ -55,12 +55,7 @@ class MainActivity : ComponentActivity() {
         val bt_delete = findViewById<Button>(R.id.bt_delete)
 
         bt_add.setOnClickListener {
-            ////呼叫新增資料的方法
-            saveDataToFirestore()
-
-
-            ////////////
-// 在 Activity 或 Fragment 中：
+            // 在 Activity 或 Fragment 中：
             lifecycleScope.launch {
                 readExcelFromAssets(
                     context = this@MainActivity,
@@ -69,8 +64,10 @@ class MainActivity : ComponentActivity() {
                         // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
                         val colA = rowData[0] ?: ""
                         val colB = rowData[1] ?: ""
+                        val colC = rowData[2] ?: ""
 
-                        println("第 $rowIndex 行 - A欄: $colA, B欄: $colB")
+                        //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB")
+                        saveDataToFirestore(colA, colB, colC)
                     },
                     onComplete = {
                         println("Excel 檔案全部讀取完成！")
@@ -87,13 +84,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun deleteDataToFirestore(){
-        db.collection("users")
-            .whereEqualTo("name", "張小明")
+        db.collection("EnglishQuiz")
+            //.whereEqualTo("name", "張小明")
             .get()
             .addOnSuccessListener {
                 querySnapshot ->
                 if(querySnapshot.isEmpty) {
-                    Toast.makeText(this, "找不到張小明", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "找不到EnglishQuiz", Toast.LENGTH_SHORT).show()
                 }
                 val totalCount = querySnapshot.size()
                 var deleteCount = 0
@@ -104,7 +101,7 @@ class MainActivity : ComponentActivity() {
                             Log.d("FirestoreDemo", "成功刪除單筆文件ID: ${document.id}")
 
                             if(deleteCount == totalCount) {
-                                Toast.makeText(this, "已成功刪除張小明資料共${deleteCount}筆",
+                                Toast.makeText(this, "已成功刪除資料共${deleteCount}筆",
                                     Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -122,27 +119,27 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    private fun saveDataToFirestore() {
+    private fun saveDataToFirestore(ans: String, que: String, sol: String) {
         Log.d("FirestoreDemo", "Call saveDataToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
-        val user = hashMapOf(
-            "name" to "張小明",
-            "age" to 25,
-            "email" to "xiaoming@example.com"
+        val question = hashMapOf(
+            "answer" to ans,
+            "question" to que,
+            "solution" to sol
         )
 
         // 4. 指定集合名稱 "users"，並自動產生文件 ID 新增資料 (.add)
-        db.collection("users")
-            .add(user)
+        db.collection("EnglishQuiz")
+            .add(question)
             .addOnSuccessListener { documentReference ->
                 // 新增成功時的回呼
-                Log.d("FirestoreDemo", "資料新增成功，ID: ${documentReference.id}")
-                Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+                Log.d("FirestoreDemo", "資料新增成功.")
+                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { e ->
                 // 新增失敗時的回呼
                 Log.w("FirestoreDemo", "新增資料時發生錯誤", e)
-                Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 }
@@ -155,6 +152,7 @@ class ExcelRowListener : ReadListener<Map<Int, String>> {
         println("讀取到第 ${context.readRowHolder().rowIndex} 列數據: $data")
         val col0 = data[0] // 取得 A 欄
         val col1 = data[1] // 取得 B 欄
+        val col2 = data[2] // 取得 C 欄
     }
 
     override fun doAfterAllAnalysed(context: AnalysisContext) {
