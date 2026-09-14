@@ -42,11 +42,15 @@ import kotlinx.coroutines.tasks.await
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 private var tv_question: TextView? = null
+private var tv_total: TextView? = null
+private var tv_correct: TextView? = null
+private var tv_wrong: TextView? = null
+private var tv_percent: TextView? = null
 
 private var id: Int = 0
-private var answer: String? = ""
-private var question: String? = ""
-private var solution: String? = ""
+private var answer: String = ""
+private var question: String = ""
+private var solution: String = ""
 private var total: Int  = 0
 private var correct: Int  = 0
 private var wrong: Int =0
@@ -68,21 +72,21 @@ class MainActivity : ComponentActivity() {
         val bt_submit = findViewById<Button>(R.id.bt_submit)
         val radioGroup = findViewById<RadioGroup>(R.id.rg_options)
         tv_question = findViewById<TextView>(R.id.tv_question)
-        val tv_total = findViewById<TextView>(R.id.tv_total)
-        val tv_correct = findViewById<TextView>(R.id.tv_correct)
-        val tv_wrong = findViewById<TextView>(R.id.tv_wrong)
-        val tv_percent = findViewById<TextView>(R.id.tv_percent)
+        tv_total = findViewById<TextView>(R.id.tv_total)
+        tv_correct = findViewById<TextView>(R.id.tv_correct)
+        tv_wrong = findViewById<TextView>(R.id.tv_wrong)
+        tv_percent = findViewById<TextView>(R.id.tv_percent)
 
 
         bt_submit.setOnClickListener {
             //取得資料庫內正確解答
-// 假設 RadioGroup 的 ID 是 rg_options
+            // 假設 RadioGroup 的 ID 是 rg_options
             val radioGroup = findViewById<RadioGroup>(R.id.rg_options) // 請確保 RadioGroup 在 XML 有設定 id
 
-// 1. 取得目前被選中的 RadioButton ID
+            // 1. 取得目前被選中的 RadioButton ID
             val selectedId = radioGroup.checkedRadioButtonId
 
-// 2. 判斷是否有選擇選項
+            // 2. 判斷是否有選擇選項
             if (selectedId != -1) {
                 // 依據 ID 判斷選了哪一個
                 val selectedAnswer = when (selectedId) {
@@ -96,22 +100,20 @@ class MainActivity : ComponentActivity() {
                 if (answer == selectedAnswer) {
                     Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
                     correct = correct+1
-                    tv_correct.setText("正確數："+correct)
+                    tv_correct?.setText("正確數："+correct)
 
                 } else {
                     Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
                     wrong= wrong+1
-                    tv_wrong.setText("錯誤數："+wrong)
+                    tv_wrong?.setText("錯誤數："+wrong)
                 }
                 total= total+1
-                tv_total.setText("已完成："+total)
-
+                tv_total?.setText("已完成："+total)
                 percent = calculatePercentage()
                 Log.v("JOYG", "JOYG: percent = "+ percent)
-
-                tv_percent.setText("正確率："+String.format("%.1f%%", percent))
-
-
+                tv_percent?.setText("正確率："+String.format("%.1f%%", percent))
+                //下一題
+                queryQuestion()
             } else {
                 println("使用者還沒選擇任何選項！")
             }
@@ -165,6 +167,7 @@ class MainActivity : ComponentActivity() {
                                     solution=it.solution
 
                                     tv_question?.text = it.question
+                                    hintAnswer(answer)
                                 }
                             } else {
                                 tv_question?.text = "找不到題目"
@@ -264,6 +267,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+private fun hintAnswer(ans: String){
+    tv_total?.setText("已完成："+total)
+    tv_correct?.setText("正確數："+correct)
+    tv_wrong?.setText("錯誤數："+wrong)
+    tv_percent?.setText("答對率："+percent)
+
+    if(ans == "A"){
+        tv_total?.setText("已完成 ："+total)
+    } else if(ans =="B"){
+        tv_correct?.setText("正確數 ："+correct)
+    } else if(ans == "C"){
+        tv_wrong?.setText("錯誤數 ："+wrong)
+    } else{
+        tv_percent?.setText("答對率 ："+percent)
+    }
+
+}
 fun calculatePercentage(): Double {
     return if (total!! > 0) {
         (correct?.toDouble()?.div(total!!))?.times(100) ?: 0.0
