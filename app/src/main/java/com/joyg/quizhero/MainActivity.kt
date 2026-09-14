@@ -47,10 +47,10 @@ private var id: Int = 0
 private var answer: String? = ""
 private var question: String? = ""
 private var solution: String? = ""
-private var total: String ? = "0"
-private var correct: String ? = "0"
-private var wrong: String? ="0"
-private var percent: String?="0"
+private var total: Int  = 0
+private var correct: Int  = 0
+private var wrong: Int =0
+private var percent: Double =0.0
 
 class MainActivity : ComponentActivity() {
     // 1. 宣告 FirebaseFirestore 變數
@@ -93,35 +93,23 @@ class MainActivity : ComponentActivity() {
                     else -> ""
                 }
 
-                var c :Int ? = 0
                 if (answer == selectedAnswer) {
                     Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
-                    c = correct?.toInt()?:0
-                    c = c?.plus(1)?:0
-                    correct=""+c
-                    tv_correct.setText("正確數："+c)
+                    correct = correct+1
+                    tv_correct.setText("正確數："+correct)
 
                 } else {
                     Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
-                    var w: Int ?= wrong?.toInt()
-                    w = w?.plus(1)
-                    wrong=""+w
-                    tv_wrong.setText("錯誤數："+w)
+                    wrong= wrong+1
+                    tv_wrong.setText("錯誤數："+wrong)
                 }
-                var t: Int? = total?.toInt()?:0
-                t = t?.plus(1)?:0
-                total=""+t
-                tv_total.setText("已完成："+t)
+                total= total+1
+                tv_total.setText("已完成："+total)
 
-                //var p :Double = c?.div(t)
-                var p :Double = (if (t>0) {
-                    (c?.toDouble()?.div(t.toDouble())?.times(100)) ?: 0
-                }else{
-                    0.0
-                }) as Double
+                percent = calculatePercentage()
+                Log.v("JOYG", "JOYG: percent = "+ percent)
 
-                percent = String.format("%.1f%%", p)
-                tv_percent.setText("正確率："+p+" %")
+                tv_percent.setText("正確率："+String.format("%.1f%%", percent))
 
 
             } else {
@@ -276,6 +264,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+fun calculatePercentage(): Double {
+    return if (total!! > 0) {
+        (correct?.toDouble()?.div(total!!))?.times(100) ?: 0.0
+    } else {
+        0.0
+    }
+}
 
 // 讀取 Excel 的 Listener
 class ExcelRowListener : ReadListener<Map<Int, String>> {
@@ -345,3 +340,4 @@ data class Quiz(
     val answer: String = "",
     val solution: String = ""
 )
+
