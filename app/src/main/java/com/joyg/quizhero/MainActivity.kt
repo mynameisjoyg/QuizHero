@@ -47,7 +47,10 @@ private var id: Int = 0
 private var answer: String? = ""
 private var question: String? = ""
 private var solution: String? = ""
-
+private var total: String ? = "0"
+private var correct: String ? = "0"
+private var wrong: String? ="0"
+private var percent: String?="0"
 
 class MainActivity : ComponentActivity() {
     // 1. 宣告 FirebaseFirestore 變數
@@ -65,6 +68,9 @@ class MainActivity : ComponentActivity() {
         val bt_submit = findViewById<Button>(R.id.bt_submit)
         val radioGroup = findViewById<RadioGroup>(R.id.rg_options)
         tv_question = findViewById<TextView>(R.id.tv_question)
+        val tv_total = findViewById<TextView>(R.id.tv_total)
+        val tv_correct = findViewById<TextView>(R.id.tv_correct)
+        val tv_wrong = findViewById<TextView>(R.id.tv_wrong)
 
 
         bt_submit.setOnClickListener {
@@ -86,12 +92,24 @@ class MainActivity : ComponentActivity() {
                     else -> ""
                 }
 
-                println("使用者選擇了：$selectedAnswer")
                 if (answer == selectedAnswer) {
                     Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
+                    var c: Int ?= correct?.toInt()
+                    c = c?.plus(1)
+                    correct=""+c
+                    tv_correct.setText("正確數："+c)
+
                 } else {
                     Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
+                    var w: Int ?= wrong?.toInt()
+                    w = w?.plus(1)
+                    wrong=""+w
+                    tv_wrong.setText("錯誤數："+w)
                 }
+                var t: Int ?= total?.toInt()
+                t = t?.plus(1)
+                total=""+t
+                tv_total.setText("已完成："+t)
 
             } else {
                 println("使用者還沒選擇任何選項！")
