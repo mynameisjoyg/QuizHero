@@ -30,15 +30,18 @@ import java.io.InputStream
 
 
 import android.content.Context
+import android.widget.TextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
+private var tv_question: TextView? = null
 
 class MainActivity : ComponentActivity() {
     // 1. 宣告 FirebaseFirestore 變數
@@ -53,6 +56,13 @@ class MainActivity : ComponentActivity() {
 
         val bt_add = findViewById<Button>(R.id.bt_add)
         val bt_delete = findViewById<Button>(R.id.bt_delete)
+        val bt_submit = findViewById<Button>(R.id.bt_submit)
+        tv_question = findViewById<TextView>(R.id.tv_question)
+
+
+        bt_submit.setOnClickListener {
+            //取得資料庫內正確解答
+        }
 
         bt_add.setOnClickListener {
             //readExcelByLifeCycleScope()
@@ -61,6 +71,56 @@ class MainActivity : ComponentActivity() {
         bt_delete.setOnClickListener {
             //deleteDataToFirestore()
         }
+
+        queryQuestion()
+    }
+
+    private fun queryQuestion(){
+        var totalCount = 0
+        var randomNumber = 1
+        db.collection("EnglishQuiz")
+            .get()
+            .addOnSuccessListener {
+                    querySnapshot ->
+                if(querySnapshot.isEmpty) {
+                    Toast.makeText(this, "找不到EnglishQuiz", Toast.LENGTH_SHORT).show()
+                }
+                //取得全部題目個數
+                totalCount = querySnapshot.size()
+                //取得隨機題目id
+                randomNumber = (1..totalCount).random()
+                Log.v("JOYG","JOYG: totalCount="+totalCount+", randomNumber="+ randomNumber)
+
+                //利用隨機id來取得題目、解答和詳解
+                Log.v("JOYG", "JOYG: randomNumber=${randomNumber}")
+                db.collection("EnglishQuiz")
+                    .whereEqualTo("id", randomNumber)
+                    .get()
+                    .addOnSuccessListener {
+                            querySnapshot ->
+                        if(!querySnapshot.isEmpty) {
+                            //把題目顯示出來
+                            if (!querySnapshot.isEmpty) {
+                                // 1. 轉成 Quiz 物件
+                                val quiz = querySnapshot.documents[0].toObject(Quiz::class.java)
+
+                                // 2. 取出 question 欄位並設定給 TextView
+                                quiz?.let {
+                                    tv_question?.text = it.question
+                                }
+                            } else {
+                                tv_question?.text = "找不到題目"
+                            }
+                        }
+
+                    }
+            }
+            .addOnFailureListener { e->
+                Log.d("FirestoreDemo", "取得全部題目個數失敗", e)
+                Toast.makeText(this, "取得全部題目個數失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            }
+
 
     }
 
@@ -209,3 +269,10 @@ suspend fun readExcelFromAssets(
         }
     }
 }
+
+data class Quiz(
+    val id: Int = 0,
+    val question: String = "",
+    val answer: String = "",
+    val solution: String = ""
+)

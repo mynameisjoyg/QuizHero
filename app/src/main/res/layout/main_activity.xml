@@ -9,11 +9,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <TextView
             android:id="@+id/tv_question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="問題：" />
+            android:text="問題："
+            android:textSize="24sp" />
     </LinearLayout>
 
 
@@ -54,7 +56,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <Button
-            android:id="@+id/bt_commit"
+            android:id="@+id/bt_submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="提交" />
