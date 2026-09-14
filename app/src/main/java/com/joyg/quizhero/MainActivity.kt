@@ -55,37 +55,40 @@ class MainActivity : ComponentActivity() {
         val bt_delete = findViewById<Button>(R.id.bt_delete)
 
         bt_add.setOnClickListener {
-            // 在 Activity 或 Fragment 中：
-            lifecycleScope.launch {
-                readExcelFromAssets(
-                    context = this@MainActivity,
-                    fileName = "EnglishQuiz.xlsx",
-                    onRowRead = { rowIndex, rowData ->
-                        // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
-                        val colA = rowData[0] ?: ""
-                        val colB = rowData[1] ?: ""
-                        val colC = rowData[2] ?: ""
-
-                        //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB")
-                        saveDataToFirestore(colA, colB, colC)
-                    },
-                    onComplete = {
-                        println("Excel 檔案全部讀取完成！")
-                    }
-                )
-            }
-            ////////////
+            //readExcelByLifeCycleScope()
         }
 
         bt_delete.setOnClickListener {
-            deleteDataToFirestore()
+            //deleteDataToFirestore()
         }
 
     }
 
+    private fun readExcelByLifeCycleScope(){
+        // 在 Activity 或 Fragment 中：
+        lifecycleScope.launch {
+            readExcelFromAssets(
+                context = this@MainActivity,
+                fileName = "EnglishQuiz.xlsx",
+                onRowRead = { rowIndex, rowData ->
+                    // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
+                    val colA = rowData[0] ?: ""
+                    val colB = rowData[1] ?: ""
+                    val colC = rowData[2] ?: ""
+                    val colD = rowData[3] ?: ""
+
+                    //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB")
+                    saveDataToFirestore(colA.toInt(), colB, colC, colD)
+                },
+                onComplete = {
+                    println("Excel 檔案全部讀取完成！")
+                }
+            )
+        }
+    }
+
     private fun deleteDataToFirestore(){
         db.collection("EnglishQuiz")
-            //.whereEqualTo("name", "張小明")
             .get()
             .addOnSuccessListener {
                 querySnapshot ->
@@ -118,11 +121,11 @@ class MainActivity : ComponentActivity() {
             }
 
     }
-
-    private fun saveDataToFirestore(ans: String, que: String, sol: String) {
+    private fun saveDataToFirestore(id: Int, ans: String, que: String, sol: String) {
         Log.d("FirestoreDemo", "Call saveDataToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val question = hashMapOf(
+            "id" to id,
             "answer" to ans,
             "question" to que,
             "solution" to sol
