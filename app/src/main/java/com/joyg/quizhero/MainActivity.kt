@@ -271,7 +271,7 @@ private fun hintAnswer(ans: String){
     tv_total?.setText("已完成："+total)
     tv_correct?.setText("正確數："+correct)
     tv_wrong?.setText("錯誤數："+wrong)
-    tv_percent?.setText("答對率："+percent)
+    tv_percent?.setText("答對率："+String.format("%.1f%%", percent))
 
     if(ans == "A"){
         tv_total?.setText("已完成 ："+total)
