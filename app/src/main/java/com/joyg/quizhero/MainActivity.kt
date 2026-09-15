@@ -2,6 +2,7 @@ package com.joyg.quizhero
 
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -13,6 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import com.alibaba.excel.EasyExcel
 import com.alibaba.excel.context.AnalysisContext
 import com.alibaba.excel.read.listener.ReadListener
+import com.facebook.CallbackManager
+import com.facebook.FacebookException
+import com.facebook.login.LoginResult
+import com.facebook.login.widget.LoginButton
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,6 +26,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
+import com.facebook.FacebookCallback
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 private var tv_question: TextView? = null
@@ -42,10 +50,45 @@ class MainActivity : ComponentActivity() {
     // 1. 宣告 FirebaseFirestore 變數
     private lateinit var db: FirebaseFirestore
 
+    //登入臉書用
+    private lateinit var callbackManager: CallbackManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        //登入臉書用
+        // 1. 初始化 CallbackManager
+        callbackManager = CallbackManager.Factory.create()
+
+        val btnFacebookSignIn = findViewById<LoginButton>(R.id.btnFacebookSignIn)
+
+        // 2. 設定向 Facebook 請求的權限（預設會取得 public_profile）
+        //btnFacebookSignIn.setPermissions(listOf("email", "public_profile"))
+        btnFacebookSignIn.setPermissions("public_profile")
+
+// 3. 註冊 Login 回呼
+        btnFacebookSignIn.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+            override fun onSuccess(result: LoginResult) {
+                // 登入成功，取得 Access Token
+                val accessToken = result.accessToken.token
+                val userId = result.accessToken.userId
+                Log.d("FBAuth", "登入成功！User ID: $userId, Token: $accessToken")
+
+                // TODO: 可將 accessToken 傳送至自家 Server 或 Firebase 進行認證
+            }
+
+            override fun onCancel() {
+                Log.d("FBAuth", "使用者取消登入")
+            }
+
+            override fun onError(error: FacebookException) {
+                Log.e("FBAuth", "登入失敗: ${error.message}")
+            }
+        })
+
+
+        //Firestore
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
 
@@ -114,6 +157,12 @@ class MainActivity : ComponentActivity() {
         }
 
         queryQuestion()
+    }
+
+    // 4. 將 Intent 結果傳遞給 Facebook SDK CallbackManager
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        callbackManager.onActivityResult(requestCode, resultCode, data)
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     private fun queryQuestion(){

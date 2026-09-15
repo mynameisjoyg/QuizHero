@@ -127,5 +127,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="離開" />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/btnFacebookSignIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
     </LinearLayout>
 </ScrollView>

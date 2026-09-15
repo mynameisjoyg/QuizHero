@@ -79,8 +79,12 @@ dependencies {
 
     implementation("com.google.firebase:firebase-firestore")
 
-    //
+    //讀取Excel用
     implementation("com.alibaba:easyexcel:3.3.3")
     implementation("javax.xml.stream:stax-api:1.0-2")
     implementation("com.fasterxml:aalto-xml:1.3.2")
+
+    //登入臉書用
+    implementation("com.facebook.android:facebook-login:latest.release")
+    implementation("com.facebook.android:facebook-android-sdk:latest.release")
 }
