@@ -128,10 +128,22 @@
             android:layout_height="wrap_content"
             android:text="離開" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
         <com.facebook.login.widget.LoginButton
             android:id="@+id/btnFacebookSignIn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/tv_facebook_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+
+    </LinearLayout>
     </LinearLayout>
 </ScrollView>
