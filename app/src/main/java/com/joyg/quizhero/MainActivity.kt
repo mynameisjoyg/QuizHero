@@ -15,6 +15,7 @@ import com.alibaba.excel.EasyExcel
 import com.alibaba.excel.context.AnalysisContext
 import com.alibaba.excel.read.listener.ReadListener
 import com.facebook.AccessToken
+import com.facebook.AccessTokenTracker
 import com.facebook.CallbackManager
 import com.facebook.FacebookException
 import com.facebook.login.LoginResult
@@ -28,10 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import com.facebook.FacebookCallback
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest
-import com.facebook.appevents.AppEventsLogger;
-import com.facebook.Profile
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 private var tv_question: TextView? = null
@@ -39,6 +37,7 @@ private var tv_total: TextView? = null
 private var tv_correct: TextView? = null
 private var tv_wrong: TextView? = null
 private var tv_percent: TextView? = null
+private var tv_facebook_user_name: TextView?=null
 
 private var id: Int = 0
 private var answer: String = ""
@@ -55,20 +54,30 @@ class MainActivity : ComponentActivity() {
 
     //登入臉書用
     private lateinit var callbackManager: CallbackManager
+    private lateinit var accessTokenTracker: AccessTokenTracker
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        val bt_add = findViewById<Button>(R.id.bt_add)
+        val bt_delete = findViewById<Button>(R.id.bt_delete)
+        val bt_submit = findViewById<Button>(R.id.bt_submit)
+        val bt_exit = findViewById<Button>(R.id.bt_exit)
+        val radioGroup = findViewById<RadioGroup>(R.id.rg_options)
+        tv_question = findViewById<TextView>(R.id.tv_question)
+        tv_total = findViewById<TextView>(R.id.tv_total)
+        tv_correct = findViewById<TextView>(R.id.tv_correct)
+        tv_wrong = findViewById<TextView>(R.id.tv_wrong)
+        tv_percent = findViewById<TextView>(R.id.tv_percent)
+        tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
+
         //登入臉書用
         // 1. 初始化 CallbackManager
         callbackManager = CallbackManager.Factory.create()
-
         val btnFacebookSignIn = findViewById<LoginButton>(R.id.btnFacebookSignIn)
-
         // 2. 設定向 Facebook 請求的權限（預設會取得 public_profile）
         btnFacebookSignIn.setPermissions("public_profile")
-
         // 3. 註冊 Login 回呼
         btnFacebookSignIn.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult) {
@@ -91,22 +100,28 @@ class MainActivity : ComponentActivity() {
                 Log.e("FBAuth", "登入失敗: ${error.message}")
             }
         })
+        // 建立 AccessToken 監聽器
+        accessTokenTracker = object : AccessTokenTracker() {
+            override fun onCurrentAccessTokenChanged(
+                oldAccessToken: AccessToken?,
+                currentAccessToken: AccessToken?
+            ) {
+                // 當 currentAccessToken 變為 null 時，代表使用者已登出
+                if (currentAccessToken == null) {
+                    tv_facebook_user_name?.text = "未登入"
+                }
+            }
+        }
+
+        // 開始監聽 Token 狀態變化
+        accessTokenTracker.startTracking()
 
 
         //Firestore
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
 
-        val bt_add = findViewById<Button>(R.id.bt_add)
-        val bt_delete = findViewById<Button>(R.id.bt_delete)
-        val bt_submit = findViewById<Button>(R.id.bt_submit)
-        val bt_exit = findViewById<Button>(R.id.bt_exit)
-        val radioGroup = findViewById<RadioGroup>(R.id.rg_options)
-        tv_question = findViewById<TextView>(R.id.tv_question)
-        tv_total = findViewById<TextView>(R.id.tv_total)
-        tv_correct = findViewById<TextView>(R.id.tv_correct)
-        tv_wrong = findViewById<TextView>(R.id.tv_wrong)
-        tv_percent = findViewById<TextView>(R.id.tv_percent)
+
 
         bt_exit.setOnClickListener {
 
@@ -172,7 +187,7 @@ class MainActivity : ComponentActivity() {
 
         if (isLoggedIn) {
             // 使用者先前已登入，直接抓取資料顯示
-            fetchUserInfoWithGraphApi(currentAccessToken, findViewById<TextView>(R.id.tv_facebook_user_name))
+            fetchUserInfoWithGraphApi(currentAccessToken, tv_facebook_user_name)
         }
     }
 
@@ -182,7 +197,7 @@ class MainActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun fetchUserInfoWithGraphApi(accessToken: AccessToken, textView: TextView) {
+    fun fetchUserInfoWithGraphApi(accessToken: AccessToken, textView: TextView?) {
         // 建立 Graph API 請求，目標為 "me" (目前登入的使用者)
         val request = GraphRequest.newMeRequest(accessToken) { jsonObject, response ->
             if (jsonObject != null) {
@@ -191,7 +206,7 @@ class MainActivity : ComponentActivity() {
                     val name = jsonObject.optString("name", "未知使用者")
 
                     // UI 異動必須在 Main Thread 執行（GraphRequest 回呼預設已在 UI 線程）
-                    textView.text = "歡迎， $name"
+                    textView?.text = "歡迎， $name"
 
                 } catch (e: Exception) {
                     Log.e("FBAuth", "解析使用者資料失敗: ${e.message}")
