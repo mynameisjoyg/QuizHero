@@ -242,7 +242,7 @@ class MainActivity : ComponentActivity() {
 
                 //利用隨機id來取得題目、解答和詳解
                 Log.v("JOYG", "JOYG: randomNumber=${randomNumber}")
-                db.collection("EnglishQuiz")
+                db.collection("English_Quiz")
                     .whereEqualTo("id", randomNumber)
                     .get()
                     .addOnSuccessListener {
