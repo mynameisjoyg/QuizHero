@@ -169,11 +169,11 @@ class MainActivity : ComponentActivity() {
         }
 
         bt_add.setOnClickListener {
-            //readExcelByLifeCycleScope()
+            readExcelByLifeCycleScope()
         }
 
         bt_delete.setOnClickListener {
-            //deleteDataToFirestore()
+            deleteDataToFirestore()
         }
 
         queryQuestion()
@@ -227,7 +227,7 @@ class MainActivity : ComponentActivity() {
     private fun queryQuestion(){
         var totalCount = 0
         var randomNumber = 1
-        db.collection("EnglishQuiz")
+        db.collection("English_Quiz")
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
@@ -290,9 +290,12 @@ class MainActivity : ComponentActivity() {
                     val colB = rowData[1] ?: ""
                     val colC = rowData[2] ?: ""
                     val colD = rowData[3] ?: ""
+                    val colE = rowData[4] ?: ""
+                    val colF = rowData[5] ?: ""
+                    val colG = rowData[6] ?: ""
 
-                    //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB")
-                    saveDataToFirestore(colA.toInt(), colB, colC, colD)
+                    //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB, C欄: $colC, D欄: $colD, E欄: $colD, F欄: $colF, G欄: $colG")
+                    saveDataToFirestore(colA.toInt(), colB, colC, colD, colE, colF, colG)
                 },
                 onComplete = {
                     println("Excel 檔案全部讀取完成！")
@@ -335,18 +338,21 @@ class MainActivity : ComponentActivity() {
             }
 
     }
-    private fun saveDataToFirestore(id: Int, ans: String, que: String, sol: String) {
+    private fun saveDataToFirestore(id: Int, sub: String, vol: String, cha: String, ans: String, que: String, sol: String) {
         Log.d("FirestoreDemo", "Call saveDataToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val question = hashMapOf(
             "id" to id,
+            "subject" to sub,
+            "volume" to vol,
+            "chapter" to cha,
             "answer" to ans,
             "question" to que,
             "solution" to sol
         )
 
-        // 4. 指定集合名稱 "users"，並自動產生文件 ID 新增資料 (.add)
-        db.collection("EnglishQuiz")
+        // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
+        db.collection("English_Quiz")
             .add(question)
             .addOnSuccessListener { documentReference ->
                 // 新增成功時的回呼
