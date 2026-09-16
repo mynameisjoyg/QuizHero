@@ -9,18 +9,37 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="科目：" />
+
         <Spinner
             android:id="@+id/sp_subject"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="科目"/>
 
+        <TextView
+            android:id="@+id/tv_volumn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="冊目：" />
+
         <Spinner
             android:id="@+id/sp_volumn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="冊目"/>
+
+        <TextView
+            android:id="@+id/tv_chapter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="章節：" />
 
         <Spinner
             android:id="@+id/sp_chapter"

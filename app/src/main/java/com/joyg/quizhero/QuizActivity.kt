@@ -60,6 +60,19 @@ class QuizActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.quiz_activity)
 
+        //取得MainActivity傳送過來的subject
+        // 1. 綁定 TextView 元件
+        val tvSelectedSubject: TextView = findViewById(R.id.tv_selected_subject)
+
+        // 2. 接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
+        val subject = intent.getStringExtra("subject") ?: "未選擇科目"
+        val volume = intent.getStringExtra("volumn")?:"未選擇冊目"
+        val chapter = intent.getStringExtra("chapter")?:"未選擇章節"
+
+        // 3. 將取得的資料顯示在 TextView 上
+        tvSelectedSubject.text = "科目：${subject}-冊目：${volume}-章節：${chapter}"
+        //
+
         val bt_add = findViewById<Button>(R.id.bt_add)
         val bt_delete = findViewById<Button>(R.id.bt_delete)
         val bt_submit = findViewById<Button>(R.id.bt_submit)
@@ -71,50 +84,6 @@ class QuizActivity : ComponentActivity() {
         tv_wrong = findViewById<TextView>(R.id.tv_wrong)
         tv_percent = findViewById<TextView>(R.id.tv_percent)
         tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
-
-        //登入臉書用
-        // 1. 初始化 CallbackManager
-        callbackManager = CallbackManager.Factory.create()
-        val btnFacebookSignIn = findViewById<LoginButton>(R.id.btnFacebookSignIn)
-        // 2. 設定向 Facebook 請求的權限（預設會取得 public_profile）
-        btnFacebookSignIn.setPermissions("public_profile")
-        // 3. 註冊 Login 回呼
-        btnFacebookSignIn.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
-            override fun onSuccess(result: LoginResult) {
-                // 登入成功，取得 Access Token
-                val accessToken = result.accessToken.token
-                val userId = result.accessToken.userId
-                Log.d("FBAuth", "登入成功！User ID: $userId, Token: $accessToken")
-
-                // 呼叫 Graph API 取得姓名並顯示在 txtUserName (TextView)
-                fetchUserInfoWithGraphApi(result.accessToken, findViewById<TextView>(R.id.tv_facebook_user_name))
-
-                // TODO: 可將 accessToken 傳送至自家 Server 或 Firebase 進行認證
-            }
-
-            override fun onCancel() {
-                Log.d("FBAuth", "使用者取消登入")
-            }
-
-            override fun onError(error: FacebookException) {
-                Log.e("FBAuth", "登入失敗: ${error.message}")
-            }
-        })
-        // 建立 AccessToken 監聽器
-        accessTokenTracker = object : AccessTokenTracker() {
-            override fun onCurrentAccessTokenChanged(
-                oldAccessToken: AccessToken?,
-                currentAccessToken: AccessToken?
-            ) {
-                // 當 currentAccessToken 變為 null 時，代表使用者已登出
-                if (currentAccessToken == null) {
-                    tv_facebook_user_name?.text = "未登入"
-                }
-            }
-        }
-
-        // 開始監聽 Token 狀態變化
-        accessTokenTracker.startTracking()
 
 
         //Firestore

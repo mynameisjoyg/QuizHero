@@ -8,6 +8,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="26dp">
+        <!-- 顯示接收到的科目 -->
+        <TextView
+            android:id="@+id/tv_selected_subject"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="載入中..."
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -130,11 +138,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <com.facebook.login.widget.LoginButton
-                android:id="@+id/btnFacebookSignIn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" />
 
             <TextView
                 android:id="@+id/tv_facebook_user_name"

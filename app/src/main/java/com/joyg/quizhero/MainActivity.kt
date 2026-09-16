@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
@@ -34,12 +36,17 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import com.facebook.FacebookCallback
 import com.facebook.GraphRequest
+import com.google.protobuf.LazyStringArrayList.emptyList
+
 private var tv_facebook_user_name: TextView?=null
+// 1. 宣告 FirebaseFirestore 變數
+private lateinit var db: FirebaseFirestore
+private lateinit var sp_subject : Spinner
+private lateinit var sp_volumn : Spinner
+private lateinit var sp_chapter : Spinner
 
 
 class MainActivity : ComponentActivity() {
-    // 1. 宣告 FirebaseFirestore 變數
-    private lateinit var db: FirebaseFirestore
 
     //登入臉書用
     private lateinit var callbackManager: CallbackManager
@@ -50,34 +57,76 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.main_activity)
 
         val bt_exam = findViewById<Button>(R.id.bt_exam)
-        val sp_subject: Spinner = findViewById(R.id.sp_subject)
-        val sp_volumn: Spinner = findViewById(R.id.sp_volumn)
-        val sp_chapter: Spinner = findViewById(R.id.sp_chapter)
+        sp_subject = findViewById(R.id.sp_subject)
+        sp_volumn = findViewById(R.id.sp_volumn)
+        sp_chapter = findViewById(R.id.sp_chapter)
+
+        //Firestore
+        // 2. 初始化 Firestore 實例
+        db = Firebase.firestore
+
+
+        var subjects = listOf("選擇", "English","Chinese")
+        var volumn = listOf("1","2","3","4","5")
+        var chapter = listOf("1","2","3","4")
+        lateinit var spSubjectAdapter : ArrayAdapter<Any?>
+        lateinit var spVolumnAdapter : ArrayAdapter<Any?>
+        lateinit var spChapterAdapter : ArrayAdapter<Any?>
+        var selectedSubject = ""
+        var selectedVolumn = ""
+        var selectedChapter = ""
 
         //sp_subject
-        val subjects = listOf("English","Chinese")
-        val adapter = ArrayAdapter(
+        spSubjectAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
             subjects
         )
-        sp_subject.adapter = adapter
+        sp_subject.adapter = spSubjectAdapter
+        sp_subject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // 取得目前選中的項目字串
+                selectedSubject = parent?.getItemAtPosition(position).toString()
+
+                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
+                Log.d("Spinner", "JOYGSAY: 目前選中科目：$selectedSubject")
+                setVolumnCount(selectedSubject)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // 未選擇任何項目時的處理（通常維持空白即可）
+            }
+        }
+
         //sp_volumn
-        val volumn = listOf("1","2","3","4","5")
-        val volumn_adapter = ArrayAdapter(
+        spVolumnAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
             volumn
         )
-        sp_volumn.adapter = volumn_adapter
+        sp_volumn.adapter = spVolumnAdapter
+        sp_volumn.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // 取得目前選中的項目字串
+                val selectedVolumn = parent?.getItemAtPosition(position).toString()
+
+                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
+                Log.d("Spinner", "JOYGSAY: 目前選中冊目：$selectedVolumn")
+                setChapterCount(selectedSubject, "Volumn${selectedVolumn}")
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // 未選擇任何項目時的處理（通常維持空白即可）
+            }
+        }
         //sp_chapter
-        val chapter = listOf("1","2","3","4")
-        val chapter_adapter = ArrayAdapter(
+        spChapterAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
             chapter
         )
-        sp_chapter.adapter = chapter_adapter
+        sp_chapter.adapter = spChapterAdapter
+
 
         bt_exam.setOnClickListener {
             val intent = Intent(this, QuizActivity::class.java).apply {
@@ -137,11 +186,63 @@ class MainActivity : ComponentActivity() {
         // 開始監聽 Token 狀態變化
         accessTokenTracker.startTracking()
 
+    }
 
-        //Firestore
-        // 2. 初始化 Firestore 實例
-        db = Firebase.firestore
+    private fun setVolumnCount(sub: String){
+        Log.d("JOYG", "JOYGSAY: getVolumnCount, sub="+sub)
+        db.collection("MetaData").document(sub)
+            .get()
+            .addOnSuccessListener { document ->
+                var VolumnCount: Int
+                lateinit var volumeList : List<String>
+                lateinit var newSpVolumnAdapter : ArrayAdapter<Any?>
+                if (document != null && document.exists()) {
+                    VolumnCount = document.get("VolumnCount").toString().toInt()
+                    Log.d("Firestore", "JOYGSAY: ${sub}共有 $VolumnCount 冊")
+                    volumeList = (1..VolumnCount).map { "$it" }
+                } else {
+                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
+                    volumeList = listOf("0")
+                }
+                newSpVolumnAdapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    volumeList
+                )
+                sp_volumn.adapter = newSpVolumnAdapter
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
+            }
+    }
 
+    private fun setChapterCount(sub: String, vol: String) {
+        Log.d("JOYG", "JOYGSAY: setChapterCount")
+        db.collection("MetaData").document(sub)
+            .get()
+            .addOnSuccessListener { document ->
+                var chapterCount: Int
+                lateinit var chapterList : List<String>
+                lateinit var newSpChapterAdapter : ArrayAdapter<Any?>
+                if (document != null && document.exists()) {
+                    Log.v("JOYG", "JOYGSAY: vol="+vol)
+                    chapterCount = document.get("${vol}ChapterCount").toString().toInt()
+                    Log.d("Firestore", "JOYGSAY: ${sub} 第 ${vol} 冊共有 $chapterCount 個章節")
+                    chapterList = (1..chapterCount).map { "$it" }
+                } else {
+                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
+                    chapterList = listOf("0")
+                }
+                newSpChapterAdapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    chapterList
+                )
+                sp_chapter.adapter = newSpChapterAdapter
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
+            }
     }
 
     override fun onStart() {
@@ -189,4 +290,5 @@ class MainActivity : ComponentActivity() {
         request.executeAsync()
     }
 }
+
 
