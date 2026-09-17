@@ -42,7 +42,7 @@ private var tv_facebook_user_name: TextView?=null
 // 1. 宣告 FirebaseFirestore 變數
 private lateinit var db: FirebaseFirestore
 private lateinit var sp_subject : Spinner
-private lateinit var sp_volumn : Spinner
+private lateinit var sp_Volume : Spinner
 private lateinit var sp_chapter : Spinner
 
 
@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
         val bt_exam = findViewById<Button>(R.id.bt_exam)
         sp_subject = findViewById(R.id.sp_subject)
-        sp_volumn = findViewById(R.id.sp_volumn)
+        sp_Volume = findViewById(R.id.sp_volume)
         sp_chapter = findViewById(R.id.sp_chapter)
 
         //Firestore
@@ -67,13 +67,13 @@ class MainActivity : ComponentActivity() {
 
 
         var subjects = listOf("選擇", "English","Chinese")
-        var volumn = listOf("1","2","3","4","5")
+        var Volume = listOf("1","2","3","4","5")
         var chapter = listOf("1","2","3","4")
         lateinit var spSubjectAdapter : ArrayAdapter<Any?>
-        lateinit var spVolumnAdapter : ArrayAdapter<Any?>
+        lateinit var spVolumeAdapter : ArrayAdapter<Any?>
         lateinit var spChapterAdapter : ArrayAdapter<Any?>
         var selectedSubject = ""
-        var selectedVolumn = ""
+        var selectedVolume = ""
         var selectedChapter = ""
 
         //sp_subject
@@ -90,7 +90,7 @@ class MainActivity : ComponentActivity() {
 
                 // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
                 Log.d("Spinner", "JOYGSAY: 目前選中科目：$selectedSubject")
-                setVolumnCount(selectedSubject)
+                setVolumeCount(selectedSubject)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -98,21 +98,21 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        //sp_volumn
-        spVolumnAdapter = ArrayAdapter(
+        //sp_Volume
+        spVolumeAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_dropdown_item,
-            volumn
+            Volume
         )
-        sp_volumn.adapter = spVolumnAdapter
-        sp_volumn.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        sp_Volume.adapter = spVolumeAdapter
+        sp_Volume.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 // 取得目前選中的項目字串
-                val selectedVolumn = parent?.getItemAtPosition(position).toString()
+                val selectedVolume = parent?.getItemAtPosition(position).toString()
 
                 // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
-                Log.d("Spinner", "JOYGSAY: 目前選中冊目：$selectedVolumn")
-                setChapterCount(selectedSubject, "Volumn${selectedVolumn}")
+                Log.d("Spinner", "JOYGSAY: 目前選中冊目：$selectedVolume")
+                setChapterCount(selectedSubject, "Volume${selectedVolume}")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -131,10 +131,10 @@ class MainActivity : ComponentActivity() {
         bt_exam.setOnClickListener {
             val intent = Intent(this, QuizActivity::class.java).apply {
                 val selectedSubject = sp_subject.selectedItem.toString()
-                val selectedVolumn = sp_subject.selectedItem.toString()
+                val selectedVolume = sp_subject.selectedItem.toString()
                 val selectedChapter = sp_chapter.selectedItem.toString()
                 putExtra("subject", "${selectedSubject}")
-                putExtra("volumn", "${selectedVolumn}")
+                putExtra("Volume", "${selectedVolume}")
                 putExtra("chapter", "${selectedChapter}")
                 setPackage(packageName)
             }
@@ -188,28 +188,28 @@ class MainActivity : ComponentActivity() {
 
     }
 
-    private fun setVolumnCount(sub: String){
-        Log.d("JOYG", "JOYGSAY: getVolumnCount, sub="+sub)
+    private fun setVolumeCount(sub: String){
+        Log.d("JOYG", "JOYGSAY: getVolumeCount, sub="+sub)
         db.collection("MetaData").document(sub)
             .get()
             .addOnSuccessListener { document ->
-                var VolumnCount: Int
+                var VolumeCount: Int
                 lateinit var volumeList : List<String>
-                lateinit var newSpVolumnAdapter : ArrayAdapter<Any?>
+                lateinit var newSpVolumeAdapter : ArrayAdapter<Any?>
                 if (document != null && document.exists()) {
-                    VolumnCount = document.get("VolumnCount").toString().toInt()
-                    Log.d("Firestore", "JOYGSAY: ${sub}共有 $VolumnCount 冊")
-                    volumeList = (1..VolumnCount).map { "$it" }
+                    VolumeCount = document.get("VolumeCount").toString().toInt()
+                    Log.d("Firestore", "JOYGSAY: ${sub}共有 $VolumeCount 冊")
+                    volumeList = (1..VolumeCount).map { "$it" }
                 } else {
                     Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
                     volumeList = listOf("0")
                 }
-                newSpVolumnAdapter = ArrayAdapter(
+                newSpVolumeAdapter = ArrayAdapter(
                     this@MainActivity,
                     android.R.layout.simple_spinner_dropdown_item,
                     volumeList
                 )
-                sp_volumn.adapter = newSpVolumnAdapter
+                sp_Volume.adapter = newSpVolumeAdapter
             }
             .addOnFailureListener { exception ->
                 Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)

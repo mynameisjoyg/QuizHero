@@ -24,13 +24,13 @@
             android:text="科目"/>
 
         <TextView
-            android:id="@+id/tv_volumn"
+            android:id="@+id/tv_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="冊目：" />
 
         <Spinner
-            android:id="@+id/sp_volumn"
+            android:id="@+id/sp_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="冊目"/>

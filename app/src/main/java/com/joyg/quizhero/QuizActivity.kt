@@ -40,9 +40,18 @@ private var tv_percent: TextView? = null
 private var tv_facebook_user_name: TextView?=null
 
 private var id: Int = 0
+private var subject: String = ""
+private var volume: String =""
+private var chapter: String =""
 private var answer: String = ""
 private var question: String = ""
 private var solution: String = ""
+private var image1: String = ""
+private var image2: String = ""
+private var image3: String = ""
+private var image4: String = ""
+private var image5: String = ""
+private var image6: String = ""
 private var total: Int  = 0
 private var correct: Int  = 0
 private var wrong: Int =0
@@ -66,7 +75,7 @@ class QuizActivity : ComponentActivity() {
 
         // 2. 接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
         val subject = intent.getStringExtra("subject") ?: "未選擇科目"
-        val volume = intent.getStringExtra("volumn")?:"未選擇冊目"
+        val volume = intent.getStringExtra("volume")?:"未選擇冊目"
         val chapter = intent.getStringExtra("chapter")?:"未選擇章節"
 
         // 3. 將取得的資料顯示在 TextView 上
@@ -225,9 +234,18 @@ class QuizActivity : ComponentActivity() {
                                 // 2. 取出 question 欄位並設定給 TextView
                                 quiz?.let {
                                     id=it.id
+                                    subject=it.subject
+                                    volume=it.volume
+                                    chapter=it.chapter
                                     answer = it.answer
                                     question=it.question
                                     solution=it.solution
+                                    image1=it.image1
+                                    image2=it.image2
+                                    image3=it.image3
+                                    image4=it.image4
+                                    image5=it.image5
+                                    image6=it.image6
 
                                     tv_question?.text = it.question
                                     hintAnswer(answer)
@@ -252,7 +270,7 @@ class QuizActivity : ComponentActivity() {
         lifecycleScope.launch {
             readExcelFromAssets(
                 context = this@QuizActivity,
-                fileName = "EnglishQuiz.xlsx",
+                fileName = "English_Quiz.xlsx",
                 onRowRead = { rowIndex, rowData ->
                     // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
                     val colA = rowData[0] ?: ""
@@ -262,9 +280,15 @@ class QuizActivity : ComponentActivity() {
                     val colE = rowData[4] ?: ""
                     val colF = rowData[5] ?: ""
                     val colG = rowData[6] ?: ""
+                    val colH = rowData[7] ?: ""
+                    val colI = rowData[8] ?: ""
+                    val colJ = rowData[9] ?: ""
+                    val colK = rowData[10] ?: ""
+                    val colL = rowData[11] ?: ""
+                    val colM = rowData[12] ?: ""
 
                     //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB, C欄: $colC, D欄: $colD, E欄: $colD, F欄: $colF, G欄: $colG")
-                    saveDataToFirestore(colA.toInt(), colB, colC, colD, colE, colF, colG)
+                    saveDataToFirestore(colA.toInt(), colB, colC, colD, colE, colF, colG, colH, colI, colJ, colK, colL, colM)
                 },
                 onComplete = {
                     println("Excel 檔案全部讀取完成！")
@@ -274,12 +298,12 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun deleteDataToFirestore(){
-        db.collection("Chinese_Quiz")
+        db.collection("English_Quiz")
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
                 if(querySnapshot.isEmpty) {
-                    Toast.makeText(this, "找不到Chinese_Quiz", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "找不到English_Quiz", Toast.LENGTH_SHORT).show()
                 }
                 val totalCount = querySnapshot.size()
                 var deleteCount = 0
@@ -307,7 +331,7 @@ class QuizActivity : ComponentActivity() {
             }
 
     }
-    private fun saveDataToFirestore(id: Int, sub: String, vol: String, cha: String, ans: String, que: String, sol: String) {
+    private fun saveDataToFirestore(id: Int, sub: String, vol: String, cha: String, ans: String, que: String, sol: String, img1: String, img2: String, img3: String, img4: String, img5: String, img6: String) {
         Log.d("FirestoreDemo", "Call saveDataToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val question = hashMapOf(
@@ -317,10 +341,17 @@ class QuizActivity : ComponentActivity() {
             "chapter" to cha,
             "answer" to ans,
             "question" to que,
-            "solution" to sol
+            "solution" to sol,
+            "image1" to img1,
+            "image2" to img2,
+            "image3" to img3,
+            "image4" to img4,
+            "image5" to img5,
+            "image6" to img6
         )
 
         // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
+        //db.collection("English_Quiz")
         db.collection("English_Quiz")
             .add(question)
             .addOnSuccessListener { documentReference ->
@@ -425,8 +456,17 @@ suspend fun readExcelFromAssets(
 
 data class Quiz(
     val id: Int = 0,
+    val subject: String = "",
+    val volume: String = "",
+    val chapter: String = "",
     val question: String = "",
     val answer: String = "",
-    val solution: String = ""
+    val solution: String = "",
+    val image1: String = "",
+    val image2: String = "",
+    val image3: String = "",
+    val image4: String = "",
+    val image5: String = "",
+    val image6: String = ""
 )
 
