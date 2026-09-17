@@ -206,6 +206,8 @@ class QuizActivity : ComponentActivity() {
         var totalCount = 0
         var randomNumber = 1
         db.collection(sub+"_Quiz")
+            .whereEqualTo("volume", vol)
+            .whereEqualTo("chapter", chap)
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
