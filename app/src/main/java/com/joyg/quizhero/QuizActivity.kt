@@ -74,12 +74,12 @@ class QuizActivity : ComponentActivity() {
         val tvSelectedSubject: TextView = findViewById(R.id.tv_selected_subject)
 
         // 2. 接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
-        val subject = intent.getStringExtra("subject") ?: "未選擇科目"
-        val volume = intent.getStringExtra("volume")?:"未選擇冊目"
-        val chapter = intent.getStringExtra("chapter")?:"未選擇章節"
+        val subject = intent.getStringExtra("subject") ?: "未選擇"
+        val volume = intent.getStringExtra("volume")?:"未選擇"
+        val chapter = intent.getStringExtra("chapter")?:"未選擇"
 
         // 3. 將取得的資料顯示在 TextView 上
-        tvSelectedSubject.text = "科目：${subject}-冊目：${volume}-章節：${chapter}"
+        tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"
         //
 
         val bt_add = findViewById<Button>(R.id.bt_add)
@@ -140,7 +140,7 @@ class QuizActivity : ComponentActivity() {
                 Log.v("JOYG", "JOYG: percent = "+ percent)
                 tv_percent?.setText("正確率："+String.format("%.1f%%", percent))
                 //下一題
-                queryQuestion()
+                queryQuestion(subject, volume, chapter)
             } else {
                 println("使用者還沒選擇任何選項！")
             }
@@ -154,7 +154,7 @@ class QuizActivity : ComponentActivity() {
             deleteDataToFirestore()
         }
 
-        queryQuestion()
+        queryQuestion(subject, volume, chapter)
     }
 
     override fun onStart() {
@@ -202,15 +202,15 @@ class QuizActivity : ComponentActivity() {
         request.executeAsync()
     }
 
-    private fun queryQuestion(){
+    private fun queryQuestion(sub:String, vol: String, chap: String){
         var totalCount = 0
         var randomNumber = 1
-        db.collection("English_Quiz")
+        db.collection(sub+"_Quiz")
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
                 if(querySnapshot.isEmpty) {
-                    Toast.makeText(this, "找不到EnglishQuiz", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "找不到${sub}_Quiz", Toast.LENGTH_SHORT).show()
                 }
                 //取得全部題目個數
                 totalCount = querySnapshot.size()
@@ -220,7 +220,7 @@ class QuizActivity : ComponentActivity() {
 
                 //利用隨機id來取得題目、解答和詳解
                 Log.v("JOYG", "JOYG: randomNumber=${randomNumber}")
-                db.collection("English_Quiz")
+                db.collection("${sub}_Quiz")
                     .whereEqualTo("id", randomNumber)
                     .get()
                     .addOnSuccessListener {
