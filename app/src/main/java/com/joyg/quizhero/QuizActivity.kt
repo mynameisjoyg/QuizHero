@@ -274,12 +274,12 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun deleteDataToFirestore(){
-        db.collection("EnglishQuiz")
+        db.collection("Chinese_Quiz")
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
                 if(querySnapshot.isEmpty) {
-                    Toast.makeText(this, "找不到EnglishQuiz", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "找不到Chinese_Quiz", Toast.LENGTH_SHORT).show()
                 }
                 val totalCount = querySnapshot.size()
                 var deleteCount = 0
