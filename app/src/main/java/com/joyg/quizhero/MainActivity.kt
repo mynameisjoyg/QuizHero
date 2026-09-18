@@ -311,13 +311,25 @@ class MainActivity : ComponentActivity() {
             if (jsonObject != null) {
                 try {
                     // 解析 JSON 回傳內容
+                    val userId = jsonObject.optString("id")
                     val name = jsonObject.optString("name", "未知使用者")
+                    val email = jsonObject.optString("email", "未提供 Email")
+                    //val pictureObj = jsonObject.optJSONObject("picture")
+                    //val dataObj = pictureObj?.optJSONObject("data")
+                    //val photoUrl = dataObj?.optString("url") // 可直接用 Glide / Coil 載入此 URL
+                    //val locale = jsonObject.optString("locale")
+                    //Log.d("FBData", "JOYGSAY: name: $name, ID: $userId, Email: $email, Photo: $photoUrl")
+                    Log.d("FBData", "JOYGSAY: name: $name, ID: $userId, Email: $email")
 
                     // UI 異動必須在 Main Thread 執行（GraphRequest 回呼預設已在 UI 線程）
                     textView?.text = "歡迎， $name"
 
+                    //save facebook info to firestore here.
+                    //saveUserInfoToFirestore(userId.toInt(), name, email, photoUrl, locale)
+                    saveUserInfoToFirestore(userId, name, email, "", "")
+
                 } catch (e: Exception) {
-                    Log.e("FBAuth", "解析使用者資料失敗: ${e.message}")
+                    Log.e("FBAuth", "JOYGSAY: 解析使用者資料失敗: ${e.message}")
                 }
             }
         }
@@ -433,6 +445,34 @@ class MainActivity : ComponentActivity() {
             }
     }
 
+    private fun saveUserInfoToFirestore(userId: String, name: String, email: String, photoUrl: String?, locale: String) {
+        Log.d("FirestoreDemo", "JOYGSAY: Call saveUserInfoToFirestore.")
+        // 建立要傳入 Firestore 的資料 (HashMap 結構)
+        val facebookInformation = hashMapOf(
+            "id" to userId,
+            "name" to name,
+            "email" to email,
+            "photoUrl" to photoUrl,
+            "locale" to locale,
+            "heart" to 3,
+            "heartContainer" to 3,
+            "level" to 1,
+        )
+
+        // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
+        db.collection("User")
+            .add(facebookInformation)
+            .addOnSuccessListener { documentReference ->
+                // 新增成功時的回呼
+                Log.d("FirestoreDemo", "JOYGSAY: facebook info 資料新增成功.")
+                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                // 新增失敗時的回呼
+                Log.w("FirestoreDemo", "JOYGSAY: facebook info 新增資料時發生錯誤", e)
+                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
 }
 
 
