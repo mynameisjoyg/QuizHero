@@ -1,6 +1,7 @@
 package com.joyg.quizhero
 
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -36,7 +37,6 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import com.facebook.FacebookCallback
 import com.facebook.GraphRequest
-import com.google.protobuf.LazyStringArrayList.emptyList
 
 private var tv_facebook_user_name: TextView?=null
 // 1. 宣告 FirebaseFirestore 變數
@@ -190,11 +190,43 @@ class MainActivity : ComponentActivity() {
         accessTokenTracker.startTracking()
 
         bt_add.setOnClickListener {
-            readExcelByLifeCycleScope()
+            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
+            val listView = ListView(this)
+            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
+
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("Assets Files")
+                .setView(listView)
+                .setPositiveButton("OK", null)
+                .create()
+
+            listView.setOnItemClickListener { _, _, position, _ ->
+                val selectedFileName = fileList[position]
+                Log.d("MainActivity", "Selected file: $selectedFileName")
+                readExcelByLifeCycleScope(selectedFileName)
+                dialog.dismiss()
+            }
+            dialog.show()
         }
 
         bt_delete.setOnClickListener {
-            deleteDataToFirestore()
+            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
+            val listView = ListView(this)
+            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
+
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("Assets Files")
+                .setView(listView)
+                .setPositiveButton("OK", null)
+                .create()
+
+            listView.setOnItemClickListener { _, _, position, _ ->
+                val selectedFileName = fileList[position]
+                Log.d("MainActivity", "Selected file: $selectedFileName")
+                deleteDataToFirestore(selectedFileName)
+                dialog.dismiss()
+            }
+            dialog.show()
         }
     }
 
@@ -300,12 +332,12 @@ class MainActivity : ComponentActivity() {
         request.executeAsync()
     }
 
-    private fun readExcelByLifeCycleScope(){
+    private fun readExcelByLifeCycleScope(execelFileName: String){
         // 在 Activity 或 Fragment 中：
         lifecycleScope.launch {
             readExcelFromAssets(
                 context = this@MainActivity,
-                fileName = "English_Quiz.xlsx",
+                fileName = execelFileName,
                 onRowRead = { rowIndex, rowData ->
                     // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
                     val colA = rowData[0] ?: ""
@@ -323,7 +355,7 @@ class MainActivity : ComponentActivity() {
                     val colM = rowData[12] ?: ""
 
                     //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB, C欄: $colC, D欄: $colD, E欄: $colD, F欄: $colF, G欄: $colG")
-                    saveDataToFirestore(colA.toInt(), colB, colC, colD, colE, colF, colG, colH, colI, colJ, colK, colL, colM)
+                    saveDataToFirestore(execelFileName, colA.toInt(), colB, colC, colD, colE, colF, colG, colH, colI, colJ, colK, colL, colM)
                 },
                 onComplete = {
                     println("Excel 檔案全部讀取完成！")
@@ -332,13 +364,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun deleteDataToFirestore(){
-        db.collection("English_Quiz")
+    private fun deleteDataToFirestore(execelFileName: String){
+        db.collection(execelFileName.substringBeforeLast("."))
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
                 if(querySnapshot.isEmpty) {
-                    Toast.makeText(this, "找不到English_Quiz", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "找不到${execelFileName}", Toast.LENGTH_SHORT).show()
                 }
                 val totalCount = querySnapshot.size()
                 var deleteCount = 0
@@ -366,7 +398,7 @@ class MainActivity : ComponentActivity() {
             }
 
     }
-    private fun saveDataToFirestore(id: Int, sub: String, vol: String, cha: String, ans: String, que: String, sol: String, img1: String, img2: String, img3: String, img4: String, img5: String, img6: String) {
+    private fun saveDataToFirestore(fileName: String, id: Int, sub: String, vol: String, cha: String, ans: String, que: String, sol: String, img1: String, img2: String, img3: String, img4: String, img5: String, img6: String) {
         Log.d("FirestoreDemo", "Call saveDataToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val question = hashMapOf(
@@ -387,7 +419,7 @@ class MainActivity : ComponentActivity() {
 
         // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
         //db.collection("English_Quiz")
-        db.collection("English_Quiz")
+        db.collection(fileName.substringBeforeLast("."))
             .add(question)
             .addOnSuccessListener { documentReference ->
                 // 新增成功時的回呼
