@@ -87,4 +87,12 @@ dependencies {
     //登入臉書用
     implementation("com.facebook.android:facebook-login:latest.release")
     implementation("com.facebook.android:facebook-android-sdk:latest.release")
+
+    //CI/CD
+    // AndroidX Test & Espresso Core
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // 用於檢查 Intent 跳轉的 Espresso Intent 庫
+    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 }
