@@ -1,0 +1,29 @@
+From f19a3171f6e0f2c627d00e24dc1780c5434cb495 Mon Sep 17 00:00:00 2001
+From: Momo <mynameisjoyg@gmail.com>
+Date: Fri, 18 Sep 2026 13:46:01 +0800
+Subject: [PATCH] =?UTF-8?q?Fix=20bug#1:=20System=20shut=20down=20while=20s?=
+ =?UTF-8?q?electing=20'=E9=81=B8=E6=93=87'=20in=20subject=20Spiner.?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ app/src/main/java/com/joyg/quizhero/MainActivity.kt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/app/src/main/java/com/joyg/quizhero/MainActivity.kt b/app/src/main/java/com/joyg/quizhero/MainActivity.kt
+index 7f75417..05ac4a1 100644
+--- a/app/src/main/java/com/joyg/quizhero/MainActivity.kt
++++ b/app/src/main/java/com/joyg/quizhero/MainActivity.kt
+@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
+         db = Firebase.firestore
+ 
+ 
+-        var subjects = listOf("選擇", "English","Chinese")
++        var subjects = listOf("English","Chinese")
+         var Volume = listOf("1","2","3","4","5")
+         var chapter = listOf("1","2","3","4")
+         lateinit var spSubjectAdapter : ArrayAdapter<Any?>
+-- 
+2.55.0.windows.5
+
