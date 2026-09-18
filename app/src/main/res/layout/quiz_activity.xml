@@ -109,28 +109,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/bt_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:text="新增"
-                android:visibility="invisible" />
-
-            <Button
-                android:id="@+id/bt_delete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:text="刪除"
-                android:visibility="invisible" />
-        </LinearLayout>
-
         <Button
             android:id="@+id/bt_exit"
             android:layout_width="match_parent"

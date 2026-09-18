@@ -56,6 +56,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
+        val bt_add = findViewById<Button>(R.id.bt_add)
+        val bt_delete = findViewById<Button>(R.id.bt_delete)
+
         val bt_exam = findViewById<Button>(R.id.bt_exam)
         sp_subject = findViewById(R.id.sp_subject)
         sp_volume = findViewById(R.id.sp_volume)
@@ -186,6 +189,13 @@ class MainActivity : ComponentActivity() {
         // 開始監聽 Token 狀態變化
         accessTokenTracker.startTracking()
 
+        bt_add.setOnClickListener {
+            readExcelByLifeCycleScope()
+        }
+
+        bt_delete.setOnClickListener {
+            deleteDataToFirestore()
+        }
     }
 
     private fun setVolumeCount(sub: String){
@@ -289,6 +299,108 @@ class MainActivity : ComponentActivity() {
         // 非同步執行請求
         request.executeAsync()
     }
+
+    private fun readExcelByLifeCycleScope(){
+        // 在 Activity 或 Fragment 中：
+        lifecycleScope.launch {
+            readExcelFromAssets(
+                context = this@MainActivity,
+                fileName = "English_Quiz.xlsx",
+                onRowRead = { rowIndex, rowData ->
+                    // rowData[0] 代表 A 欄，rowData[1] 代表 B 欄，依此類推
+                    val colA = rowData[0] ?: ""
+                    val colB = rowData[1] ?: ""
+                    val colC = rowData[2] ?: ""
+                    val colD = rowData[3] ?: ""
+                    val colE = rowData[4] ?: ""
+                    val colF = rowData[5] ?: ""
+                    val colG = rowData[6] ?: ""
+                    val colH = rowData[7] ?: ""
+                    val colI = rowData[8] ?: ""
+                    val colJ = rowData[9] ?: ""
+                    val colK = rowData[10] ?: ""
+                    val colL = rowData[11] ?: ""
+                    val colM = rowData[12] ?: ""
+
+                    //println("第 $rowIndex 行 - A欄: $colA, B欄: $colB, C欄: $colC, D欄: $colD, E欄: $colD, F欄: $colF, G欄: $colG")
+                    saveDataToFirestore(colA.toInt(), colB, colC, colD, colE, colF, colG, colH, colI, colJ, colK, colL, colM)
+                },
+                onComplete = {
+                    println("Excel 檔案全部讀取完成！")
+                }
+            )
+        }
+    }
+
+    private fun deleteDataToFirestore(){
+        db.collection("English_Quiz")
+            .get()
+            .addOnSuccessListener {
+                    querySnapshot ->
+                if(querySnapshot.isEmpty) {
+                    Toast.makeText(this, "找不到English_Quiz", Toast.LENGTH_SHORT).show()
+                }
+                val totalCount = querySnapshot.size()
+                var deleteCount = 0
+                querySnapshot.documents.forEach { document ->
+                    document.reference.delete()
+                        .addOnSuccessListener {
+                            deleteCount ++
+                            Log.d("FirestoreDemo", "成功刪除單筆文件ID: ${document.id}")
+
+                            if(deleteCount == totalCount) {
+                                Toast.makeText(this, "已成功刪除資料共${deleteCount}筆",
+                                    Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.d("FirestoreDemo", "刪除文件: ${document.id}失敗", e)
+                        }
+
+                }
+            }
+            .addOnFailureListener { e->
+                Log.d("FirestoreDemo", "查詢失敗", e)
+                Toast.makeText(this, "查詢失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            }
+
+    }
+    private fun saveDataToFirestore(id: Int, sub: String, vol: String, cha: String, ans: String, que: String, sol: String, img1: String, img2: String, img3: String, img4: String, img5: String, img6: String) {
+        Log.d("FirestoreDemo", "Call saveDataToFirestore.")
+        // 建立要傳入 Firestore 的資料 (HashMap 結構)
+        val question = hashMapOf(
+            "id" to id,
+            "subject" to sub,
+            "volume" to vol,
+            "chapter" to cha,
+            "answer" to ans,
+            "question" to que,
+            "solution" to sol,
+            "image1" to img1,
+            "image2" to img2,
+            "image3" to img3,
+            "image4" to img4,
+            "image5" to img5,
+            "image6" to img6
+        )
+
+        // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
+        //db.collection("English_Quiz")
+        db.collection("English_Quiz")
+            .add(question)
+            .addOnSuccessListener { documentReference ->
+                // 新增成功時的回呼
+                Log.d("FirestoreDemo", "資料新增成功.")
+                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                // 新增失敗時的回呼
+                Log.w("FirestoreDemo", "新增資料時發生錯誤", e)
+                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
 }
 
 

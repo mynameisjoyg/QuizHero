@@ -5,6 +5,23 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingTop="26dp">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/btnFacebookSignIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/tv_facebook_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="未登入" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -65,18 +82,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/btnFacebookSignIn"
+
+        <Button
+            android:id="@+id/bt_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal" />
+            android:clickable="true"
+            android:text="新增"
+            android:visibility="visible" />
 
-        <TextView
-            android:id="@+id/tv_facebook_user_name"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/bt_delete"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="未登入" />
-
+            android:clickable="true"
+            android:text="刪除"
+            android:visibility="visible" />
     </LinearLayout>
 
 </LinearLayout>
