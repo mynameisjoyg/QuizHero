@@ -215,7 +215,8 @@ class QuizActivity : ComponentActivity() {
                 //利用隨機id來取得題目、解答和詳解
                 Log.v("JOYG", "JOYG: randomNumber=${randomNumber}")
                 db.collection("${sub}_Quiz")
-                    .whereEqualTo("id", randomNumber)
+                    .whereEqualTo("volume", vol)
+                    .whereEqualTo("chapter", chap)
                     .get()
                     .addOnSuccessListener {
                             querySnapshot ->
@@ -223,7 +224,7 @@ class QuizActivity : ComponentActivity() {
                             //把題目顯示出來
                             if (!querySnapshot.isEmpty) {
                                 // 1. 轉成 Quiz 物件
-                                val quiz = querySnapshot.documents[0].toObject(Quiz::class.java)
+                                val quiz = querySnapshot.documents[randomNumber].toObject(Quiz::class.java)
 
                                 // 2. 取出 question 欄位並設定給 TextView
                                 quiz?.let {
