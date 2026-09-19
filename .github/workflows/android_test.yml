@@ -40,4 +40,4 @@ jobs:
           arch: x86
           disable-animations: true
           profile: Nexus 6
-          script: ./gradlew connectedCheck
+          script: ./gradlew connectedCheck --info
