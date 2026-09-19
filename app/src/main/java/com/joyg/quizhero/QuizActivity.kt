@@ -209,7 +209,7 @@ class QuizActivity : ComponentActivity() {
                 //取得全部題目個數
                 totalCount = querySnapshot.size()
                 //取得隨機題目id
-                randomNumber = (1..totalCount).random()
+                randomNumber = (0..totalCount-1).random()
                 Log.v("JOYG","JOYG: totalCount="+totalCount+", randomNumber="+ randomNumber)
 
                 //利用隨機id來取得題目、解答和詳解
