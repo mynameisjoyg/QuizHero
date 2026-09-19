@@ -48,6 +48,12 @@ class QuizSelectionTest {
 
     @Test
     fun testSelectSpinnerItemsAndStartQuiz_DoesNotCrash() {
+        //Test Chinese, volume 5, chapter 9.
+        testSpinnerBySubjectVolumeChapter(1,4, 8)
+
+        //Test Chinese, volume 6, chapter 5.
+        testSpinnerBySubjectVolumeChapter(1,5, 4)
+
         //Test English, volume1, chapter 1~6.
         for(chapter in 0 until 6){
             testSpinnerBySubjectVolumeChapter(0,0,chapter)
@@ -64,6 +70,14 @@ class QuizSelectionTest {
                 testSpinnerBySubjectVolumeChapter(0,volume, chapter)
             }
         }
+
+        //Test Chinese, volume1~4, chapter 1~10.
+        for(volume in 0 until 5){
+            for(chapter in 0 until 9){
+                testSpinnerBySubjectVolumeChapter(1,volume, chapter)
+            }
+        }
+
     }
 
     private fun testSpinnerBySubjectVolumeChapter(sub: Int, vol: Int, cha: Int){
