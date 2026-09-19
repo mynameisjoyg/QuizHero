@@ -324,9 +324,18 @@ class MainActivity : ComponentActivity() {
                     // UI 異動必須在 Main Thread 執行（GraphRequest 回呼預設已在 UI 線程）
                     textView?.text = "歡迎， $name"
 
-                    //save facebook info to firestore here.
-                    //saveUserInfoToFirestore(userId.toInt(), name, email, photoUrl, locale)
-                    saveUserInfoToFirestore(userId, name, email, "", "")
+                    //以id檢查firestore內是否存在該user，沒有才新增使用者資訊。
+                    db.collection("User")
+                        .whereEqualTo("id", userId)
+                        .get()
+                        .addOnSuccessListener {
+                                querySnapshot ->
+                            if(querySnapshot.isEmpty) {
+                                Log.v("JOYG", "JOYGSAY: name= $name 不存在，準備將$name 存到Firestore.")
+                                //save facebook info to firestore here.
+                                saveUserInfoToFirestore(userId, name, email, "", "")
+                            }
+                        }
 
                 } catch (e: Exception) {
                     Log.e("FBAuth", "JOYGSAY: 解析使用者資料失敗: ${e.message}")
