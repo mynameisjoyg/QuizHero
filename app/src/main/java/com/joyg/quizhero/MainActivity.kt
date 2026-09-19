@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
         db = Firebase.firestore
 
 
-        var subjects = listOf("English","Chinese")
+        var subjects = listOf("","")
         var Volume = listOf("1","2","3","4","5")
         var chapter = listOf("1","2","3","4")
         lateinit var spSubjectAdapter : ArrayAdapter<Any?>
