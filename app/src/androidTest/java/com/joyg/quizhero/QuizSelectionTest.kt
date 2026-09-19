@@ -87,7 +87,7 @@ class QuizSelectionTest {
         intended(hasComponent(QuizActivity::class.java.name))
 
         // 等待 5 秒
-        //SystemClock.sleep(3000)
+        SystemClock.sleep(3000)
         onView(withId(R.id.tv_question)).check(matches(isDisplayed()))
 
         // 6. 重要：返回 MainActivity，以便進行下一個迴圈測試
