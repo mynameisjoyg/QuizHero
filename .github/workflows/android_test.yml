@@ -28,7 +28,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          target: default
+          target: aosp_atd        # 使用輕量化專用測試映像檔 (Automated Test Development)
           arch: x86_64
           profile: Nexus 6
+          emulator-options: -no-window -gpu swiftshader_indirect -no-audio -no-boot-anim -camera-back none
+          disable-animations: true # 關閉動畫，避免 Espresso 測試延遲與超時
           script: ./gradlew connectedCheck
