@@ -387,6 +387,8 @@ class MainActivity : ComponentActivity() {
 
     private fun deleteDataToFirestore(execelFileName: String){
         db.collection(execelFileName.substringBeforeLast("."))
+            .whereEqualTo("volume", "5")
+            .whereEqualTo("chapter", "3")
             .get()
             .addOnSuccessListener {
                     querySnapshot ->
