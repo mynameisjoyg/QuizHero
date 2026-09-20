@@ -41,7 +41,7 @@ import com.facebook.FacebookCallback
 import com.facebook.GraphRequest
 
 private var tv_facebook_user_name: TextView?=null
-private lateinit var userId : String
+private var userId : String = ""
 // 1. 宣告 FirebaseFirestore 變數
 private lateinit var db: FirebaseFirestore
 private lateinit var sp_subject : Spinner
