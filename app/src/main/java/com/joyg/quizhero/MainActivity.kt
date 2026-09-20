@@ -41,6 +41,7 @@ import com.facebook.FacebookCallback
 import com.facebook.GraphRequest
 
 private var tv_facebook_user_name: TextView?=null
+private lateinit var userId : String
 // 1. 宣告 FirebaseFirestore 變數
 private lateinit var db: FirebaseFirestore
 private lateinit var sp_subject : Spinner
@@ -139,6 +140,7 @@ class MainActivity : ComponentActivity() {
                 val selectedSubject = sp_subject.selectedItem.toString()
                 val selectedVolume = sp_volume.selectedItem.toString()
                 val selectedChapter = sp_chapter.selectedItem.toString()
+                putExtra("userId", "${userId}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
                 putExtra("chapter", "${selectedChapter}")
@@ -159,7 +161,7 @@ class MainActivity : ComponentActivity() {
             override fun onSuccess(result: LoginResult) {
                 // 登入成功，取得 Access Token
                 val accessToken = result.accessToken.token
-                val userId = result.accessToken.userId
+                userId = result.accessToken.userId
                 Log.d("FBAuth", "登入成功！User ID: $userId, Token: $accessToken")
 
                 // 呼叫 Graph API 取得姓名並顯示在 txtUserName (TextView)
@@ -315,6 +317,7 @@ class MainActivity : ComponentActivity() {
         val isLoggedIn = currentAccessToken != null && !currentAccessToken.isExpired
 
         if (isLoggedIn) {
+            userId = currentAccessToken.userId
             // 使用者先前已登入，直接抓取資料顯示
             fetchUserInfoWithGraphApi(currentAccessToken, tv_facebook_user_name)
         }

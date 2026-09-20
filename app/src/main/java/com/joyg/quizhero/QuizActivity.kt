@@ -31,6 +31,9 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import com.facebook.FacebookCallback
 import com.facebook.GraphRequest
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 private var tv_question: TextView? = null
@@ -41,6 +44,8 @@ private var tv_percent: TextView? = null
 private var tv_facebook_user_name: TextView?=null
 
 private var id: Int = 0
+private lateinit var userId: String
+
 private var subject: String = ""
 private var volume: String =""
 private var chapter: String =""
@@ -57,6 +62,10 @@ private var total: Int  = 0
 private var correct: Int  = 0
 private var wrong: Int =0
 private var percent: Double =0.0
+
+private lateinit var time_start: String
+private lateinit var time_end: String
+
 
 class QuizActivity : ComponentActivity() {
     // 1. 宣告 FirebaseFirestore 變數
@@ -75,13 +84,16 @@ class QuizActivity : ComponentActivity() {
         val tvSelectedSubject: TextView = findViewById(R.id.tv_selected_subject)
 
         // 2. 接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
+        userId = intent.getStringExtra("userId") ?: "未選擇"
         val subject = intent.getStringExtra("subject") ?: "未選擇"
         val volume = intent.getStringExtra("volume")?:"未選擇"
         val chapter = intent.getStringExtra("chapter")?:"未選擇"
 
         // 3. 將取得的資料顯示在 TextView 上
         tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"
-        //
+
+        //記錄開始作答時間
+        time_start = getCurrentTimeString()
 
         val bt_submit = findViewById<Button>(R.id.bt_submit)
         val bt_exit = findViewById<Button>(R.id.bt_exit)
@@ -293,8 +305,56 @@ class QuizActivity : ComponentActivity() {
     private fun saveQuizProgress() {
         // TODO: 這裡寫寫入資料庫或 Call API 儲存分數/作答記錄的邏輯
         Toast.makeText(this, "記錄已成功儲存！", Toast.LENGTH_SHORT).show()
+        saveScoreToFirestore()
     }
 
+    private fun saveScoreToFirestore(){
+        //記錄結束時間
+        time_end = getCurrentTimeString()
+
+        // 生成一個像是 "550e8400-e29b-41d4-a716-446655440000" 的獨一無二字串
+        val uniqueId: String = UUID.randomUUID().toString()
+
+        Log.d("FirestoreDemo", "JOYGSAY: Call saveScoreToFirestore.")
+        // 建立要傳入 Firestore 的資料 (HashMap 結構)
+        val score = hashMapOf(
+            "id" to uniqueId,
+            "user_id" to userId,
+            "subject" to subject,
+            "volume" to volume,
+            "chapter" to chapter,
+            "correct" to correct,
+            "wrong" to wrong,
+            "time_start" to time_start,
+            "time_end" to time_end,
+        )
+
+        // 4. 指定集合名稱 "Score"，並自動產生文件 ID 新增資料 (.add)
+        db.collection("Score")
+            .add(score)
+            .addOnSuccessListener { documentReference ->
+                // 新增成功時的回呼
+                Log.d("FirestoreDemo", "JOYGSAY: 記錄新增成功.")
+                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                // 新增失敗時的回呼
+                Log.w("FirestoreDemo", "JOYGSAY: 新增資料時發生錯誤", e)
+                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+
+    }
+
+    fun getCurrentTimeString(): String {
+        // 1. 取得系統當前時間
+        val current = LocalDateTime.now()
+
+        // 2. 定義時間格式（例如：2026-09-20 11:09:52）
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+
+        // 3. 轉成字串傳回
+        return current.format(formatter)
+    }
 }
 
 private fun hintAnswer(ans: String){
