@@ -285,10 +285,15 @@ class MainActivity : ComponentActivity() {
                 }
 
                 // 6. 依照答對題數由高到低排序排行榜
-                val sortedList = newLeaderboardList.sortedByDescending { it.correct }
+                // 1. 先按分數降冪排序
+                val sortedByScore = newLeaderboardList.sortedByDescending { it.correct }
+                // 2. 🌟 加上名次 (index + 1) 並產生新的 LeaderboardUser 物件
+                val finalLeaderboard = sortedByScore.mapIndexed { index, user ->
+                    user.copy(rank = index + 1)
+                }
 
                 // 7. 更新 RecyclerView
-                adapter.submitList(sortedList)
+                adapter.submitList(finalLeaderboard)
 
             } catch (e: Exception) {
                 Log.e("JOYG", "Error fetching leaderboard", e)
@@ -564,4 +569,5 @@ data class LeaderboardUser(
     var userId: String,
     var name: String,
     var correct: String,
+    val rank: Int = 0 // 🌟 新增名次欄位
 )

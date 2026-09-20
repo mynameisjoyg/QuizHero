@@ -17,7 +17,7 @@ class LeaderboardAdapter : ListAdapter<LeaderboardUser, LeaderboardAdapter.Leade
 
         fun bind(user: LeaderboardUser, position: Int) {
             // 名次為目前位置 + 1
-            tvRank.text = "${position + 1}"
+            tvRank.text = "${user.rank}" // 🌟 改用 user 物件內的 rank
             tvName.text = user.name
             tvScore.text = "答對 ${user.correct} 題"
         }

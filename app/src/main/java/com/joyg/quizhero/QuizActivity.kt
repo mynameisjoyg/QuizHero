@@ -105,6 +105,10 @@ class QuizActivity : ComponentActivity() {
         tv_percent = findViewById<TextView>(R.id.tv_percent)
         tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
 
+        total =0
+        correct =0
+        wrong=0
+        percent=0.0
 
         //Firestore
         // 2. 初始化 Firestore 實例
