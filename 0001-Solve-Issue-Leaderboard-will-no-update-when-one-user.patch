@@ -1,0 +1,71 @@
+From 1d71be2f5c59c445e98165476e008eb12a716e58 Mon Sep 17 00:00:00 2001
+From: Momo <mynameisjoyg@gmail.com>
+Date: Sun, 20 Sep 2026 19:53:45 +0800
+Subject: [PATCH] Solve Issue: Leaderboard will no update when one user change
+ to be a champion (fixes #6).
+
+---
+ .../main/java/com/joyg/quizhero/LeaderboardAdapter.kt  |  2 +-
+ app/src/main/java/com/joyg/quizhero/MainActivity.kt    | 10 ++++++++--
+ app/src/main/java/com/joyg/quizhero/QuizActivity.kt    |  4 ++++
+ 3 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/app/src/main/java/com/joyg/quizhero/LeaderboardAdapter.kt b/app/src/main/java/com/joyg/quizhero/LeaderboardAdapter.kt
+index 89d7660..ed50335 100644
+--- a/app/src/main/java/com/joyg/quizhero/LeaderboardAdapter.kt
++++ b/app/src/main/java/com/joyg/quizhero/LeaderboardAdapter.kt
+@@ -17,7 +17,7 @@ class LeaderboardAdapter : ListAdapter<LeaderboardUser, LeaderboardAdapter.Leade
+ 
+         fun bind(user: LeaderboardUser, position: Int) {
+             // 名次為目前位置 + 1
+-            tvRank.text = "${position + 1}"
++            tvRank.text = "${user.rank}" // 🌟 改用 user 物件內的 rank
+             tvName.text = user.name
+             tvScore.text = "答對 ${user.correct} 題"
+         }
+diff --git a/app/src/main/java/com/joyg/quizhero/MainActivity.kt b/app/src/main/java/com/joyg/quizhero/MainActivity.kt
+index 64d4701..34f37ea 100644
+--- a/app/src/main/java/com/joyg/quizhero/MainActivity.kt
++++ b/app/src/main/java/com/joyg/quizhero/MainActivity.kt
+@@ -285,10 +285,15 @@ class MainActivity : ComponentActivity() {
+                 }
+ 
+                 // 6. 依照答對題數由高到低排序排行榜
+-                val sortedList = newLeaderboardList.sortedByDescending { it.correct }
++                // 1. 先按分數降冪排序
++                val sortedByScore = newLeaderboardList.sortedByDescending { it.correct }
++                // 2. 🌟 加上名次 (index + 1) 並產生新的 LeaderboardUser 物件
++                val finalLeaderboard = sortedByScore.mapIndexed { index, user ->
++                    user.copy(rank = index + 1)
++                }
+ 
+                 // 7. 更新 RecyclerView
+-                adapter.submitList(sortedList)
++                adapter.submitList(finalLeaderboard)
+ 
+             } catch (e: Exception) {
+                 Log.e("JOYG", "Error fetching leaderboard", e)
+@@ -564,4 +569,5 @@ data class LeaderboardUser(
+     var userId: String,
+     var name: String,
+     var correct: String,
++    val rank: Int = 0 // 🌟 新增名次欄位
+ )
+diff --git a/app/src/main/java/com/joyg/quizhero/QuizActivity.kt b/app/src/main/java/com/joyg/quizhero/QuizActivity.kt
+index 6deabdb..556dc9a 100644
+--- a/app/src/main/java/com/joyg/quizhero/QuizActivity.kt
++++ b/app/src/main/java/com/joyg/quizhero/QuizActivity.kt
+@@ -105,6 +105,10 @@ class QuizActivity : ComponentActivity() {
+         tv_percent = findViewById<TextView>(R.id.tv_percent)
+         tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
+ 
++        total =0
++        correct =0
++        wrong=0
++        percent=0.0
+ 
+         //Firestore
+         // 2. 初始化 Firestore 實例
+-- 
+2.55.0.windows.5
+
