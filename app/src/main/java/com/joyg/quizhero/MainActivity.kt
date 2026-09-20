@@ -18,6 +18,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.core.view.get
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.alibaba.excel.EasyExcel
 import com.alibaba.excel.context.AnalysisContext
 import com.alibaba.excel.read.listener.ReadListener
@@ -45,6 +47,7 @@ private lateinit var sp_subject : Spinner
 private lateinit var sp_volume : Spinner
 private lateinit var sp_chapter : Spinner
 
+private lateinit var adapter: LeaderboardAdapter
 
 class MainActivity : ComponentActivity() {
 
@@ -228,6 +231,24 @@ class MainActivity : ComponentActivity() {
             }
             dialog.show()
         }
+
+        //Leaderboard setting
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewLeaderboard)
+        adapter = LeaderboardAdapter()
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+
+        // 模擬從資料庫或伺服器獲取的排行榜資料
+        val leaderboardList = listOf(
+            LeaderboardUser("1", "Alice", 120),
+            LeaderboardUser("2", "Bob", 98),
+            LeaderboardUser("3", "Charlie", 85),
+            LeaderboardUser("4", "David", 60),
+        )
+
+        // 提交資料給 Adapter
+        adapter.submitList(leaderboardList)
     }
 
     private fun setVolumeCount(sub: String){
@@ -487,3 +508,9 @@ class MainActivity : ComponentActivity() {
 }
 
 
+data class LeaderboardUser(
+    val userId: String,
+    val name: String,
+    val score: Int,          // 答題數或總分
+    val avatarUrl: String? = null
+)
