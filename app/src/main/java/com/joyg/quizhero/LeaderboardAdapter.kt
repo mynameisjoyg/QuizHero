@@ -19,7 +19,7 @@ class LeaderboardAdapter : ListAdapter<LeaderboardUser, LeaderboardAdapter.Leade
             // 名次為目前位置 + 1
             tvRank.text = "${position + 1}"
             tvName.text = user.name
-            tvScore.text = "答對 ${user.score} 題"
+            tvScore.text = "答對 ${user.correct} 題"
         }
     }
 

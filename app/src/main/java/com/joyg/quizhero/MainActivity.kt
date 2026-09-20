@@ -39,6 +39,7 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import com.facebook.FacebookCallback
 import com.facebook.GraphRequest
+import kotlinx.coroutines.tasks.await
 
 private var tv_facebook_user_name: TextView?=null
 private var userId : String = ""
@@ -242,15 +243,58 @@ class MainActivity : ComponentActivity() {
         recyclerView.adapter = adapter
 
         // 模擬從資料庫或伺服器獲取的排行榜資料
-        val leaderboardList = listOf(
-            LeaderboardUser("1", "Alice", 120),
-            LeaderboardUser("2", "Bob", 98),
-            LeaderboardUser("3", "Charlie", 85),
-            LeaderboardUser("4", "David", 60),
-        )
+        fetchAndRefreshLeaderboard()
+    }
 
-        // 提交資料給 Adapter
-        adapter.submitList(leaderboardList)
+    private fun fetchAndRefreshLeaderboard() {
+        // 1. 使用 lifecycleScope 啟動協程
+        lifecycleScope.launch {
+            try {
+                // 抓取所有 User 資料 (使用 await 等待結果)
+                val userSnapshots = db.collection("User").get().await()
+                val newLeaderboardList = mutableListOf<LeaderboardUser>()
+
+                Log.v("JOYG", "JOYGSAY: user_count = ${userSnapshots.documents.size}")
+
+                // 2. 逐一取出使用者
+                for (userDoc in userSnapshots.documents) {
+                    val id = userDoc.getString("id") ?: continue
+                    val name = userDoc.getString("name") ?: "Unknown"
+                    var totalCorrectCount = 0
+
+                    Log.v("JOYG", "JOYGSAY: id=$id, name=$name")
+
+                    // 3. 查詢該使用者的所有 Score 紀錄
+                    val scoreSnapshots = db.collection("Score")
+                        .whereEqualTo("user_id", id)
+                        .get()
+                        .await()
+
+                    Log.v("JOYG", "JOYGSAY: score_count = ${scoreSnapshots.documents.size}")
+
+                    // 4. 累加得分
+                    for (scoreDoc in scoreSnapshots.documents) {
+                        val correct = scoreDoc.getLong("correct")?.toInt() ?: 0
+                        totalCorrectCount += correct
+                    }
+
+                    Log.v("JOYG", "JOYGSAY: name=$name, totalCorrectCount=$totalCorrectCount")
+
+                    // 5. 將該位使用者的總分加入暫存列表
+                    newLeaderboardList.add(LeaderboardUser(id, name, totalCorrectCount.toString()))
+                }
+
+                // 6. 依照答對題數由高到低排序排行榜
+                val sortedList = newLeaderboardList.sortedByDescending { it.correct }
+
+                // 7. 更新 RecyclerView
+                adapter.submitList(sortedList)
+
+            } catch (e: Exception) {
+                Log.e("JOYG", "Error fetching leaderboard", e)
+                Toast.makeText(this@MainActivity, "獲取排行榜資料失敗", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setVolumeCount(sub: String){
@@ -321,6 +365,12 @@ class MainActivity : ComponentActivity() {
             // 使用者先前已登入，直接抓取資料顯示
             fetchUserInfoWithGraphApi(currentAccessToken, tv_facebook_user_name)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 每次畫面重新呈現時（包含從 QuizActivity 返回），自動刷新排行榜
+        fetchAndRefreshLeaderboard()
     }
 
     // 4. 將 Intent 結果傳遞給 Facebook SDK CallbackManager
@@ -510,10 +560,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 data class LeaderboardUser(
-    val userId: String,
-    val name: String,
-    val score: Int,          // 答題數或總分
-    val avatarUrl: String? = null
+    var userId: String,
+    var name: String,
+    var correct: String,
 )
