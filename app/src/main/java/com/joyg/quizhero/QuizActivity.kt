@@ -1,6 +1,7 @@
 package com.joyg.quizhero
 
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -100,7 +101,7 @@ class QuizActivity : ComponentActivity() {
 
 
         bt_exit.setOnClickListener {
-
+            showExitDialog()
         }
 
         bt_submit.setOnClickListener {
@@ -258,6 +259,40 @@ class QuizActivity : ComponentActivity() {
             }
 
 
+    }
+
+    /**
+     * 顯示確認離開的 AlertDialog
+     */
+    private fun showExitDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("離開測驗")
+            .setMessage("是否要儲存此次的答題記錄？")
+            // 按鈕 1：儲存並離開
+            .setPositiveButton("儲存並離開") { dialog, _ ->
+                saveQuizProgress()
+                finish() // 關閉當前 Activity
+            }
+            // 按鈕 2：不儲存直接離開
+            .setNegativeButton("不儲存") { dialog, _ ->
+                Toast.makeText(this, "未儲存記錄", Toast.LENGTH_SHORT).show()
+                finish() // 關閉當前 Activity
+            }
+            // 按鈕 3：取消（繼續留在測驗畫面）
+            .setNeutralButton("取消") { dialog, _ ->
+                dialog.dismiss() // 關閉對話框
+            }
+            // 防止點擊對話框外部背景隨意關閉（確保使用者明確做出選擇）
+            .setCancelable(false)
+            .show()
+    }
+
+    /**
+     * 處理儲存邏輯的地方
+     */
+    private fun saveQuizProgress() {
+        // TODO: 這裡寫寫入資料庫或 Call API 儲存分數/作答記錄的邏輯
+        Toast.makeText(this, "記錄已成功儲存！", Toast.LENGTH_SHORT).show()
     }
 
 }
