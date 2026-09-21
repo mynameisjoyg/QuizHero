@@ -48,6 +48,36 @@ class QuizSelectionTest {
 
     @Test
     fun testSelectSpinnerItemsAndStartQuiz_DoesNotCrash() {
+        //Test Geography, volume1~5, chapter 1~6.
+        for(volume in 0 until 5){
+            for(chapter in 0 until 6){
+                testSpinnerBySubjectVolumeChapter(2,volume, chapter)
+            }
+        }
+
+        //Test Geography, volume6, chapter 1~4.
+        for(chapter in 0 until 4){
+            testSpinnerBySubjectVolumeChapter(2,5, chapter)
+        }
+
+        //Test Chinese, volume1~4, chapter 1~10.
+        for(volume in 0 until 4){
+            for(chapter in 0 until 10){
+                testSpinnerBySubjectVolumeChapter(1,volume, chapter)
+            }
+        }
+
+        //Test Chinese, volume5, chapter 1~9.
+        for(chapter in 0 until 8){
+            testSpinnerBySubjectVolumeChapter(1,4,chapter)
+        }
+
+        //Test Chinese, volume6, chapter 1~5.
+        for(chapter in 0 until 5){
+            testSpinnerBySubjectVolumeChapter(1,5,chapter)
+        }
+
+
         //Test English, volume1, chapter 1~6.
         for(chapter in 0 until 6){
             testSpinnerBySubjectVolumeChapter(0,0,chapter)
