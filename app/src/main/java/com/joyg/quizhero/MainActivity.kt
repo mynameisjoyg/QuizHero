@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
         db = Firebase.firestore
 
 
-        var subjects = listOf("English","Chinese")
+        var subjects = listOf("English","Chinese", "Geography")
         var Volume = listOf("1","2","3","4","5")
         var chapter = listOf("1","2","3","4")
         lateinit var spSubjectAdapter : ArrayAdapter<Any?>
@@ -149,6 +149,7 @@ class MainActivity : ComponentActivity() {
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
                 putExtra("chapter", "${selectedChapter}")
+                Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
                 setPackage(packageName)
             }
             startActivity(intent)
@@ -470,8 +471,6 @@ class MainActivity : ComponentActivity() {
 
     private fun deleteDataToFirestore(execelFileName: String){
         db.collection(execelFileName.substringBeforeLast("."))
-            .whereEqualTo("volume", "5")
-            .whereEqualTo("chapter", "3")
             .get()
             .addOnSuccessListener {
                     querySnapshot ->

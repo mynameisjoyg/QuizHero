@@ -93,6 +93,7 @@ class QuizActivity : ComponentActivity() {
         val subject = intent.getStringExtra("subject") ?: "未選擇"
         val volume = intent.getStringExtra("volume")?:"未選擇"
         val chapter = intent.getStringExtra("chapter")?:"未選擇"
+        Log.v("JOYG", "JOYGSAY: getStringExtra, subject=$subject, volume=$volume, chapter=$chapter")
 
         // 3. 將取得的資料顯示在 TextView 上
         tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"
@@ -222,6 +223,7 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun queryQuestion(sub:String, vol: String, chap: String){
+        Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
         //設定不可按下一題以及可以按提交
         btNextQuestion.isClickable=false
         btSubmit.isClickable=true
@@ -235,6 +237,7 @@ class QuizActivity : ComponentActivity() {
             .addOnSuccessListener {
                     querySnapshot ->
                 if(querySnapshot.isEmpty) {
+                    Log.v("JOYG", "JOYGSAY: in queryQuestion, 找不到${sub}_Quiz")
                     Toast.makeText(this, "找不到${sub}_Quiz", Toast.LENGTH_SHORT).show()
                 }
                 //取得全部題目個數
