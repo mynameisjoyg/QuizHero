@@ -87,9 +87,11 @@ class MainActivity : ComponentActivity() {
         //sp_subject
         spSubjectAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.my_spinner_item,
             subjects
         )
+        // 設定下拉選單展開時的項目樣式（選填，同樣會套用置中效果）
+        spSubjectAdapter.setDropDownViewResource(R.layout.my_spinner_item)
         sp_subject.adapter = spSubjectAdapter
         sp_subject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -109,9 +111,10 @@ class MainActivity : ComponentActivity() {
         //sp_Volume
         spVolumeAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.my_spinner_item,
             Volume
         )
+        spVolumeAdapter.setDropDownViewResource(R.layout.my_spinner_item)
         sp_volume.adapter = spVolumeAdapter
         sp_volume.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -130,9 +133,10 @@ class MainActivity : ComponentActivity() {
         //sp_chapter
         spChapterAdapter = ArrayAdapter(
             this,
-            android.R.layout.simple_spinner_dropdown_item,
+            R.layout.my_spinner_item,
             chapter
         )
+        spChapterAdapter.setDropDownViewResource(R.layout.my_spinner_item)
         sp_chapter.adapter = spChapterAdapter
 
 
@@ -320,7 +324,7 @@ class MainActivity : ComponentActivity() {
                 }
                 newSpVolumeAdapter = ArrayAdapter(
                     this@MainActivity,
-                    android.R.layout.simple_spinner_dropdown_item,
+                    R.layout.my_spinner_item,
                     volumeList
                 )
                 sp_volume.adapter = newSpVolumeAdapter
@@ -349,7 +353,7 @@ class MainActivity : ComponentActivity() {
                 }
                 newSpChapterAdapter = ArrayAdapter(
                     this@MainActivity,
-                    android.R.layout.simple_spinner_dropdown_item,
+                    R.layout.my_spinner_item,
                     chapterList
                 )
                 sp_chapter.adapter = newSpChapterAdapter
