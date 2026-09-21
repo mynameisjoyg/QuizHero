@@ -574,3 +574,4 @@ data class LeaderboardUser(
     var correct: String,
     val rank: Int = 0 // 🌟 新增名次欄位
 )
+
