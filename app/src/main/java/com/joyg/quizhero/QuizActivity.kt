@@ -93,7 +93,7 @@ class QuizActivity : ComponentActivity() {
         val subject = intent.getStringExtra("subject") ?: "未選擇"
         val volume = intent.getStringExtra("volume")?:"未選擇"
         val chapter = intent.getStringExtra("chapter")?:"未選擇"
-        Log.v("JOYG", "JOYGSAY: getStringExtra, subject=$subject, volume=$volume, chapter=$chapter")
+        Log.v("JOYG", "JOYGSAY: getStringExtra, userId=$userId, subject=$subject, volume=$volume, chapter=$chapter")
 
         // 3. 將取得的資料顯示在 TextView 上
         tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"

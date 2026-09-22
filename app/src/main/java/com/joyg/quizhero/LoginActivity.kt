@@ -23,6 +23,8 @@ class LoginActivity : ComponentActivity() {
     private lateinit var callbackManager: CallbackManager
     private lateinit var accessTokenTracker: AccessTokenTracker
     private var userId : String = ""
+    private var name : String = ""
+    private var email : String = ""
 
     private lateinit var db: FirebaseFirestore
 
@@ -80,6 +82,18 @@ class LoginActivity : ComponentActivity() {
 
         // 開始監聽 Token 狀態變化
         accessTokenTracker.startTracking()
+
+        tv_facebook_user_name?.setOnClickListener {
+            if(tv_facebook_user_name?.text!="未登入"){
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    putExtra("name", name)
+                    putExtra("userId", userId)
+                    setPackage(packageName)
+                }
+                startActivity(intent)
+                finish()
+            }
+        }
     }
 
     override fun onStart() {
@@ -92,6 +106,7 @@ class LoginActivity : ComponentActivity() {
             // 使用者先前已登入，直接抓取資料顯示
             fetchUserInfoWithGraphApi(currentAccessToken, tv_facebook_user_name)
         }
+
     }
 
     fun fetchUserInfoWithGraphApi(accessToken: AccessToken, textView: TextView?) {
@@ -100,13 +115,13 @@ class LoginActivity : ComponentActivity() {
             if (jsonObject != null) {
                 try {
                     // 解析 JSON 回傳內容
-                    val userId = jsonObject.optString("id")
-                    val name = jsonObject.optString("name", "未知使用者")
-                    val email = jsonObject.optString("email", "未提供 Email")
+                    userId = jsonObject.optString("id")
+                    name = jsonObject.optString("name", "未知使用者")
+                    email = jsonObject.optString("email", "未提供 Email")
                     Log.d("FBData", "JOYGSAY: name: $name, ID: $userId, Email: $email")
 
                     // UI 異動必須在 Main Thread 執行（GraphRequest 回呼預設已在 UI 線程）
-                    textView?.text = "歡迎， $name"
+                    textView?.text = "歡迎， $name\n\t\t\t\t\t\t\t點擊以登入"
 
                     //以id檢查firestore內是否存在該user，沒有才新增使用者資訊。
                     db.collection("User")
@@ -120,12 +135,6 @@ class LoginActivity : ComponentActivity() {
                                 saveUserInfoToFirestore(userId, name, email, "", "")
                             }
                         }
-                    val intent = Intent(this, MainActivity::class.java).apply {
-                        putExtra("name", name)
-                        setPackage(packageName)
-                    }
-                    startActivity(intent)
-                    finish()
                 } catch (e: Exception) {
                     Log.e("FBAuth", "JOYGSAY: 解析使用者資料失敗: ${e.message}")
                 }
