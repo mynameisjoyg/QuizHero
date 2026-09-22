@@ -121,7 +121,7 @@ class LoginActivity : ComponentActivity() {
                     Log.d("FBData", "JOYGSAY: name: $name, ID: $userId, Email: $email")
 
                     // UI 異動必須在 Main Thread 執行（GraphRequest 回呼預設已在 UI 線程）
-                    textView?.text = "歡迎， $name\n\t\t\t\t\t\t\t點擊以登入"
+                    textView?.text = "歡迎， $name，點擊以登入。"
 
                     //以id檢查firestore內是否存在該user，沒有才新增使用者資訊。
                     db.collection("User")

@@ -163,8 +163,6 @@ class QuizActivity : ComponentActivity() {
                 percent = calculatePercentage()
                 Log.v("JOYG", "JOYG: percent = "+ percent)
                 tvPercent?.setText("正確率："+String.format("%.1f%%", percent))
-                //下一題
-                //queryQuestion(subject, volume, chapter)
             } else {
                 println("使用者還沒選擇任何選項！")
             }
@@ -223,7 +221,9 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun queryQuestion(sub:String, vol: String, chap: String){
+        radioGroup.check(R.id.rb_A)
         Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
+
         //設定不可按下一題以及可以按提交
         btNextQuestion.isClickable=false
         btSubmit.isClickable=true
