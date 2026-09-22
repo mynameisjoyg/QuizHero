@@ -277,6 +277,10 @@ class QuizActivity : ComponentActivity() {
                                     image6=it.image6
 
                                     tvQuestion?.text = it.question
+                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(A\\)"), "\n(A)")
+                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(B\\)"), "\n(B)")
+                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(C\\)"), "\n(C)")
+                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(D\\)"), "\n(D)")
                                     hintAnswer(answer)
                                 }
                             } else {

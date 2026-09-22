@@ -41,26 +41,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <RadioButton
                     android:id="@+id/rb_A"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="A" />
+                    android:text="A"
+                    android:textSize="24sp" />
+
                 <RadioButton
                     android:id="@+id/rb_B"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="B" />
+                    android:text="B"
+                    android:textSize="24sp" />
+
                 <RadioButton
                     android:id="@+id/rb_C"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="C" />
+                    android:text="C"
+                    android:textSize="24sp" />
+
                 <RadioButton
                     android:id="@+id/rb_D"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="D" />
+                    android:text="D"
+                    android:textSize="24sp" />
             </RadioGroup>
         </LinearLayout>
 
