@@ -1,16 +1,20 @@
 package com.joyg.quizhero
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.util.UUID
 
 class BattleActivity : AppCompatActivity() {
 
     private lateinit var stompClient: QuizStompClient
-    private val myPlayerId = "Android_Player_01" // 可以是從 Firebase Auth 取得的玩家 ID
+    //private val myPlayerId = "Android_Player_01" // 可以是從 Firebase Auth 取得的玩家 ID
+    // ✅ 每次進入 Activity 都會生成獨一無二的 ID，例如：Android_a829bb
+    private val myPlayerId = "Android_" + UUID.randomUUID().toString().substring(0, 6)
     private var currentRoomId: String? = null
     private var currentQuestionId: String? = null
 
@@ -89,6 +93,7 @@ class BattleActivity : AppCompatActivity() {
 
             if (roomId != null && qId != null) {
                 // 送出答案並立刻停用按鈕，防止重複點擊
+                Log.v("JOYG", "JOYG: roodId=${roomId}")
                 stompClient.sendAnswer(roomId, qId, selectedOption)
                 setAnswerButtonsEnabled(false)
                 tvStatus.text = "已搶答，等待後端判定時間..."

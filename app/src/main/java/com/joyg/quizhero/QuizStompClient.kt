@@ -14,7 +14,7 @@ class QuizStompClient {
     private val gson = Gson()
 
     // 模擬器連線電腦 localhost 請用 10.0.2.2，若用實體手機測試請改為電腦的區域 IP (如 192.168.x.x)
-    private val wsUrl = "ws://10.0.2.2:8080/ws-quiz/websocket"
+    private val wsUrl = "ws://10.77.80.205:8080/ws-quiz/websocket"
 
     fun connect(
         playerId: String,
@@ -52,7 +52,8 @@ class QuizStompClient {
         onQuizReceived: (QuizQuestion) -> Unit,
         onResultReceived: (BattleResult) -> Unit
     ) {
-        val topic = "/topic/room/matched/$playerId"
+        //val topic = "/topic/room/matched/$playerId"
+        val topic = "/topic/matchmaking"
         val sub = stompClient?.topic(topic)?.subscribe { stompMessage ->
             val matchResponse = gson.fromJson(stompMessage.payload, MatchResponse::class.java)
             Log.d("STOMP", "🎉 配對成功！ 房間 ID: ${matchResponse.roomId}")
