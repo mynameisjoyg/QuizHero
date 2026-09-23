@@ -93,7 +93,7 @@ class BattleActivity : AppCompatActivity() {
 
             if (roomId != null && qId != null) {
                 // 送出答案並立刻停用按鈕，防止重複點擊
-                Log.v("JOYG", "JOYG: roodId=${roomId}")
+                Log.v("JOYG", "JOYG: roomId=${roomId}")
                 stompClient.sendAnswer(roomId, qId, selectedOption)
                 setAnswerButtonsEnabled(false)
                 tvStatus.text = "已搶答，等待後端判定時間..."

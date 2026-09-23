@@ -101,7 +101,7 @@ class QuizStompClient {
 
     // 5. 發送搶答答案 (/app/room/{roomId}/answer)
     fun sendAnswer(roomId: String, questionId: String, selectedOption: String) {
-        val payload = gson.toJson(AnswerPayload(questionId, selectedOption))
+        val payload = gson.toJson(AnswerPayload(questionId, selectedOption, System.currentTimeMillis()))
         stompClient?.send("/app/room/$roomId/answer", payload)?.subscribe({
             Log.d("STOMP", "⚡ 已送出搶答: $selectedOption")
         }, { t ->

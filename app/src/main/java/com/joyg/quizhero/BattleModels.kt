@@ -26,7 +26,8 @@ data class QuizQuestion(
 // 4. 發送答案 Payload
 data class AnswerPayload(
     @SerializedName("questionId") val questionId: String,
-    @SerializedName("selectedOption") val selectedOption: String
+    @SerializedName("selectedOption") val selectedOption: String,
+    @SerializedName("clientTimestamp") val clientTimestamp: Long
 )
 
 // 5. 搶答結果 Data
