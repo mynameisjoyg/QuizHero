@@ -16,6 +16,7 @@ class QuizStompClient {
     // 模擬器連線電腦 localhost 請用 10.0.2.2，若用實體手機測試請改為電腦的區域 IP (如 192.168.x.x)
     //private val wsUrl = "ws://10.77.80.205:8080/ws-quiz/websocket"
     private val wsUrl = "ws://192.168.0.82:8080/ws-quiz/websocket"
+    private lateinit var playerId: String
 
     fun connect(
         playerId: String,
@@ -24,6 +25,8 @@ class QuizStompClient {
         onQuizReceived: (QuizQuestion) -> Unit,
         onResultReceived: (BattleResult) -> Unit
     ) {
+        this.playerId = playerId
+        Log.v("JOYG", "JOYG: in QuizStompClient, connect, playerId=${playerId}")
         stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, wsUrl)
 
         // 1. 監聽 STOMP 生命週期
@@ -101,7 +104,7 @@ class QuizStompClient {
 
     // 5. 發送搶答答案 (/app/room/{roomId}/answer)
     fun sendAnswer(roomId: String, questionId: String, selectedOption: String) {
-        val payload = gson.toJson(AnswerPayload(questionId, selectedOption, System.currentTimeMillis()))
+        val payload = gson.toJson(AnswerPayload( this.playerId, questionId, selectedOption, System.currentTimeMillis()))
         stompClient?.send("/app/room/$roomId/answer", payload)?.subscribe({
             Log.d("STOMP", "⚡ 已送出搶答: $selectedOption")
         }, { t ->
