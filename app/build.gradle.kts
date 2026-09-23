@@ -95,4 +95,20 @@ dependencies {
 
     // 用於檢查 Intent 跳轉的 Espresso Intent 庫
     androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
+
+    // WebSocket & STOMP 套件
+    implementation("com.github.NaikSoftware:StompProtocolAndroid:1.6.6")
+
+    // OkHttp (STOMP 底層連線使用)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // RxJava (StompProtocolAndroid 底層依賴)
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
+    implementation("io.reactivex.rxjava2:rxandroid:2.1.1")
+
+    // Gson (解析 JSON)
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    //Material Components 支持
+    implementation("com.google.android.material:material:1.11.0")
 }
