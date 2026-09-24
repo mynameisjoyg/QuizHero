@@ -15,8 +15,8 @@ class QuizStompClient {
 
     // 模擬器連線電腦 localhost 請用 10.0.2.2，若用實體手機測試請改為電腦的區域 IP (如 192.168.x.x)
     //private val wsUrl = "ws://10.77.80.205:8080/ws-quiz/websocket"
-    //private val wsUrl = "ws://192.168.0.82:8080/ws-quiz/websocket"
-    private val wsUrl = "wss://quizherobattleroom.onrender.com/ws-quiz/websocket"
+    private val wsUrl = "ws://192.168.0.82:8080/ws-quiz/websocket"
+    //private val wsUrl = "wss://quizherobattleroom.onrender.com/ws-quiz/websocket"
     private lateinit var playerId: String
 
     fun connect(
@@ -94,8 +94,8 @@ class QuizStompClient {
     }
 
     // 4. 發送配對請求 (/app/matchmaking)
-    fun sendMatchRequest(playerId: String) {
-        val payload = gson.toJson(MatchRequest(playerId))
+    fun sendMatchRequest(playerId: String, subject: String, volume: String, chapter: String) {
+        val payload = gson.toJson(MatchRequest(playerId, subject, volume, chapter))
         stompClient?.send("/app/matchmaking", payload)?.subscribe({
             Log.d("STOMP", "📤 已送出配對請求: $playerId")
         }, { t ->

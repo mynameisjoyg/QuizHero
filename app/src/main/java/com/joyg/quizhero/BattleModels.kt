@@ -4,7 +4,11 @@ import com.google.gson.annotations.SerializedName
 
 // 1. 發送配對請求
 data class MatchRequest(
-    @SerializedName("playerId") val playerId: String
+    @SerializedName("playerId") val playerId: String,
+    @SerializedName("subject") val subject: String,
+    @SerializedName("volume") val volume: String,
+    @SerializedName("chapter") val chapter: String
+
 )
 
 // 2. 配對成功的回應

@@ -19,11 +19,6 @@
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:label="QuizHero"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
         </activity>
 
         <activity
@@ -32,7 +27,10 @@
             android:label="QuizHero"
             android:theme="@style/Theme.QuizHero"
             android:windowSoftInputMode="adjustResize">
-
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity

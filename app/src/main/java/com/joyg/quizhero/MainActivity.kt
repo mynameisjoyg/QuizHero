@@ -49,6 +49,8 @@ class MainActivity : ComponentActivity() {
         //val bt_delete = findViewById<Button>(R.id.bt_delete)
 
         val bt_exam = findViewById<Button>(R.id.bt_exam)
+        val bt_battle = findViewById<Button>(R.id.bt_battle)
+
         sp_subject = findViewById(R.id.sp_subject)
         sp_volume = findViewById(R.id.sp_volume)
         sp_chapter = findViewById(R.id.sp_chapter)
@@ -139,6 +141,20 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
 
+        bt_battle.setOnClickListener {
+            val intent = Intent(this, BattleActivity::class.java).apply {
+                val selectedSubject = sp_subject.selectedItem.toString()
+                val selectedVolume = sp_volume.selectedItem.toString()
+                val selectedChapter = sp_chapter.selectedItem.toString()
+                putExtra("userId", "${userId}")
+                putExtra("subject", "${selectedSubject}")
+                putExtra("volume", "${selectedVolume}")
+                putExtra("chapter", "${selectedChapter}")
+                Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
+                setPackage(packageName)
+            }
+            startActivity(intent)
+        }
         //登入臉書用
         var name = intent.getStringExtra("name") ?: "未登入"
         userId = intent.getStringExtra("userId") ?: "未登入"

@@ -14,7 +14,8 @@ class BattleActivity : AppCompatActivity() {
     private lateinit var stompClient: QuizStompClient
     //private val myPlayerId = "Android_Player_01" // 可以是從 Firebase Auth 取得的玩家 ID
     // ✅ 每次進入 Activity 都會生成獨一無二的 ID，例如：Android_a829bb
-    private val myPlayerId = "Android_" + UUID.randomUUID().toString().substring(0, 6)
+    //private val myPlayerId = "Android_" + UUID.randomUUID().toString().substring(0, 6)
+    private lateinit var myPlayerId : String
     private var currentRoomId: String? = null
     private var currentQuestionId: String? = null
 
@@ -27,6 +28,11 @@ class BattleActivity : AppCompatActivity() {
     private lateinit var btnOptionC: Button
     private lateinit var btnOptionD: Button
 
+    //Subject, volume, chapter
+    private lateinit var subject : String
+    private lateinit var volume : String
+    private lateinit var chapter : String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battle)
@@ -38,6 +44,14 @@ class BattleActivity : AppCompatActivity() {
         btnOptionB = findViewById(R.id.btnOptionB)
         btnOptionC = findViewById(R.id.btnOptionC)
         btnOptionD = findViewById(R.id.btnOptionD)
+
+        //接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
+        myPlayerId = intent.getStringExtra("userId") ?: "未選擇"
+        subject = intent.getStringExtra("subject") ?: "未選擇"
+        volume = intent.getStringExtra("volume") ?: "未選擇"
+        chapter = intent.getStringExtra("chapter") ?: "未選擇"
+        Log.v("BattleActivity", "JOYGSAY: getStringExtra, userId=$myPlayerId, subject=$subject, volume=$volume, chapter=$chapter")
+
 
         stompClient = QuizStompClient()
 
@@ -88,7 +102,7 @@ class BattleActivity : AppCompatActivity() {
 
         // 步驟 2: 按下配對按鈕
         btnMatch.setOnClickListener {
-            stompClient.sendMatchRequest(myPlayerId)
+            stompClient.sendMatchRequest(myPlayerId, subject, volume, chapter)
             tvStatus.text = "正在尋找對手..."
             btnMatch.isEnabled = false
         }
