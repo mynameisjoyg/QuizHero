@@ -24,6 +24,8 @@ class BattleActivity : AppCompatActivity() {
     private lateinit var btnMatch: Button
     private lateinit var btnOptionA: Button
     private lateinit var btnOptionB: Button
+    private lateinit var btnOptionC: Button
+    private lateinit var btnOptionD: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +36,8 @@ class BattleActivity : AppCompatActivity() {
         btnMatch = findViewById(R.id.btnMatch)
         btnOptionA = findViewById(R.id.btnOptionA)
         btnOptionB = findViewById(R.id.btnOptionB)
+        btnOptionC = findViewById(R.id.btnOptionC)
+        btnOptionD = findViewById(R.id.btnOptionD)
 
         stompClient = QuizStompClient()
 
@@ -63,16 +67,20 @@ class BattleActivity : AppCompatActivity() {
                     // 顯示選項並啟用搶答按鈕
                     btnOptionA.text = quiz.options.getOrNull(0) ?: ""
                     btnOptionB.text = quiz.options.getOrNull(1) ?: ""
+                    btnOptionC.text = quiz.options.getOrNull(2) ?: ""
+                    btnOptionD.text = quiz.options.getOrNull(3) ?: ""
                     setAnswerButtonsEnabled(true)
                 }
             },
             onResultReceived = { result ->
                 runOnUiThread {
                     setAnswerButtonsEnabled(false) // 搶答結束，鎖定按鈕
-                    if (result.winnerId == myPlayerId) {
-                        tvStatus.text = "🏆 恭喜你搶答成功！\n反應時間: ${result.reactionTimeMs} ms"
-                    } else {
-                        tvStatus.text = "❌ 太慢了！對手 ${result.winnerId} 贏得了這題"
+                    if (result.winnerId == myPlayerId && result.isCorrect) {
+                        tvStatus.text = "🏆 恭喜你搶答成功！"
+                    } else if (result.winnerId == myPlayerId && !result.isCorrect){
+                        tvStatus.text = "❌ 答錯了！"
+                    } else if (result.winnerId != myPlayerId){
+                        tvStatus.text = "❌ 太慢了！對手已先搶答！"
                     }
                 }
             }
@@ -102,11 +110,15 @@ class BattleActivity : AppCompatActivity() {
 
         btnOptionA.setOnClickListener(answerClickListener)
         btnOptionB.setOnClickListener(answerClickListener)
+        btnOptionC.setOnClickListener(answerClickListener)
+        btnOptionD.setOnClickListener(answerClickListener)
     }
 
     private fun setAnswerButtonsEnabled(enabled: Boolean) {
         btnOptionA.isEnabled = enabled
         btnOptionB.isEnabled = enabled
+        btnOptionC.isEnabled = enabled
+        btnOptionD.isEnabled = enabled
     }
 
     override fun onDestroy() {

@@ -122,6 +122,30 @@
             app:cornerRadius="12dp"
             app:strokeColor="#2196F3"
             app:strokeWidth="2dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOptionC"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="選項 C"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:enabled="false"
+            app:cornerRadius="12dp"
+            app:strokeColor="#2196F3"
+            app:strokeWidth="2dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnOptionD"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="選項 D"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:enabled="false"
+            app:cornerRadius="12dp"
+            app:strokeColor="#2196F3"
+            app:strokeWidth="2dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
