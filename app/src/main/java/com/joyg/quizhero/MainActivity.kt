@@ -45,8 +45,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
 
-        val bt_add = findViewById<Button>(R.id.bt_add)
-        val bt_delete = findViewById<Button>(R.id.bt_delete)
+        //val bt_add = findViewById<Button>(R.id.bt_add)
+        //val bt_delete = findViewById<Button>(R.id.bt_delete)
 
         val bt_exam = findViewById<Button>(R.id.bt_exam)
         sp_subject = findViewById(R.id.sp_subject)
@@ -145,45 +145,45 @@ class MainActivity : ComponentActivity() {
         tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
         tv_facebook_user_name?.text = "歡迎， $name"
 
-        bt_add.setOnClickListener {
-            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
-            val listView = ListView(this)
-            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
-
-            val dialog = AlertDialog.Builder(this)
-                .setTitle("Assets Files")
-                .setView(listView)
-                .setPositiveButton("OK", null)
-                .create()
-
-            listView.setOnItemClickListener { _, _, position, _ ->
-                val selectedFileName = fileList[position]
-                Log.d("MainActivity", "Selected file: $selectedFileName")
-                readExcelByLifeCycleScope(selectedFileName)
-                dialog.dismiss()
-            }
-            dialog.show()
-        }
-
-        bt_delete.setOnClickListener {
-            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
-            val listView = ListView(this)
-            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
-
-            val dialog = AlertDialog.Builder(this)
-                .setTitle("Assets Files")
-                .setView(listView)
-                .setPositiveButton("OK", null)
-                .create()
-
-            listView.setOnItemClickListener { _, _, position, _ ->
-                val selectedFileName = fileList[position]
-                Log.d("MainActivity", "Selected file: $selectedFileName")
-                deleteDataToFirestore(selectedFileName)
-                dialog.dismiss()
-            }
-            dialog.show()
-        }
+//        bt_add.setOnClickListener {
+//            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
+//            val listView = ListView(this)
+//            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
+//
+//            val dialog = AlertDialog.Builder(this)
+//                .setTitle("Assets Files")
+//                .setView(listView)
+//                .setPositiveButton("OK", null)
+//                .create()
+//
+//            listView.setOnItemClickListener { _, _, position, _ ->
+//                val selectedFileName = fileList[position]
+//                Log.d("MainActivity", "Selected file: $selectedFileName")
+//                readExcelByLifeCycleScope(selectedFileName)
+//                dialog.dismiss()
+//            }
+//            dialog.show()
+//        }
+//
+//        bt_delete.setOnClickListener {
+//            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
+//            val listView = ListView(this)
+//            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
+//
+//            val dialog = AlertDialog.Builder(this)
+//                .setTitle("Assets Files")
+//                .setView(listView)
+//                .setPositiveButton("OK", null)
+//                .create()
+//
+//            listView.setOnItemClickListener { _, _, position, _ ->
+//                val selectedFileName = fileList[position]
+//                Log.d("MainActivity", "Selected file: $selectedFileName")
+//                deleteDataToFirestore(selectedFileName)
+//                dialog.dismiss()
+//            }
+//            dialog.show()
+//        }
 
         //Leaderboard setting
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewLeaderboard)
