@@ -168,6 +168,7 @@ class BattleActivity : AppCompatActivity() {
         btnOptionB.isEnabled = enabled
         btnOptionC.isEnabled = enabled
         btnOptionD.isEnabled = enabled
+        
     }
 
     private fun saveScoreToFirestore(){
