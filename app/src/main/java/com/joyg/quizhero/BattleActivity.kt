@@ -101,6 +101,8 @@ class BattleActivity : AppCompatActivity() {
                     tvStatus.text = "🎉 配對成功！房間: ${matchData.roomId.take(8)}\n等待發題中..."
                     btnMatch.visibility = View.GONE
                 }
+                // 配對成功後呼叫 join 告知後端綁定 Session
+                stompClient.sendJoinRoom(matchData.roomId)
             },
             onQuizReceived = { quiz ->
                 currentQuestionId = quiz.questionId
@@ -126,6 +128,16 @@ class BattleActivity : AppCompatActivity() {
                         tvStatus.text = "❌ 答錯了！"
                     } else if (result.winnerId != userId){
                         tvStatus.text = "❌ 太慢了！對手已先搶答！"
+                    }
+                }
+            },
+            onPlayerLeft = { leftPlayerId ->
+                Log.v("JOYG", "JOYG: onPlayerLeft, leftPlayerId=$leftPlayerId, userId=$userId")
+                // 如果離開的人不是自己，代表對方離線/退出了
+                if (leftPlayerId != userId) {
+                    runOnUiThread {
+                        Toast.makeText(this, "對手已離開對戰，你獲得了勝利！", Toast.LENGTH_LONG).show()
+                        finish() // 關閉 Activity 回主畫面
                     }
                 }
             }

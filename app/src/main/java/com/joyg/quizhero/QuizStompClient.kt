@@ -24,7 +24,8 @@ class QuizStompClient {
         onConnected: () -> Unit,
         onMatched: (MatchResponse) -> Unit,
         onQuizReceived: (QuizQuestion) -> Unit,
-        onResultReceived: (BattleResult) -> Unit
+        onResultReceived: (BattleResult) -> Unit,
+        onPlayerLeft: ((leftPlayerId: String) -> Unit)? = null // 👈 新增：可選的玩家離開回調
     ) {
         this.playerId = playerId
         Log.v("JOYG", "JOYG: in QuizStompClient, connect, playerId=${playerId}")
@@ -38,7 +39,7 @@ class QuizStompClient {
                     onConnected()
 
                     // 連線成功後，立刻訂閱玩家個人配對頻道
-                    subscribeMatchChannel(playerId, onMatched, onQuizReceived, onResultReceived)
+                    subscribeMatchChannel(playerId, onMatched, onQuizReceived, onResultReceived, onPlayerLeft)
                 }
                 LifecycleEvent.Type.ERROR -> Log.e("STOMP", "❌ 連線錯誤", event.exception)
                 LifecycleEvent.Type.CLOSED -> Log.d("STOMP", "🔒 連線已關閉")
@@ -55,7 +56,8 @@ class QuizStompClient {
         playerId: String,
         onMatched: (MatchResponse) -> Unit,
         onQuizReceived: (QuizQuestion) -> Unit,
-        onResultReceived: (BattleResult) -> Unit
+        onResultReceived: (BattleResult) -> Unit,
+        onPlayerLeft: ((leftPlayerId: String) -> Unit)?
     ) {
         //val topic = "/topic/room/matched/$playerId"
         val topic = "/topic/matchmaking"
@@ -66,7 +68,7 @@ class QuizStompClient {
             onMatched(matchResponse)
 
             // 拿到 roomId 後，立刻訂閱房間的題目與搶答結果頻道
-            subscribeRoomChannels(matchResponse.roomId, onQuizReceived, onResultReceived)
+            subscribeRoomChannels(matchResponse.roomId, onQuizReceived, onResultReceived, onPlayerLeft)
         }
         sub?.let { compositeDisposable.add(it) }
     }
@@ -75,7 +77,8 @@ class QuizStompClient {
     private fun subscribeRoomChannels(
         roomId: String,
         onQuizReceived: (QuizQuestion) -> Unit,
-        onResultReceived: (BattleResult) -> Unit
+        onResultReceived: (BattleResult) -> Unit,
+        onPlayerLeft: ((leftPlayerId: String) -> Unit)?
     ) {
         // A. 訂閱題目
         val quizSub = stompClient?.topic("/topic/room/$roomId/quiz")?.subscribe { message ->
@@ -89,8 +92,25 @@ class QuizStompClient {
             onResultReceived(result)
         }
 
+        // C. 👈 新增：訂閱房間狀態事件 (例如對手離開/斷線通知)
+        val roomEventSub = stompClient?.topic("/topic/room/$roomId")?.subscribe { message ->
+            try {
+                val json = com.google.gson.JsonParser.parseString(message.payload).asJsonObject
+                val type = json.get("type")?.asString
+
+                if (type == "PLAYER_LEFT") {
+                    val leftPlayerId = json.get("leftPlayerId")?.asString ?: ""
+                    Log.d("STOMP", "🚪 收到玩家離開訊息: $leftPlayerId")
+                    onPlayerLeft?.invoke(leftPlayerId)
+                }
+            } catch (e: Exception) {
+                Log.e("STOMP", "解析房間事件失敗", e)
+            }
+        }
+
         quizSub?.let { compositeDisposable.add(it) }
         resultSub?.let { compositeDisposable.add(it) }
+        roomEventSub?.let { compositeDisposable.add(it) }
     }
 
     // 4. 發送配對請求 (/app/matchmaking)
@@ -100,6 +120,16 @@ class QuizStompClient {
             Log.d("STOMP", "📤 已送出配對請求: $playerId")
         }, { t ->
             Log.e("STOMP", "配對請求發送失敗", t)
+        })?.let { compositeDisposable.add(it) }
+    }
+
+    // 5. 👈 新增：發送加入房間告知（讓後端 SessionEventListener 記錄 Session 與 Player 對應關係）
+    fun sendJoinRoom(roomId: String) {
+        val payload = gson.toJson(mapOf("playerId" to this.playerId))
+        stompClient?.send("/app/room/$roomId/join", payload)?.subscribe({
+            Log.d("STOMP", "🚪 已發送加入房間請求: $roomId")
+        }, { t ->
+            Log.e("STOMP", "發送加入房間失敗", t)
         })?.let { compositeDisposable.add(it) }
     }
 
