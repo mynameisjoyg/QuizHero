@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 1. 按鈕被停用 (Disabled) 時的背景色：顯示固定的淺灰色 -->
+    <item android:state_enabled="false" android:color="#E0E0E0" />
+
+    <!-- 2. 按鈕被按下 (Pressed) 時的背景色：顯示稍微深一點的灰色 -->
+    <item android:state_pressed="true" android:color="#D6D6D6" />
+
+    <!-- 3. 預設正常狀態 (Enabled) 時的背景色：透明或白色 -->
+    <item android:color="@android:color/transparent" />
+</selector>

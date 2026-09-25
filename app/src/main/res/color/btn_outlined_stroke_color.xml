@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 停用時邊框顏色 -->
+    <item android:state_enabled="false" android:color="#BDBDBD" />
+    <!-- 預設正常時邊框顏色 (假設為主題藍色) -->
+    <item android:color="#2196F3" />
+</selector>

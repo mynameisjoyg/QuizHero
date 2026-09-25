@@ -107,8 +107,10 @@
             android:textStyle="bold"
             android:enabled="false"
             app:cornerRadius="12dp"
-            app:strokeColor="#2196F3"
-            app:strokeWidth="2dp" />
+            app:backgroundTint="@color/btn_outlined_background_tint"
+            app:strokeColor="@color/btn_outlined_stroke_color"
+            app:strokeWidth="2dp"
+            app:rippleColor="#20000000"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnOptionB"
@@ -120,8 +122,10 @@
             android:textStyle="bold"
             android:enabled="false"
             app:cornerRadius="12dp"
-            app:strokeColor="#2196F3"
-            app:strokeWidth="2dp" />
+            app:strokeWidth="2dp"
+            app:backgroundTint="@color/btn_outlined_background_tint"
+            app:strokeColor="@color/btn_outlined_stroke_color"
+            app:rippleColor="#20000000"/>
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnOptionC"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -132,8 +136,10 @@
             android:textStyle="bold"
             android:enabled="false"
             app:cornerRadius="12dp"
-            app:strokeColor="#2196F3"
-            app:strokeWidth="2dp" />
+            app:strokeWidth="2dp"
+            app:backgroundTint="@color/btn_outlined_background_tint"
+            app:strokeColor="@color/btn_outlined_stroke_color"
+            app:rippleColor="#20000000"            />
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnOptionD"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -144,8 +150,10 @@
             android:textStyle="bold"
             android:enabled="false"
             app:cornerRadius="12dp"
-            app:strokeColor="#2196F3"
-            app:strokeWidth="2dp" />
+            app:strokeWidth="2dp"
+            app:backgroundTint="@color/btn_outlined_background_tint"
+            app:strokeColor="@color/btn_outlined_stroke_color"
+            app:rippleColor="#20000000"            />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
