@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.joyg.quizhero.databinding.ActivityBattleBinding
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -50,10 +51,28 @@ class BattleActivity : AppCompatActivity() {
 
     // 1. 宣告 FirebaseFirestore 變數
     private lateinit var db: FirebaseFirestore
-    
+
+    // 2. 宣告 binding 變數
+    private lateinit var binding: ActivityBattleBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_battle)
+
+        // 3. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
+        binding = ActivityBattleBinding.inflate(layoutInflater)
+
+        // 4. 設定內容視圖為 binding.root (代替原本的 R.layout.activity_battle)
+        setContentView(binding.root)
+
+        // 5. 這時候就可以順利使用 binding.root 了！
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            // 為底部的選項區塊加上導覽列高度 Padding，避免被切掉
+            binding.layoutAnswers.setPadding(0, 0, 0, navigationBars.bottom)
+            insets
+        }
+
 
         //記錄開始作答時間
         time_start = getCurrentTimeString()
