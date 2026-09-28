@@ -4,13 +4,17 @@ package com.joyg.quizhero
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
-import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.alibaba.excel.EasyExcel
 import com.alibaba.excel.context.AnalysisContext
 import com.alibaba.excel.read.listener.ReadListener
@@ -22,7 +26,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.joyg.quizhero.databinding.ActivityQuizBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.time.LocalDateTime
@@ -30,7 +37,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
+import androidx.activity.OnBackPressedCallback
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 
@@ -57,18 +64,24 @@ private var percent: Double =0.0
 private lateinit var time_start: String
 private lateinit var time_end: String
 
+// 1. 定義顏色常數 (可以使用 ContextCompat 或 Color.parseColor)
+private val COLOR_CORRECT = Color.parseColor("#4CAF50") // 綠色 (正確)
+private val COLOR_WRONG = Color.parseColor("#F44336")   // 紅色 (選錯)
+private val COLOR_DISABLED = Color.parseColor("#E0E0E0")// 灰色 (未選/停用)
+private val COLOR_TEXT_DISABLED = Color.parseColor("#757575") // 灰色文字
 
 class QuizActivity : ComponentActivity() {
-    private lateinit var tvQuestion: TextView
-    private lateinit var tvTotal: TextView
-    private lateinit var tvCorrect: TextView
-    private lateinit var tv_wrong: TextView
-    private lateinit var tvPercent: TextView
-    private lateinit var tvFacebookUserName: TextView
-    private lateinit var btSubmit: Button
-    private lateinit var btNextQuestion: Button
-    private lateinit var btExit: Button
-    private lateinit var radioGroup: RadioGroup
+    private lateinit var tvQuestionTitle: TextView
+    private lateinit var tvStatus: TextView
+//    private lateinit var tvTotal: TextView
+//    private lateinit var tvCorrect: TextView
+//    private lateinit var tv_wrong: TextView
+//    private lateinit var tvPercent: TextView
+//    private lateinit var tvFacebookUserName: TextView
+//    private lateinit var btSubmit: Button
+//    private lateinit var btNextQuestion: Button
+//    private lateinit var btExit: Button
+//    private lateinit var radioGroup: RadioGroup
 
     // 1. 宣告 FirebaseFirestore 變數
     private lateinit var db: FirebaseFirestore
@@ -83,13 +96,32 @@ class QuizActivity : ComponentActivity() {
     private lateinit var btnOptionC: Button
     private lateinit var btnOptionD: Button
 
+    // 2. 宣告 binding 變數
+    private lateinit var binding: ActivityQuizBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.quiz_activity)
+        setContentView(R.layout.activity_quiz)
+
+        // 3. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
+        binding = ActivityQuizBinding.inflate(layoutInflater)
+
+        // 4. 設定內容視圖為 binding.root (代替原本的 R.layout.activity_battle)
+        setContentView(binding.root)
+
+        // 5. 這時候就可以順利使用 binding.root 了！
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            // 為底部的選項區塊加上導覽列高度 Padding，避免被切掉
+            binding.layoutAnswers.setPadding(0, 0, 0, navigationBars.bottom)
+            insets
+        }
+
+
 
         //取得MainActivity傳送過來的subject
         // 1. 綁定 TextView 元件
-        val tvSelectedSubject: TextView = findViewById(R.id.tv_selected_subject)
+//        val tvSelectedSubject: TextView = findViewById(R.id.tv_selected_subject)
 
         // 2. 接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
         userId = intent.getStringExtra("userId") ?: "未選擇"
@@ -99,21 +131,22 @@ class QuizActivity : ComponentActivity() {
         Log.v("JOYG", "JOYGSAY: getStringExtra, userId=$userId, subject=$subject, volume=$volume, chapter=$chapter")
 
         // 3. 將取得的資料顯示在 TextView 上
-        tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"
+  //      tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"
 
         //記錄開始作答時間
         time_start = getCurrentTimeString()
 
-        btSubmit = findViewById<Button>(R.id.bt_submit)
-        btNextQuestion = findViewById<Button>(R.id.bt_next_question)
-        btExit = findViewById<Button>(R.id.bt_exit)
-        radioGroup = findViewById<RadioGroup>(R.id.rg_options)
-        tvQuestion = findViewById<TextView>(R.id.tv_question)
-        tvTotal = findViewById<TextView>(R.id.tv_total)
-        tvCorrect = findViewById<TextView>(R.id.tv_correct)
-        tv_wrong = findViewById<TextView>(R.id.tv_wrong)
-        tvPercent = findViewById<TextView>(R.id.tv_percent)
-        tvFacebookUserName = findViewById<TextView>(R.id.tv_facebook_user_name)
+//        btSubmit = findViewById<Button>(R.id.bt_submit)
+//        btNextQuestion = findViewById<Button>(R.id.bt_next_question)
+//        btExit = findViewById<Button>(R.id.bt_exit)
+//        radioGroup = findViewById<RadioGroup>(R.id.rg_options)
+        tvQuestionTitle = findViewById<TextView>(R.id.tvQuestionTitle)
+        tvStatus = findViewById(R.id.tvStatus)
+//        tvTotal = findViewById<TextView>(R.id.tv_total)
+//        tvCorrect = findViewById<TextView>(R.id.tv_correct)
+//        tv_wrong = findViewById<TextView>(R.id.tv_wrong)
+//        tvPercent = findViewById<TextView>(R.id.tv_percent)
+//        tvFacebookUserName = findViewById<TextView>(R.id.tv_facebook_user_name)
 
         btnOptionA = findViewById(R.id.btnOptionA)
         btnOptionB = findViewById(R.id.btnOptionB)
@@ -130,58 +163,132 @@ class QuizActivity : ComponentActivity() {
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
 
-        btExit.setOnClickListener {
-            showExitDialog()
-        }
+//        btExit.setOnClickListener {
+//            showExitDialog()
+//        }
 
-        btSubmit.setOnClickListener {
-            //設定可按下一題以及不可以按提交
-            btNextQuestion.isClickable=true
-            btSubmit.isClickable=false
+//        btSubmit.setOnClickListener {
+//            //設定可按下一題以及不可以按提交
+//            btNextQuestion.isClickable=true
+//            btSubmit.isClickable=false
+//
+//            //取得資料庫內正確解答
+//            // 假設 RadioGroup 的 ID 是 rg_options
+//            val radioGroup = findViewById<RadioGroup>(R.id.rg_options) // 請確保 RadioGroup 在 XML 有設定 id
+//
+//            // 1. 取得目前被選中的 RadioButton ID
+//            val selectedId = radioGroup.checkedRadioButtonId
+//
+//            // 2. 判斷是否有選擇選項
+//            if (selectedId != -1) {
+//                // 依據 ID 判斷選了哪一個
+//                val selectedAnswer = when (selectedId) {
+//                    R.id.rb_A -> "A"
+//                    R.id.rb_B -> "B"
+//                    R.id.rb_C -> "C"
+//                    R.id.rb_D -> "D"
+//                    else -> ""
+//                }
+//
+//                if (answer == selectedAnswer) {
+//                    Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
+//                    correct = correct+1
+//                    tvCorrect?.setText("正確數："+correct)
+//
+//                } else {
+//                    Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
+//                    wrong= wrong+1
+//                    tv_wrong?.setText("錯誤數："+wrong)
+//                }
+//                total= total+1
+//                tvTotal?.setText("已完成："+total)
+//                percent = calculatePercentage()
+//                Log.v("JOYG", "JOYG: percent = "+ percent)
+//                tvPercent?.setText("正確率："+String.format("%.1f%%", percent))
+//            } else {
+//                println("使用者還沒選擇任何選項！")
+//            }
+//        }
 
-            //取得資料庫內正確解答
-            // 假設 RadioGroup 的 ID 是 rg_options
-            val radioGroup = findViewById<RadioGroup>(R.id.rg_options) // 請確保 RadioGroup 在 XML 有設定 id
+//        btNextQuestion.setOnClickListener {
+//            queryQuestion(subject, volume, chapter)
+//        }
 
-            // 1. 取得目前被選中的 RadioButton ID
-            val selectedId = radioGroup.checkedRadioButtonId
+        queryQuestion(subject, volume, chapter)
 
-            // 2. 判斷是否有選擇選項
-            if (selectedId != -1) {
-                // 依據 ID 判斷選了哪一個
-                val selectedAnswer = when (selectedId) {
-                    R.id.rb_A -> "A"
-                    R.id.rb_B -> "B"
-                    R.id.rb_C -> "C"
-                    R.id.rb_D -> "D"
-                    else -> ""
-                }
+        //按下四個選項之一
+        val answerClickListener = View.OnClickListener { view ->
+            val selectedOption = (view as Button).text.toString()
 
-                if (answer == selectedAnswer) {
-                    Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
-                    correct = correct+1
-                    tvCorrect?.setText("正確數："+correct)
+            // 匹配括號中的單一英文字母
+            val regex = Regex("""\(([A-Za-z])\)""")
+            val selectedAnswer = regex.find(selectedOption)?.groupValues?.get(1) ?: ""
 
-                } else {
-                    Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
-                    wrong= wrong+1
-                    tv_wrong?.setText("錯誤數："+wrong)
-                }
-                total= total+1
-                tvTotal?.setText("已完成："+total)
-                percent = calculatePercentage()
-                Log.v("JOYG", "JOYG: percent = "+ percent)
-                tvPercent?.setText("正確率："+String.format("%.1f%%", percent))
+            Log.v("JOYG", "JOYGSAY: selectedAnswer=${selectedAnswer}")
+            //
+            if (answer == selectedAnswer) {
+                //Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
+                tvStatus.text = "🏆 恭喜你作答成功！"
+                correct = correct+1
+                //tvCorrect?.setText("正確數："+correct)
+
             } else {
-                println("使用者還沒選擇任何選項！")
+                //Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
+                tvStatus.text = "❌ 答錯了！"
+                wrong= wrong+1
+                //tv_wrong?.setText("錯誤數："+wrong)
+            }
+
+            //設定答案顏色
+            if(answer == "A") {
+                btnOptionA.setBackgroundColor(COLOR_CORRECT)
+            } else if(answer == "B") {
+                btnOptionB.setBackgroundColor(COLOR_CORRECT)
+            } else if (answer == "C") {
+                btnOptionC.setBackgroundColor(COLOR_CORRECT)
+            } else{
+                btnOptionD.setBackgroundColor(COLOR_CORRECT)
+            }
+
+            total= total+1
+            //tvTotal?.setText("已完成："+total)
+            percent = calculatePercentage()
+            Log.v("JOYG", "JOYG: percent = "+ percent)
+            //tvPercent?.setText("正確率："+String.format("%.1f%%", percent))
+            //
+
+            setAnswerButtonsEnabled(false)
+
+            // 啟動協程並延遲 5 秒
+            lifecycleScope.launch {
+                delay(5000) // 延遲 5000 毫秒（非阻塞）
+
+                // 5 秒後要執行的程式碼（依然在主執行緒）
+                queryQuestion(subject, volume, chapter)
+                setAnswerButtonsEnabled(true)
+                tvStatus.text = "❓ 題目來了！請作答！"
+                // 設定選項顏色
+                btnOptionA.setBackgroundColor(COLOR_DISABLED)
+                btnOptionB.setBackgroundColor(COLOR_DISABLED)
+                btnOptionC.setBackgroundColor(COLOR_DISABLED)
+                btnOptionD.setBackgroundColor(COLOR_DISABLED)
+
             }
         }
 
-        btNextQuestion.setOnClickListener {
-            queryQuestion(subject, volume, chapter)
-        }
+        btnOptionA.setOnClickListener(answerClickListener)
+        btnOptionB.setOnClickListener(answerClickListener)
+        btnOptionC.setOnClickListener(answerClickListener)
+        btnOptionD.setOnClickListener(answerClickListener)
+        setAnswerButtonsEnabled(true)
 
-        queryQuestion(subject, volume, chapter)
+        // 設定返回鍵監聽器
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // 當使用者按下返回鍵（實體按鍵或滑動手勢）時會執行這裡
+                showExitDialog()
+            }
+        })
     }
 
     override fun onStart() {
@@ -192,7 +299,7 @@ class QuizActivity : ComponentActivity() {
 
         if (isLoggedIn) {
             // 使用者先前已登入，直接抓取資料顯示
-            fetchUserInfoWithGraphApi(currentAccessToken, tvFacebookUserName)
+            //fetchUserInfoWithGraphApi(currentAccessToken, tvFacebookUserName)
         }
     }
 
@@ -230,12 +337,12 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun queryQuestion(sub:String, vol: String, chap: String){
-        radioGroup.check(R.id.rb_A)
+//        radioGroup.check(R.id.rb_A)
         Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
 
         //設定不可按下一題以及可以按提交
-        btNextQuestion.isClickable=false
-        btSubmit.isClickable=true
+//        btNextQuestion.isClickable=false
+//        btSubmit.isClickable=true
 
         var totalCount = 0
         var randomNumber = 1
@@ -285,17 +392,17 @@ class QuizActivity : ComponentActivity() {
                                     image5=it.image5
                                     image6=it.image6
 
-                                    tvQuestion?.text = it.question
-                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(A\\)"), "\n(A)")
-                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(B\\)"), "\n(B)")
-                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(C"), "\n(C")
-                                    tvQuestion.text = tvQuestion.text.replace(Regex("\\(D\\)"), "\n(D)")
-                                    hintAnswer(answer)
+                                    tvQuestionTitle?.text = it.question
+                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(Regex("\\(A\\)"), "\n(A)")
+                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(Regex("\\(B\\)"), "\n(B)")
+                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(Regex("\\(C"), "\n(C")
+                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(Regex("\\(D\\)"), "\n(D)")
+                                    //hintAnswer(answer)
 
                                     // 1. 擷取選項
                                     //Pattern optionPattern = Pattern.compile("\\([A-D]\\)\\s*[^\\(\\)]+");
                                     val optionPattern: Pattern = Pattern.compile("\\([A-D][^\\(]*")
-                                    val matcher: Matcher = optionPattern.matcher(tvQuestion.text)
+                                    val matcher: Matcher = optionPattern.matcher(tvQuestionTitle.text)
 
                                     val options: MutableList<String?> = ArrayList<String?>()
                                     var firstOptionIndex = -1
@@ -309,10 +416,10 @@ class QuizActivity : ComponentActivity() {
 
                                     // 2. 擷取不含選項的題目主幹
                                     val stem: String =
-                                        (if (firstOptionIndex != -1) tvQuestion.text.substring(
+                                        (if (firstOptionIndex != -1) tvQuestionTitle.text.substring(
                                             0,
                                             firstOptionIndex
-                                        ).trim() else tvQuestion.text.trim()) as String
+                                        ).trim() else tvQuestionTitle.text.trim()) as String
 
                                     val optionA = options.get(0)
                                     val optionB = options.get(1)
@@ -324,11 +431,11 @@ class QuizActivity : ComponentActivity() {
                                     btnOptionC.setText(optionC)
                                     btnOptionD.setText(optionD)
 
-                                    tvQuestion.setText(stem)
+                                    tvQuestionTitle.setText(stem)
 
                                 }
                             } else {
-                                tvQuestion?.text = "找不到題目"
+                                tvQuestionTitle?.text = "找不到題目"
                             }
                         }
                     }
@@ -375,6 +482,14 @@ class QuizActivity : ComponentActivity() {
         // TODO: 這裡寫寫入資料庫或 Call API 儲存分數/作答記錄的邏輯
         Toast.makeText(this, "記錄已成功儲存！", Toast.LENGTH_SHORT).show()
         saveScoreToFirestore()
+    }
+
+    private fun setAnswerButtonsEnabled(enabled: Boolean) {
+        btnOptionA.isEnabled = enabled
+        btnOptionB.isEnabled = enabled
+        btnOptionC.isEnabled = enabled
+        btnOptionD.isEnabled = enabled
+
     }
 
     private fun saveScoreToFirestore(){
@@ -425,23 +540,23 @@ class QuizActivity : ComponentActivity() {
         return current.format(formatter)
     }
 
-    private fun hintAnswer(ans: String){
-        tvTotal?.setText("已完成："+total)
-        tvCorrect?.setText("正確數："+correct)
-        tv_wrong?.setText("錯誤數："+wrong)
-        tvPercent?.setText("答對率："+String.format("%.1f%%", percent))
-
-        if(ans == "A"){
-            tvTotal?.setText("已完成 ："+total)
-        } else if(ans =="B"){
-            tvCorrect?.setText("正確數 ："+correct)
-        } else if(ans == "C"){
-            tv_wrong?.setText("錯誤數 ："+wrong)
-        } else{
-            tvPercent?.setText("答對率 ："+percent)
-        }
-
-    }
+//    private fun hintAnswer(ans: String){
+//        tvTotal?.setText("已完成："+total)
+//        tvCorrect?.setText("正確數："+correct)
+//        tv_wrong?.setText("錯誤數："+wrong)
+//        tvPercent?.setText("答對率："+String.format("%.1f%%", percent))
+//
+//        if(ans == "A"){
+//            tvTotal?.setText("已完成 ："+total)
+//        } else if(ans =="B"){
+//            tvCorrect?.setText("正確數 ："+correct)
+//        } else if(ans == "C"){
+//            tv_wrong?.setText("錯誤數 ："+wrong)
+//        } else{
+//            tvPercent?.setText("答對率 ："+percent)
+//        }
+//
+//    }
     fun calculatePercentage(): Double {
         return if (total!! > 0) {
             (correct?.toDouble()?.div(total!!))?.times(100) ?: 0.0
