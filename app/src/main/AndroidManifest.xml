@@ -43,7 +43,7 @@
         <activity
             android:name=".QuizActivity"
             android:exported="true"
-            android:theme="@style/Theme.QuizHero"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"
             android:windowSoftInputMode="adjustResize">
         </activity>
 

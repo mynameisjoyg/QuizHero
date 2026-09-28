@@ -11,29 +11,26 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
 import com.alibaba.excel.EasyExcel
 import com.alibaba.excel.context.AnalysisContext
 import com.alibaba.excel.read.listener.ReadListener
 import com.facebook.AccessToken
 import com.facebook.AccessTokenTracker
 import com.facebook.CallbackManager
-import com.facebook.FacebookException
-import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
+import com.facebook.GraphRequest
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.InputStream
-import com.facebook.FacebookCallback
-import com.facebook.GraphRequest
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 
@@ -80,6 +77,12 @@ class QuizActivity : ComponentActivity() {
     private lateinit var callbackManager: CallbackManager
     private lateinit var accessTokenTracker: AccessTokenTracker
 
+    //
+    private lateinit var btnOptionA: Button
+    private lateinit var btnOptionB: Button
+    private lateinit var btnOptionC: Button
+    private lateinit var btnOptionD: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.quiz_activity)
@@ -111,6 +114,12 @@ class QuizActivity : ComponentActivity() {
         tv_wrong = findViewById<TextView>(R.id.tv_wrong)
         tvPercent = findViewById<TextView>(R.id.tv_percent)
         tvFacebookUserName = findViewById<TextView>(R.id.tv_facebook_user_name)
+
+        btnOptionA = findViewById(R.id.btnOptionA)
+        btnOptionB = findViewById(R.id.btnOptionB)
+        btnOptionC = findViewById(R.id.btnOptionC)
+        btnOptionD = findViewById(R.id.btnOptionD)
+
 
         total =0
         correct =0
@@ -282,6 +291,41 @@ class QuizActivity : ComponentActivity() {
                                     tvQuestion.text = tvQuestion.text.replace(Regex("\\(C"), "\n(C")
                                     tvQuestion.text = tvQuestion.text.replace(Regex("\\(D\\)"), "\n(D)")
                                     hintAnswer(answer)
+
+                                    // 1. 擷取選項
+                                    //Pattern optionPattern = Pattern.compile("\\([A-D]\\)\\s*[^\\(\\)]+");
+                                    val optionPattern: Pattern = Pattern.compile("\\([A-D][^\\(]*")
+                                    val matcher: Matcher = optionPattern.matcher(tvQuestion.text)
+
+                                    val options: MutableList<String?> = ArrayList<String?>()
+                                    var firstOptionIndex = -1
+
+                                    while (matcher.find()) {
+                                        if (firstOptionIndex == -1) {
+                                            firstOptionIndex = matcher.start() // 記錄第一個選項 (A) 開始的位置
+                                        }
+                                        options.add(matcher.group().trim())
+                                    }
+
+                                    // 2. 擷取不含選項的題目主幹
+                                    val stem: String =
+                                        (if (firstOptionIndex != -1) tvQuestion.text.substring(
+                                            0,
+                                            firstOptionIndex
+                                        ).trim() else tvQuestion.text.trim()) as String
+
+                                    val optionA = options.get(0)
+                                    val optionB = options.get(1)
+                                    val optionC = options.get(2)
+                                    val optionD = options.get(3)
+
+                                    btnOptionA.setText(optionA)
+                                    btnOptionB.setText(optionB)
+                                    btnOptionC.setText(optionC)
+                                    btnOptionD.setText(optionD)
+
+                                    tvQuestion.setText(stem)
+
                                 }
                             } else {
                                 tvQuestion?.text = "找不到題目"
