@@ -221,10 +221,10 @@ class QuizActivity : ComponentActivity() {
             val selectedOption = (view as Button).text.toString()
 
             // 匹配括號中的單一英文字母
-            val regex = Regex("""\(([A-Za-z])\)""")
+            val regex = Regex("""\(\s*([A-Za-z])\s*\)""")
             val selectedAnswer = regex.find(selectedOption)?.groupValues?.get(1) ?: ""
 
-            Log.v("JOYG", "JOYGSAY: selectedAnswer=${selectedAnswer}")
+            Log.v("JOYG", "JOYGSAY: selectedAnswer=${selectedAnswer}, selectedOption=${selectedOption}")
             //
             if (answer == selectedAnswer) {
                 //Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
