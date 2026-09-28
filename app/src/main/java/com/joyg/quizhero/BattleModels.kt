@@ -40,5 +40,6 @@ data class BattleResult(
     @SerializedName("type") val type: String,
     @SerializedName("winnerId") val winnerId: String,
     @SerializedName("isCorrect") val isCorrect: Boolean,
-    @SerializedName("reactionTimeMs") val reactionTimeMs: Long
+    @SerializedName("reactionTimeMs") val reactionTimeMs: Long,
+    @SerializedName("correctAnswer") val correctAnswer: String
 )

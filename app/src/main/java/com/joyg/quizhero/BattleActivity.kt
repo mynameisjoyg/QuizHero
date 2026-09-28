@@ -1,5 +1,6 @@
 package com.joyg.quizhero
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -54,6 +55,12 @@ class BattleActivity : AppCompatActivity() {
 
     // 2. 宣告 binding 變數
     private lateinit var binding: ActivityBattleBinding
+
+    // 1. 定義顏色常數 (可以使用 ContextCompat 或 Color.parseColor)
+    private val COLOR_CORRECT = Color.parseColor("#4CAF50") // 綠色 (正確)
+    private val COLOR_WRONG = Color.parseColor("#F44336")   // 紅色 (選錯)
+    private val COLOR_DISABLED = Color.parseColor("#E0E0E0")// 灰色 (未選/停用)
+    private val COLOR_TEXT_DISABLED = Color.parseColor("#757575") // 灰色文字
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,6 +142,11 @@ class BattleActivity : AppCompatActivity() {
                     btnOptionB.text = quiz.options.getOrNull(1) ?: ""
                     btnOptionC.text = quiz.options.getOrNull(2) ?: ""
                     btnOptionD.text = quiz.options.getOrNull(3) ?: ""
+                    // 設定選項顏色
+                    btnOptionA.setBackgroundColor(COLOR_DISABLED)
+                    btnOptionB.setBackgroundColor(COLOR_DISABLED)
+                    btnOptionC.setBackgroundColor(COLOR_DISABLED)
+                    btnOptionD.setBackgroundColor(COLOR_DISABLED)
                     setAnswerButtonsEnabled(true)
                 }
             },
@@ -148,6 +160,16 @@ class BattleActivity : AppCompatActivity() {
                         tvStatus.text = "❌ 答錯了！"
                     } else if (result.winnerId != userId){
                         tvStatus.text = "❌ 太慢了！對手已先搶答！"
+                    }
+                    Log.v("JOYG", "JOYGSAY: result.correctAnswer= ${result.correctAnswer}")
+                    if(result.correctAnswer == "A") {
+                        btnOptionA.setBackgroundColor(COLOR_CORRECT)
+                    } else if(result.correctAnswer == "B") {
+                        btnOptionB.setBackgroundColor(COLOR_CORRECT)
+                    } else if (result.correctAnswer == "C") {
+                        btnOptionC.setBackgroundColor(COLOR_CORRECT)
+                    } else{
+                        btnOptionD.setBackgroundColor(COLOR_CORRECT)
                     }
                 }
             },
