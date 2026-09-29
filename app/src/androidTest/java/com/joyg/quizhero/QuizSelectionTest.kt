@@ -34,7 +34,8 @@ private lateinit var db: FirebaseFirestore
 class QuizSelectionTest {
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    //val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     @Before
     fun setUp() {
@@ -48,6 +49,11 @@ class QuizSelectionTest {
 
     @Test
     fun testSelectSpinnerItemsAndStartQuiz_DoesNotCrash() {
+        Log.v("testSelectSpinnerItemsAndStartQuiz_DoesNotCrash", "JOYG: testSelectSpinnerItemsAndStartQuiz_DoesNotCrash")
+        SystemClock.sleep(3000)
+        //登入facebook
+        onView(withId(R.id.tv_facebook_user_name)).perform(click())
+
         //Test Geography, volume1~5, chapter 1~6.
         for(volume in 0 until 5){
             for(chapter in 0 until 6){
@@ -118,10 +124,13 @@ class QuizSelectionTest {
 
         // 等待 5 秒
         SystemClock.sleep(3000)
-        onView(withId(R.id.tv_question)).check(matches(isDisplayed()))
+        onView(withId(R.id.tvQuestionTitle)).check(matches(isDisplayed()))
 
         // 6. 重要：返回 MainActivity，以便進行下一個迴圈測試
         Espresso.pressBack()
+
+        // 等待對話框彈出並點擊「不儲存/取消」按鈕 (android.R.id.button2)
+        onView(withId(android.R.id.button2)).perform(click())
 
         // 清除過往的 Intent 紀錄，讓下一次迴圈重新計算
         Intents.release()
