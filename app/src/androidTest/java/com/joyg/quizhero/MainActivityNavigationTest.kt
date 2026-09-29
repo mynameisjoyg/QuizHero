@@ -20,7 +20,7 @@ class MainActivityNavigationTest {
 
     // 啟動 MainActivity
     @get:Rule
-    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
+    val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Before
     fun setUp() {
@@ -36,9 +36,6 @@ class MainActivityNavigationTest {
 
     @Test
     fun testNavigateToQuizActivity() {
-        SystemClock.sleep(3000)
-        //登入facebook
-        onView(withId(R.id.tv_facebook_user_name)).perform(click())
 
         // 1. 模擬使用者點擊出發跳轉的按鈕 (請將 R.id.btn_start_quiz 替換成你 MainActivity 裡的按鈕 ID)
         onView(withId(R.id.bt_exam)).perform(click())
