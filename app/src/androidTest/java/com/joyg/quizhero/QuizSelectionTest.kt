@@ -34,8 +34,7 @@ private lateinit var db: FirebaseFirestore
 class QuizSelectionTest {
 
     @get:Rule
-    //val activityRule = ActivityScenarioRule(MainActivity::class.java)
-    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
+    val activityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Before
     fun setUp() {
@@ -49,10 +48,6 @@ class QuizSelectionTest {
 
     @Test
     fun testSelectSpinnerItemsAndStartQuiz_DoesNotCrash() {
-        Log.v("testSelectSpinnerItemsAndStartQuiz_DoesNotCrash", "JOYG: testSelectSpinnerItemsAndStartQuiz_DoesNotCrash")
-        SystemClock.sleep(3000)
-        //登入facebook
-        onView(withId(R.id.tv_facebook_user_name)).perform(click())
 
         //Test Geography, volume1~5, chapter 1~6.
         for(volume in 0 until 5){
