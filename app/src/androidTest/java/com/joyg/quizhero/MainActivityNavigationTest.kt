@@ -1,5 +1,6 @@
 package com.joyg.quizhero // 請改成你專案實際的 package 名稱
 
+import android.os.SystemClock
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.intent.Intents
@@ -19,7 +20,7 @@ class MainActivityNavigationTest {
 
     // 啟動 MainActivity
     @get:Rule
-    val activityRule = ActivityScenarioRule(MainActivity::class.java)
+    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     @Before
     fun setUp() {
@@ -35,6 +36,10 @@ class MainActivityNavigationTest {
 
     @Test
     fun testNavigateToQuizActivity() {
+        SystemClock.sleep(3000)
+        //登入facebook
+        onView(withId(R.id.tv_facebook_user_name)).perform(click())
+
         // 1. 模擬使用者點擊出發跳轉的按鈕 (請將 R.id.btn_start_quiz 替換成你 MainActivity 裡的按鈕 ID)
         onView(withId(R.id.bt_exam)).perform(click())
 
