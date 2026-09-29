@@ -48,8 +48,8 @@ class MainActivity : ComponentActivity() {
         //val bt_add = findViewById<Button>(R.id.bt_add)
         //val bt_delete = findViewById<Button>(R.id.bt_delete)
 
-        val bt_exam = findViewById<Button>(R.id.bt_exam)
-        val bt_battle = findViewById<Button>(R.id.bt_battle)
+        val bt_exam: Button = findViewById(R.id.bt_exam)
+        val bt_battle: Button = findViewById(R.id.bt_battle)
 
         sp_subject = findViewById(R.id.sp_subject)
         sp_volume = findViewById(R.id.sp_volume)
