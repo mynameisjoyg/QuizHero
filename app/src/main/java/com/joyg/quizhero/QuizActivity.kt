@@ -38,6 +38,7 @@ import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import androidx.activity.OnBackPressedCallback
+import kotlinx.coroutines.tasks.await
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 
@@ -523,40 +524,87 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun saveScoreToFirestore(){
-        //記錄結束時間
-        time_end = getCurrentTimeString()
+//        //記錄結束時間
+//        time_end = getCurrentTimeString()
+//
+//        // 生成一個像是 "550e8400-e29b-41d4-a716-446655440000" 的獨一無二字串
+//        val uniqueId: String = UUID.randomUUID().toString()
+//
+//        Log.d("FirestoreDemo", "JOYGSAY: Call saveScoreToFirestore.")
+//        Log.v("JOYG", "JOYGSAY: in saveScoreToFirestore, userId=" + userId)
+//        // 建立要傳入 Firestore 的資料 (HashMap 結構)
+//        val score = hashMapOf(
+//            "id" to uniqueId,
+//            "user_id" to userId,
+//            "subject" to subject,
+//            "volume" to volume,
+//            "chapter" to chapter,
+//            "correct" to correct,
+//            "wrong" to wrong,
+//            "time_start" to time_start,
+//            "time_end" to time_end,
+//        )
+//
+//        // 4. 指定集合名稱 "Score"，並自動產生文件 ID 新增資料 (.add)
+//        db.collection("Score")
+//            .add(score)
+//            .addOnSuccessListener { documentReference ->
+//                // 新增成功時的回呼
+//                Log.d("FirestoreDemo", "JOYGSAY: 記錄新增成功.")
+//                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+//            }
+//            .addOnFailureListener { e ->
+//                // 新增失敗時的回呼
+//                Log.w("FirestoreDemo", "JOYGSAY: 新增資料時發生錯誤", e)
+//                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }
 
-        // 生成一個像是 "550e8400-e29b-41d4-a716-446655440000" 的獨一無二字串
-        val uniqueId: String = UUID.randomUUID().toString()
+        //先取得最新的totalCorrectCount
+        Log.v("JOYG", "JOYGSAY: userId=${userId}")
+        val db = FirebaseFirestore.getInstance()
+        db.collection("User").whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // 取得 totalCorrectCount 欄位，若為 null 或不存在則預設為 0
+                    var totalCorrectCount = querySnapshot.documents[0].getLong("totalCorrectCount")?.toInt() ?: 0
+                    totalCorrectCount = totalCorrectCount + correct
 
-        Log.d("FirestoreDemo", "JOYGSAY: Call saveScoreToFirestore.")
-        // 建立要傳入 Firestore 的資料 (HashMap 結構)
-        val score = hashMapOf(
-            "id" to uniqueId,
-            "user_id" to userId,
-            "subject" to subject,
-            "volume" to volume,
-            "chapter" to chapter,
-            "correct" to correct,
-            "wrong" to wrong,
-            "time_start" to time_start,
-            "time_end" to time_end,
-        )
+                    //把新的答對數更新到User資料表當中
+                    db.collection("User")
+                        .whereEqualTo("id", userId.trim())
+                        .get()
+                        .addOnSuccessListener { querySnapshot ->
+                            if (!querySnapshot.isEmpty) {
+                                // 2. 取得符合條件的第一筆文件
+                                val document = querySnapshot.documents[0]
 
-        // 4. 指定集合名稱 "Score"，並自動產生文件 ID 新增資料 (.add)
-        db.collection("Score")
-            .add(score)
-            .addOnSuccessListener { documentReference ->
-                // 新增成功時的回呼
-                Log.d("FirestoreDemo", "JOYGSAY: 記錄新增成功.")
-                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
+                                // 3. 取得該文件真正的 Firestore Document ID
+                                val realDocId = document.id
+
+                                // 4. 使用真正的 realDocId 執行 update
+                                db.collection("User").document(realDocId)
+                                    .update("totalCorrectCount", totalCorrectCount)
+                                    .addOnSuccessListener {
+                                        Log.d("Firestore", "JOYGSAY: 更新成功！Document ID: $realDocId")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("Firestore", "JOYGSAY: 更新失敗: ${e.message}")
+                                    }
+                            } else {
+                                Log.e("Firestore", "JOYGSAY: 更新失敗：找不到欄位 id 等於 [$userId] 的使用者文件")
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("Firestore", "JOYGSAY: 查詢時發生錯誤: ${exception.message}", exception)
+                        }
+                } else {
+                    Log.d("Firestore", "JOYGSAY: 找不到該使用者的資料")
+                }
             }
-            .addOnFailureListener { e ->
-                // 新增失敗時的回呼
-                Log.w("FirestoreDemo", "JOYGSAY: 新增資料時發生錯誤", e)
-                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { exception ->
+                Log.e("Firestore", "JOYGSAY: 讀取資料失敗", exception)
             }
-
     }
 
     fun getCurrentTimeString(): String {

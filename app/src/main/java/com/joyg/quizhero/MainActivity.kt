@@ -21,6 +21,7 @@ import com.facebook.AccessToken
 import com.facebook.AccessTokenTracker
 import com.facebook.CallbackManager
 import com.google.firebase.Firebase
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch
@@ -226,28 +227,15 @@ class MainActivity : ComponentActivity() {
                 for (userDoc in userSnapshots.documents) {
                     val id = userDoc.getString("id") ?: continue
                     val name = userDoc.getString("name") ?: "Unknown"
-                    var totalCorrectCount = 0
+                    var totalCorrectCount = userDoc.getLong("totalCorrectCount")?:0
 
-                    Log.v("JOYG", "JOYGSAY: id=$id, name=$name")
-
-                    // 3. 查詢該使用者的所有 Score 紀錄
-                    val scoreSnapshots = db.collection("Score")
-                        .whereEqualTo("user_id", id)
-                        .get()
-                        .await()
-
-                    Log.v("JOYG", "JOYGSAY: score_count = ${scoreSnapshots.documents.size}")
-
-                    // 4. 累加得分
-                    for (scoreDoc in scoreSnapshots.documents) {
-                        val correct = scoreDoc.getLong("correct")?.toInt() ?: 0
-                        totalCorrectCount += correct
-                    }
+                    Log.v("JOYG", "JOYGSAY: id=$id, name=$name, totalCorrectCount=${totalCorrectCount}")
 
                     Log.v("JOYG", "JOYGSAY: name=$name, totalCorrectCount=$totalCorrectCount")
 
                     // 5. 將該位使用者的總分加入暫存列表
                     newLeaderboardList.add(LeaderboardUser(id, name, totalCorrectCount.toString()))
+
                 }
 
                 // 6. 依照答對題數由高到低排序排行榜
