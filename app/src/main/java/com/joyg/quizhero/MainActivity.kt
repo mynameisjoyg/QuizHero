@@ -1,7 +1,6 @@
 package com.joyg.quizhero
 
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +8,6 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -17,11 +15,8 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.facebook.AccessToken
-import com.facebook.AccessTokenTracker
 import com.facebook.CallbackManager
 import com.google.firebase.Firebase
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.launch

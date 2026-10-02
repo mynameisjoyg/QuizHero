@@ -354,125 +354,106 @@ class QuizActivity : ComponentActivity() {
                 if (document != null && document.exists()) {
                     //取得全部題目個數
                     totalCount = document.get("Volume"+vol + "Chapter" + chap + "QuestionCount").toString().toInt()
+                    //取得該冊目、該章節的第一題的ID
+                    QuestionFirstId = document.get("Volume"+vol + "Chapter" + chap + "QuestionFirstId").toString().toInt()
+
                     //取得隨機題目id
                     randomNumber = (0..totalCount - 1).random()
                     Log.v("JOYG", "JOYGSAY: totalCount=" + totalCount + ", randomNumber=" + randomNumber)
 
-                    db.collection("MetaData").document(sub)
+                    //利用第一題的ID+隨機數字，組成隨機ID，來取得題目、解答和詳解
+                    val randomId = QuestionFirstId + randomNumber
+                    Log.v("JOYG", "JOYGSAY: randomId=${randomId}")
+                    db.collection("${sub}_Quiz")
+                        .whereEqualTo("volume", vol)
+                        .whereEqualTo("chapter", chap)
+                        .whereEqualTo("id", randomId)
+                        .limit(1)
                         .get()
-                        .addOnSuccessListener { document ->
-                            if (document != null && document.exists()) {
-                                //取得該冊目、該章節的第一題的ID
-                                QuestionFirstId = document.get("Volume"+vol + "Chapter" + chap + "QuestionFirstId").toString().toInt()
+                        .addOnSuccessListener { querySnapshot ->
+                            if (!querySnapshot.isEmpty) {
+                                //把題目顯示出來
+                                if (!querySnapshot.isEmpty) {
+                                    // 1. 轉成 Quiz 物件
+                                    val quiz = querySnapshot.documents[0].toObject(Quiz::class.java)
 
-                                //利用第一題的ID+隨機數字，組成隨機ID，來取得題目、解答和詳解
-                                val randomId = QuestionFirstId + randomNumber
-                                Log.v("JOYG", "JOYGSAY: randomId=${randomId}")
-                                db.collection("${sub}_Quiz")
-                                    .whereEqualTo("volume", vol)
-                                    .whereEqualTo("chapter", chap)
-                                    .whereEqualTo("id", randomId)
-                                    .limit(1)
-                                    .get()
-                                    .addOnSuccessListener { querySnapshot ->
-                                        if (!querySnapshot.isEmpty) {
-                                            //把題目顯示出來
-                                            if (!querySnapshot.isEmpty) {
-                                                // 1. 轉成 Quiz 物件
-                                                val quiz = querySnapshot.documents[0].toObject(Quiz::class.java)
+                                    // 2. 取出 question 欄位並設定給 TextView
+                                    quiz?.let {
+                                        id = it.id
+                                        subject = it.subject
+                                        volume = it.volume
+                                        chapter = it.chapter
+                                        answer = it.answer
+                                        question = it.question
+                                        solution = it.solution
+                                        image1 = it.image1
+                                        image2 = it.image2
+                                        image3 = it.image3
+                                        image4 = it.image4
+                                        image5 = it.image5
+                                        image6 = it.image6
 
-                                                // 2. 取出 question 欄位並設定給 TextView
-                                                quiz?.let {
-                                                    id = it.id
-                                                    subject = it.subject
-                                                    volume = it.volume
-                                                    chapter = it.chapter
-                                                    answer = it.answer
-                                                    question = it.question
-                                                    solution = it.solution
-                                                    image1 = it.image1
-                                                    image2 = it.image2
-                                                    image3 = it.image3
-                                                    image4 = it.image4
-                                                    image5 = it.image5
-                                                    image6 = it.image6
+                                        tvQuestionTitle?.text = it.question
+                                        tvQuestionTitle.text = tvQuestionTitle.text.replace(
+                                            Regex("\\(A\\)"),
+                                            "\n(A)"
+                                        )
+                                        tvQuestionTitle.text = tvQuestionTitle.text.replace(
+                                            Regex("\\(B\\)"),
+                                            "\n(B)"
+                                        )
+                                        tvQuestionTitle.text =
+                                            tvQuestionTitle.text.replace(Regex("\\(C"), "\n(C")
+                                        tvQuestionTitle.text = tvQuestionTitle.text.replace(
+                                            Regex("\\(D\\)"),
+                                            "\n(D)"
+                                        )
+                                        //hintAnswer(answer)
 
-                                                    tvQuestionTitle?.text = it.question
-                                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(
-                                                        Regex("\\(A\\)"),
-                                                        "\n(A)"
-                                                    )
-                                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(
-                                                        Regex("\\(B\\)"),
-                                                        "\n(B)"
-                                                    )
-                                                    tvQuestionTitle.text =
-                                                        tvQuestionTitle.text.replace(Regex("\\(C"), "\n(C")
-                                                    tvQuestionTitle.text = tvQuestionTitle.text.replace(
-                                                        Regex("\\(D\\)"),
-                                                        "\n(D)"
-                                                    )
-                                                    //hintAnswer(answer)
+                                        // 1. 擷取選項
+                                        //Pattern optionPattern = Pattern.compile("\\([A-D]\\)\\s*[^\\(\\)]+");
+                                        val optionPattern: Pattern =
+                                            Pattern.compile("\\([A-D][^\\(]*")
+                                        val matcher: Matcher =
+                                            optionPattern.matcher(tvQuestionTitle.text)
 
-                                                    // 1. 擷取選項
-                                                    //Pattern optionPattern = Pattern.compile("\\([A-D]\\)\\s*[^\\(\\)]+");
-                                                    val optionPattern: Pattern =
-                                                        Pattern.compile("\\([A-D][^\\(]*")
-                                                    val matcher: Matcher =
-                                                        optionPattern.matcher(tvQuestionTitle.text)
+                                        val options: MutableList<String?> = ArrayList<String?>()
+                                        var firstOptionIndex = -1
 
-                                                    val options: MutableList<String?> = ArrayList<String?>()
-                                                    var firstOptionIndex = -1
-
-                                                    while (matcher.find()) {
-                                                        if (firstOptionIndex == -1) {
-                                                            firstOptionIndex =
-                                                                matcher.start() // 記錄第一個選項 (A) 開始的位置
-                                                        }
-                                                        options.add(matcher.group().trim())
-                                                    }
-
-                                                    // 2. 擷取不含選項的題目主幹
-                                                    val stem: String =
-                                                        (if (firstOptionIndex != -1) tvQuestionTitle.text.substring(
-                                                            0,
-                                                            firstOptionIndex
-                                                        ).trim() else tvQuestionTitle.text.trim()) as String
-
-                                                    val optionA = options.get(0)
-                                                    val optionB = options.get(1)
-                                                    val optionC = options.get(2)
-                                                    val optionD = options.get(3)
-
-                                                    btnOptionA.setText(optionA)
-                                                    btnOptionB.setText(optionB)
-                                                    btnOptionC.setText(optionC)
-                                                    btnOptionD.setText(optionD)
-
-                                                    tvQuestionTitle.setText(stem)
-
-                                                }
-                                            } else {
-                                                tvQuestionTitle?.text = "找不到題目"
+                                        while (matcher.find()) {
+                                            if (firstOptionIndex == -1) {
+                                                firstOptionIndex =
+                                                    matcher.start() // 記錄第一個選項 (A) 開始的位置
                                             }
+                                            options.add(matcher.group().trim())
                                         }
+
+                                        // 2. 擷取不含選項的題目主幹
+                                        val stem: String =
+                                            (if (firstOptionIndex != -1) tvQuestionTitle.text.substring(
+                                                0,
+                                                firstOptionIndex
+                                            ).trim() else tvQuestionTitle.text.trim()) as String
+
+                                        val optionA = options.get(0)
+                                        val optionB = options.get(1)
+                                        val optionC = options.get(2)
+                                        val optionD = options.get(3)
+
+                                        btnOptionA.setText(optionA)
+                                        btnOptionB.setText(optionB)
+                                        btnOptionC.setText(optionC)
+                                        btnOptionD.setText(optionD)
+
+                                        tvQuestionTitle.setText(stem)
+
                                     }
-                            } else {
-                                Log.v("JOYG", "JOYGSAY: in queryQuestion, MetaData中找不到${sub}")
-                                Toast.makeText(this, "MetaData中找不到${sub}", Toast.LENGTH_SHORT)
-                                    .show()
+                                } else {
+                                    tvQuestionTitle?.text = "找不到題目"
+                                }
                             }
-
                         }
-                        .addOnFailureListener { e ->
-                            Log.d("FirestoreDemo", "取得全部題目個數失敗", e)
-                            Toast.makeText(
-                                this,
-                                "取得全部題目個數失敗: ${e.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
 
-                        }
                 } else{
                     Log.v("JOYG", "JOYGSAY: in queryQuestion, MetaData中找不到${sub}")
                     Toast.makeText(this, "MetaData中找不到${sub}", Toast.LENGTH_SHORT).show()
