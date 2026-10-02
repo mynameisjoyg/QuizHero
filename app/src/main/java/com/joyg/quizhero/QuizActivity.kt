@@ -544,6 +544,7 @@ class QuizActivity : ComponentActivity() {
         Log.v("JOYG", "JOYGSAY: userId=${userId}")
         val db = FirebaseFirestore.getInstance()
         db.collection("User").whereEqualTo("id", userId)
+            .limit(1)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
@@ -551,33 +552,14 @@ class QuizActivity : ComponentActivity() {
                     var totalCorrectCount = querySnapshot.documents[0].getLong("totalCorrectCount")?.toInt() ?: 0
                     totalCorrectCount = totalCorrectCount + correct
 
-                    //把新的答對數更新到User資料表當中
-                    db.collection("User")
-                        .whereEqualTo("id", userId.trim())
-                        .get()
-                        .addOnSuccessListener { querySnapshot ->
-                            if (!querySnapshot.isEmpty) {
-                                // 2. 取得符合條件的第一筆文件
-                                val document = querySnapshot.documents[0]
-
-                                // 3. 取得該文件真正的 Firestore Document ID
-                                val realDocId = document.id
-
-                                // 4. 使用真正的 realDocId 執行 update
-                                db.collection("User").document(realDocId)
-                                    .update("totalCorrectCount", totalCorrectCount)
-                                    .addOnSuccessListener {
-                                        Log.d("Firestore", "JOYGSAY: 更新成功！Document ID: $realDocId")
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Log.e("Firestore", "JOYGSAY: 更新失敗: ${e.message}")
-                                    }
-                            } else {
-                                Log.e("Firestore", "JOYGSAY: 更新失敗：找不到欄位 id 等於 [$userId] 的使用者文件")
-                            }
+                    //把總正確答對數更新到User資料表當中
+                    db.collection("User").document(querySnapshot.documents[0].id)
+                        .update("totalCorrectCount", totalCorrectCount)
+                        .addOnSuccessListener {
+                            Log.d("Firestore", "JOYGSAY: 更新成功！")
                         }
-                        .addOnFailureListener { exception ->
-                            Log.e("Firestore", "JOYGSAY: 查詢時發生錯誤: ${exception.message}", exception)
+                        .addOnFailureListener { e ->
+                            Log.e("Firestore", "JOYGSAY: 更新失敗: ${e.message}")
                         }
                 } else {
                     Log.d("Firestore", "JOYGSAY: 找不到該使用者的資料")
