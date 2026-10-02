@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingTop="26dp">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_facebook_user_name"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="未登入"
-            android:textSize="18sp" />
+            android:layout_gravity="center_horizontal"
+            app:cardElevation="6dp"
+            app:cardCornerRadius="8dp"
+            app:strokeColor="#CCCCCC"
+            app:strokeWidth="1dp"
+            app:cardBackgroundColor="@color/white">
 
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_facebook_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="未登入"
+                android:textSize="18sp" />
+
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
     <LinearLayout
@@ -27,12 +40,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="科目：" />
+            android:text="科目："
+            android:textSize="18sp" />
 
         <Spinner
             android:id="@+id/sp_subject"
@@ -41,12 +55,13 @@
             android:gravity="center"
             android:text="科目"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_volume"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="冊目：" />
+            android:text="冊目："
+            android:textSize="18sp" />
 
         <Spinner
             android:id="@+id/sp_volume"
@@ -55,12 +70,13 @@
             android:gravity="center"
             android:text="冊目"/>
 
-        <TextView
+        <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv_chapter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="章節：" />
+            android:text="章節："
+            android:textSize="18sp" />
 
         <Spinner
             android:id="@+id/sp_chapter"
