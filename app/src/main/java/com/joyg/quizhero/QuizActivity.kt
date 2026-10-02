@@ -408,7 +408,6 @@ class QuizActivity : ComponentActivity() {
                                             Regex("\\(D\\)"),
                                             "\n(D)"
                                         )
-                                        //hintAnswer(answer)
 
                                         // 1. 擷取選項
                                         //Pattern optionPattern = Pattern.compile("\\([A-D]\\)\\s*[^\\(\\)]+");
@@ -435,10 +434,20 @@ class QuizActivity : ComponentActivity() {
                                                 firstOptionIndex
                                             ).trim() else tvQuestionTitle.text.trim()) as String
 
-                                        val optionA = options.get(0)
-                                        val optionB = options.get(1)
-                                        val optionC = options.get(2)
-                                        val optionD = options.get(3)
+                                        var optionA = options.get(0)
+                                        var optionB = options.get(1)
+                                        var optionC = options.get(2)
+                                        var optionD = options.get(3)
+
+                                        if(answer == "A"){
+                                            optionA = optionA + "."
+                                        } else if(answer =="B"){
+                                            optionB = optionB  + "."
+                                        } else if(answer == "C"){
+                                            optionC = optionC  + "."
+                                        } else{
+                                            optionD = optionD + "."
+                                        }
 
                                         btnOptionA.setText(optionA)
                                         btnOptionB.setText(optionB)
@@ -581,23 +590,6 @@ class QuizActivity : ComponentActivity() {
         return current.format(formatter)
     }
 
-//    private fun hintAnswer(ans: String){
-//        tvTotal?.setText("已完成："+total)
-//        tvCorrect?.setText("正確數："+correct)
-//        tv_wrong?.setText("錯誤數："+wrong)
-//        tvPercent?.setText("答對率："+String.format("%.1f%%", percent))
-//
-//        if(ans == "A"){
-//            tvTotal?.setText("已完成 ："+total)
-//        } else if(ans =="B"){
-//            tvCorrect?.setText("正確數 ："+correct)
-//        } else if(ans == "C"){
-//            tv_wrong?.setText("錯誤數 ："+wrong)
-//        } else{
-//            tvPercent?.setText("答對率 ："+percent)
-//        }
-//
-//    }
     fun calculatePercentage(): Double {
         return if (total!! > 0) {
             (correct?.toDouble()?.div(total!!))?.times(100) ?: 0.0

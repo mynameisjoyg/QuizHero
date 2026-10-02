@@ -122,10 +122,10 @@ class BattleActivity : AppCompatActivity() {
                     btnMatch.isEnabled = true
                 }
             },
-            onMatched = { matchData ->
+            onMatched = { matchData ->  //matchData的型態是MatchResponse
                 currentRoomId = matchData.roomId
                 runOnUiThread {
-                    tvStatus.text = "🎉 配對成功！房間: ${matchData.roomId.take(8)}\n等待發題中..."
+                    tvStatus.text = "🎉 配對成功！房間: ${matchData.roomId.take(8)}\n等待發題中..." //只顯示前8個字元
                     btnMatch.visibility = View.GONE
                 }
                 // 配對成功後呼叫 join 告知後端綁定 Session

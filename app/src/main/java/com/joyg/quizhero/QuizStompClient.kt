@@ -29,6 +29,7 @@ class QuizStompClient {
     ) {
         this.playerId = playerId
         Log.v("JOYG", "JOYG: in QuizStompClient, connect, playerId=${playerId}")
+        //建立一個 STOMP 客戶端（Client）實例，並指定使用 OkHttp 作為底層的 WebSocket 傳輸工具。
         stompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, wsUrl)
 
         // 1. 監聽 STOMP 生命週期
@@ -36,7 +37,7 @@ class QuizStompClient {
             when (event.type) {
                 LifecycleEvent.Type.OPENED -> {
                     Log.d("STOMP", "✅ WebSocket 連線建立成功")
-                    onConnected()
+                    onConnected() //呼叫BattleActivity.kt當中，stompClient.connect()內實作onConnected = {...}那段
 
                     // 連線成功後，立刻訂閱玩家個人配對頻道
                     subscribeMatchChannel(playerId, onMatched, onQuizReceived, onResultReceived, onPlayerLeft)
@@ -108,7 +109,7 @@ class QuizStompClient {
             }
         }
 
-        quizSub?.let { compositeDisposable.add(it) }
+        quizSub?.let { compositeDisposable.add(it) } //CompositeDisposable 是一個用來集中管理多個 Disposable 的容器。把這次發送請求產生的 Disposable（it）加入到容器中儲存起來，避免記憶體洩漏（Memory Leak）和在無效狀態下更新 UI（Crash 崩潰）。
         resultSub?.let { compositeDisposable.add(it) }
         roomEventSub?.let { compositeDisposable.add(it) }
     }
@@ -125,7 +126,7 @@ class QuizStompClient {
 
     // 5. 👈 新增：發送加入房間告知（讓後端 SessionEventListener 記錄 Session 與 Player 對應關係）
     fun sendJoinRoom(roomId: String) {
-        val payload = gson.toJson(mapOf("playerId" to this.playerId))
+        val payload = gson.toJson(mapOf("playerId" to this.playerId)) //to是一種中綴函式，代表把 "playerId" 對應到 this.playerId
         stompClient?.send("/app/room/$roomId/join", payload)?.subscribe({
             Log.d("STOMP", "🚪 已發送加入房間請求: $roomId")
         }, { t ->
