@@ -1,5 +1,7 @@
 package com.joyg.quizhero
 
+import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +22,25 @@ class CardAdapter(private val items: MutableList<String>) :
     }
 
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        holder.tvTitle.text = items[position]
+        // 紀錄當前選中的位置 (-1 表示無選中)
+        var selectedPosition = -1
+        val item = items[position]
+        holder.tvTitle.text = item
+
+        val cardView = holder.itemView as com.google.android.material.card.MaterialCardView
+
+        // 設定卡片是否為選中 (反白) 狀態
+        cardView.isChecked = (position == selectedPosition)
+
+        // 點擊事件：切換反白
+        holder.itemView.setOnClickListener {
+            val previousSelected = selectedPosition
+            selectedPosition = holder.adapterPosition
+
+            // 刷新舊項目與新項目以切換反白效果
+            //notifyItemChanged(previousSelected)
+            notifyItemChanged(selectedPosition)
+        }
     }
 
     override fun getItemCount(): Int = items.size

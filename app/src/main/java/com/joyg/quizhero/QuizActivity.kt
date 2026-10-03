@@ -45,9 +45,9 @@ private lateinit var firebaseAnalytics: FirebaseAnalytics
 private var id: Int = 0
 private lateinit var userId: String
 
-private var subject: String = ""
-private var volume: String =""
-private var chapter: String =""
+var subject: String = ""
+var volume: String =""
+var chapter: String =""
 private var answer: String = ""
 private var question: String = ""
 private var solution: String = ""

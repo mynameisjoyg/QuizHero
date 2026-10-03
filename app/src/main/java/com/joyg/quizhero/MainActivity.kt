@@ -1,6 +1,7 @@
 package com.joyg.quizhero
 
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -43,6 +44,9 @@ class MainActivity : ComponentActivity() {
     //Swipe Card
     private val itemList = mutableListOf("English", "Chinese", "Geography")
     private lateinit var cardAdapter: CardAdapter
+    var selectedSubject = ""
+    var selectedVolume = ""
+    var selectedChapter = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +67,23 @@ class MainActivity : ComponentActivity() {
                 }
                 ItemTouchHelper.LEFT -> {
                     //Toast.makeText(this, "剔除/不喜歡: ${itemList[position]}", Toast.LENGTH_SHORT).show()
+                }
+
+                ItemTouchHelper.UP -> {
+                    if (position == 0) {
+                        selectedSubject="English"
+                        selectedVolume="1"
+                        selectedChapter="1"
+                    }
+                    else if(position ==1) {
+                        selectedSubject="Chinese"
+                        selectedVolume="1"
+                        selectedChapter="1"
+                    } else{
+                        selectedSubject="Geography"
+                        selectedVolume="1"
+                        selectedChapter="1"
+                    }
                 }
             }
             //cardAdapter.notifyItemRemoved(position)
@@ -95,9 +116,6 @@ class MainActivity : ComponentActivity() {
         lateinit var spSubjectAdapter : ArrayAdapter<Any?>
         lateinit var spVolumeAdapter : ArrayAdapter<Any?>
         lateinit var spChapterAdapter : ArrayAdapter<Any?>
-        var selectedSubject = ""
-        var selectedVolume = ""
-        var selectedChapter = ""
 
         //sp_subject
         spSubjectAdapter = ArrayAdapter(
