@@ -559,11 +559,16 @@ class QuizActivity : ComponentActivity() {
                 if (!querySnapshot.isEmpty) {
                     // 取得 totalCorrectCount 欄位，若為 null 或不存在則預設為 0
                     var totalCorrectCount = querySnapshot.documents[0].getLong("totalCorrectCount")?.toInt() ?: 0
+                    var totalWrongCount = querySnapshot.documents[0].getLong("totalWrongCount")?.toInt() ?: 0
                     totalCorrectCount = totalCorrectCount + correct
+                    totalWrongCount = totalWrongCount + wrong
 
-                    //把總正確答對數更新到User資料表當中
+                    //把總正確答對數與總答錯數更新到User資料表當中
                     db.collection("User").document(querySnapshot.documents[0].id)
-                        .update("totalCorrectCount", totalCorrectCount)
+                        .update(
+                            "totalCorrectCount", totalCorrectCount,
+                            "totalWrongCount", totalWrongCount
+                        )
                         .addOnSuccessListener {
                             Log.d("Firestore", "JOYGSAY: 更新成功！")
                         }

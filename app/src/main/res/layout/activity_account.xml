@@ -61,6 +61,14 @@
                 android:textColor="#333333"
                 android:textSize="18sp"/>
 
+            <TextView
+                android:id="@+id/tvTotalWrongCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="總答錯題數: "
+                android:textColor="#333333"
+                android:textSize="18sp"/>
+
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
