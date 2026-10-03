@@ -91,22 +91,26 @@
         android:id="@+id/bt_exam"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp"
         android:text="開始作答"
         android:textSize="18sp"
         android:textStyle="bold"
         android:enabled="true"
-        app:cornerRadius="12dp"
-        android:layout_marginTop="24dp" />
+        app:cornerRadius="12dp" />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_battle"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp"
         android:text="開始對戰"
         android:textSize="18sp"
         android:textStyle="bold"
         android:enabled="true"
-        app:cornerRadius="12dp"
-        android:layout_marginTop="24dp" />
+        app:cornerRadius="12dp" />
 
 <!--    <LinearLayout-->
 <!--        android:layout_width="wrap_content"-->
