@@ -13,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.CallbackManager
@@ -39,9 +40,39 @@ class MainActivity : ComponentActivity() {
     //登入臉書用
     private lateinit var callbackManager: CallbackManager
 
+    //Swipe Card
+    private val itemList = mutableListOf("English", "Chinese", "Geography")
+    private lateinit var cardAdapter: CardAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+
+
+        val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        cardAdapter = CardAdapter(itemList)
+
+        swipeCardRecyclerView.layoutManager = LinearLayoutManager(this)
+        swipeCardRecyclerView.adapter = cardAdapter
+
+        // 設定並附加 ItemTouchHelper
+        val swipeCallback = CardSwipeCallback { position, direction ->
+            when (direction) {
+                ItemTouchHelper.RIGHT -> {
+                    //Toast.makeText(this, "通過/保留: ${itemList[position]}", Toast.LENGTH_SHORT).show()
+                }
+                ItemTouchHelper.LEFT -> {
+                    //Toast.makeText(this, "剔除/不喜歡: ${itemList[position]}", Toast.LENGTH_SHORT).show()
+                }
+            }
+            //cardAdapter.notifyItemRemoved(position)
+            cardAdapter.moveToBottom(position)
+        }
+
+        val itemTouchHelper = ItemTouchHelper(swipeCallback)
+        itemTouchHelper.attachToRecyclerView(swipeCardRecyclerView)
+
+
 
         //val bt_add = findViewById<Button>(R.id.bt_add)
         //val bt_delete = findViewById<Button>(R.id.bt_delete)

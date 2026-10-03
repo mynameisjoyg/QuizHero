@@ -89,6 +89,11 @@
 
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="300dp" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/bt_exam"
         android:layout_width="match_parent"
