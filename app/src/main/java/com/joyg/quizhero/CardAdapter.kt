@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import android.graphics.Color
 
 class CardAdapter(
     private val items: MutableList<String>,
@@ -24,41 +25,56 @@ class CardAdapter(
         return CardViewHolder(view)
     }
 
+    // 紀錄當前選中的位置 (-1 表示無選中)
+    var selectedPosition = -1
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-        // 紀錄當前選中的位置 (-1 表示無選中)
-        var selectedPosition = -1
+
         val item = items[position]
         holder.tvTitle.text = item
 
         val cardView = holder.itemView as com.google.android.material.card.MaterialCardView
 
-        // 設定卡片是否為選中 (反白) 狀態
-        cardView.isChecked = (position == selectedPosition)
+        // 關鍵 2：根據 selectedPosition 判斷當前卡片是否為選中狀態
+        val isSelected = (position == selectedPosition)
+        cardView.isChecked = isSelected
 
-        // 點擊事件：切換反白
+        // 關鍵 3：依選中狀態明確設定背景顏色 (選中變白色，未選中顯示灰色)
+        if (isSelected) {
+            cardView.setCardBackgroundColor(Color.parseColor("#E0E0E0")) // 選中：預設灰色
+        } else {
+            cardView.setCardBackgroundColor(Color.WHITE) // 未選中/點擊後：反白 (白色)
+        }
+
+// 點擊事件：切換反白與讀取題庫
         holder.itemView.setOnClickListener {
-            val previousSelected = selectedPosition
-            selectedPosition = holder.adapterPosition
-
-            // 刷新舊項目與新項目以切換反白效果
-            notifyItemChanged(previousSelected)
-            notifyItemChanged(selectedPosition)
-
             val realPosition = holder.adapterPosition
+
+            // 1. 確保 position 有效才進行後續處理
             if (realPosition != RecyclerView.NO_POSITION) {
 
-                // 根據 position 對應指定的科目名稱
-                val subject = when (realPosition % 3) { // 使用 % 3 可支援循環卡片列表
+                // 2. 記錄舊的選中位置
+                val previousSelected = selectedPosition
+
+                // 3. 更新 selectedPosition（支援點擊切換：若點擊已選中的則切換回 -1，否則切換為當前 position）
+                selectedPosition = if (selectedPosition == realPosition) -1 else realPosition
+
+                // 4. 先處理科目邏輯與觸發題庫讀取 (確保 callback 順利執行)
+                val subject = when (realPosition % 3) {
                     0 -> "English"
                     1 -> "Chinese"
                     2 -> "Geography"
                     else -> "English"
                 }
-
-                // 將結果回傳給 Activity
                 onSubjectSelected(subject)
-            }
 
+                // 5. 最後才更新 UI 畫面（加入安全邊界檢查，避免 -1 導致 crash）
+                if (previousSelected != RecyclerView.NO_POSITION && previousSelected < itemCount) {
+                    notifyItemChanged(previousSelected)
+                }
+                if (selectedPosition != RecyclerView.NO_POSITION && selectedPosition < itemCount) {
+                    notifyItemChanged(selectedPosition)
+                }
+            }
         }
     }
 

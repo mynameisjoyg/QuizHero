@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
             this.selectedChapter ="1"
 
             // (選用) Toast 提示確認更新結果
-            Toast.makeText(this, "已切換科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "選擇科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
         }
 
         swipeCardRecyclerView.layoutManager = LinearLayoutManager(this)
