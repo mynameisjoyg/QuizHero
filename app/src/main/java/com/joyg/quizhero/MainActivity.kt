@@ -156,6 +156,14 @@ class MainActivity : ComponentActivity() {
         userId = intent.getStringExtra("userId") ?: "未登入"
         tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
         tv_facebook_user_name?.text = "歡迎， $name"
+        tv_facebook_user_name?.setOnClickListener {
+            val intent = Intent(this, AccountActivity::class.java).apply {
+                putExtra("userId", userId)
+                putExtra("name", name)
+                setPackage(packageName)
+            }
+            startActivity(intent)
+        }
 
 //        bt_add.setOnClickListener {
 //            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
@@ -222,7 +230,7 @@ class MainActivity : ComponentActivity() {
                 for (userDoc in userSnapshots.documents) {
                     val id = userDoc.getString("id") ?: continue
                     val name = userDoc.getString("name") ?: "Unknown"
-                    var totalCorrectCount = userDoc.getLong("totalCorrectCount")?:0
+                    var totalCorrectCount = userDoc.getLong("totalKCorrectCount")?:0
 
                     Log.v("JOYG", "JOYGSAY: id=$id, name=$name, totalCorrectCount=${totalCorrectCount}")
 
