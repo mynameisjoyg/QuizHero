@@ -50,6 +50,15 @@
                 android:layout_height="wrap_content"
                 android:text="User ID: "
                 android:textColor="#333333"
+                android:textSize="18sp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:id="@+id/tvTotalCorrectCount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="總答對題數: "
+                android:textColor="#333333"
                 android:textSize="18sp"/>
 
         </LinearLayout>

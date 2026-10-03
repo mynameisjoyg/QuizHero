@@ -24,6 +24,7 @@ import kotlinx.coroutines.tasks.await
 
 private var tv_facebook_user_name: TextView?=null
 private var userId : String = ""
+private var userTotalCorrectCount: Int = 0
 // 1. 宣告 FirebaseFirestore 變數
 private lateinit var db: FirebaseFirestore
 private lateinit var sp_subject : Spinner
@@ -160,6 +161,7 @@ class MainActivity : ComponentActivity() {
             val intent = Intent(this, AccountActivity::class.java).apply {
                 putExtra("userId", userId)
                 putExtra("name", name)
+                putExtra("totalCorrectCount", userTotalCorrectCount)
                 setPackage(packageName)
             }
             startActivity(intent)
@@ -230,7 +232,13 @@ class MainActivity : ComponentActivity() {
                 for (userDoc in userSnapshots.documents) {
                     val id = userDoc.getString("id") ?: continue
                     val name = userDoc.getString("name") ?: "Unknown"
-                    var totalCorrectCount = userDoc.getLong("totalKCorrectCount")?:0
+                    var totalCorrectCount = userDoc.getLong("totalCorrectCount")
+                        ?: userDoc.getLong("totalKCorrectCount")
+                        ?: 0L
+
+                    if (id == userId) {
+                        userTotalCorrectCount = totalCorrectCount.toInt()
+                    }
 
                     Log.v("JOYG", "JOYGSAY: id=$id, name=$name, totalCorrectCount=${totalCorrectCount}")
 
