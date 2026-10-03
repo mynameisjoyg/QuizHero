@@ -30,9 +30,9 @@ private var userTotalCorrectCount: Int = 0
 private var userTotalWrongCount: Int = 0
 // 1. 宣告 FirebaseFirestore 變數
 private lateinit var db: FirebaseFirestore
-private lateinit var sp_subject : Spinner
-private lateinit var sp_volume : Spinner
-private lateinit var sp_chapter : Spinner
+//private lateinit var sp_subject : Spinner
+//private lateinit var sp_volume : Spinner
+//private lateinit var sp_chapter : Spinner
 
 private lateinit var adapter: LeaderboardAdapter
 
@@ -54,7 +54,15 @@ class MainActivity : ComponentActivity() {
 
 
         val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        cardAdapter = CardAdapter(itemList)
+        cardAdapter = CardAdapter(itemList) { subject ->
+            // 這裡會接收到 "English", "Chinese", 或 "Geography"
+            this.selectedSubject = subject
+            this.selectedVolume ="1"
+            this.selectedChapter ="1"
+
+            // (選用) Toast 提示確認更新結果
+            Toast.makeText(this, "已切換科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
+        }
 
         swipeCardRecyclerView.layoutManager = LinearLayoutManager(this)
         swipeCardRecyclerView.adapter = cardAdapter
@@ -67,23 +75,6 @@ class MainActivity : ComponentActivity() {
                 }
                 ItemTouchHelper.LEFT -> {
                     //Toast.makeText(this, "剔除/不喜歡: ${itemList[position]}", Toast.LENGTH_SHORT).show()
-                }
-
-                ItemTouchHelper.UP -> {
-                    if (position == 0) {
-                        selectedSubject="English"
-                        selectedVolume="1"
-                        selectedChapter="1"
-                    }
-                    else if(position ==1) {
-                        selectedSubject="Chinese"
-                        selectedVolume="1"
-                        selectedChapter="1"
-                    } else{
-                        selectedSubject="Geography"
-                        selectedVolume="1"
-                        selectedChapter="1"
-                    }
                 }
             }
             //cardAdapter.notifyItemRemoved(position)
@@ -101,9 +92,9 @@ class MainActivity : ComponentActivity() {
         val bt_exam: Button = findViewById(R.id.bt_exam)
         val bt_battle: Button = findViewById(R.id.bt_battle)
 
-        sp_subject = findViewById(R.id.sp_subject)
-        sp_volume = findViewById(R.id.sp_volume)
-        sp_chapter = findViewById(R.id.sp_chapter)
+        //sp_subject = findViewById(R.id.sp_subject)
+        //sp_volume = findViewById(R.id.sp_volume)
+        //sp_chapter = findViewById(R.id.sp_chapter)
 
         //Firestore
         // 2. 初始化 Firestore 實例
@@ -124,60 +115,60 @@ class MainActivity : ComponentActivity() {
             subjects
         )
         // 設定下拉選單展開時的項目樣式（選填，同樣會套用置中效果）
-        spSubjectAdapter.setDropDownViewResource(R.layout.my_spinner_item)
-        sp_subject.adapter = spSubjectAdapter
-        sp_subject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // 取得目前選中的項目字串
-                selectedSubject = parent?.getItemAtPosition(position).toString()
-
-                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
-                Log.d("Spinner", "JOYGSAY: 目前選中科目：$selectedSubject")
-                setVolumeCount(selectedSubject)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // 未選擇任何項目時的處理（通常維持空白即可）
-            }
-        }
-
-        //sp_Volume
-        spVolumeAdapter = ArrayAdapter(
-            this,
-            R.layout.my_spinner_item,
-            Volume
-        )
-        spVolumeAdapter.setDropDownViewResource(R.layout.my_spinner_item)
-        sp_volume.adapter = spVolumeAdapter
-        sp_volume.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // 取得目前選中的項目字串
-                val selectedVolume = parent?.getItemAtPosition(position).toString()
-
-                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
-                Log.d("Spinner", "JOYGSAY: 目前選中冊目：$selectedVolume")
-                setChapterCount(selectedSubject, "Volume${selectedVolume}")
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // 未選擇任何項目時的處理（通常維持空白即可）
-            }
-        }
-        //sp_chapter
-        spChapterAdapter = ArrayAdapter(
-            this,
-            R.layout.my_spinner_item,
-            chapter
-        )
-        spChapterAdapter.setDropDownViewResource(R.layout.my_spinner_item)
-        sp_chapter.adapter = spChapterAdapter
+//        spSubjectAdapter.setDropDownViewResource(R.layout.my_spinner_item)
+//        sp_subject.adapter = spSubjectAdapter
+//        sp_subject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                // 取得目前選中的項目字串
+//                selectedSubject = parent?.getItemAtPosition(position).toString()
+//
+//                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
+//                Log.d("Spinner", "JOYGSAY: 目前選中科目：$selectedSubject")
+//                setVolumeCount(selectedSubject)
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // 未選擇任何項目時的處理（通常維持空白即可）
+//            }
+//        }
+//
+//        //sp_Volume
+//        spVolumeAdapter = ArrayAdapter(
+//            this,
+//            R.layout.my_spinner_item,
+//            Volume
+//        )
+//        spVolumeAdapter.setDropDownViewResource(R.layout.my_spinner_item)
+//        sp_volume.adapter = spVolumeAdapter
+//        sp_volume.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                // 取得目前選中的項目字串
+//                val selectedVolume = parent?.getItemAtPosition(position).toString()
+//
+//                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
+//                Log.d("Spinner", "JOYGSAY: 目前選中冊目：$selectedVolume")
+//                setChapterCount(selectedSubject, "Volume${selectedVolume}")
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // 未選擇任何項目時的處理（通常維持空白即可）
+//            }
+//        }
+//        //sp_chapter
+//        spChapterAdapter = ArrayAdapter(
+//            this,
+//            R.layout.my_spinner_item,
+//            chapter
+//        )
+//        spChapterAdapter.setDropDownViewResource(R.layout.my_spinner_item)
+//        sp_chapter.adapter = spChapterAdapter
 
 
         bt_exam.setOnClickListener {
             val intent = Intent(this, QuizActivity::class.java).apply {
-                val selectedSubject = sp_subject.selectedItem.toString()
-                val selectedVolume = sp_volume.selectedItem.toString()
-                val selectedChapter = sp_chapter.selectedItem.toString()
+//                val selectedSubject = sp_subject.selectedItem.toString()
+//                val selectedVolume = sp_volume.selectedItem.toString()
+//                val selectedChapter = sp_chapter.selectedItem.toString()
                 putExtra("userId", "${userId}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
@@ -190,9 +181,9 @@ class MainActivity : ComponentActivity() {
 
         bt_battle.setOnClickListener {
             val intent = Intent(this, BattleActivity::class.java).apply {
-                val selectedSubject = sp_subject.selectedItem.toString()
-                val selectedVolume = sp_volume.selectedItem.toString()
-                val selectedChapter = sp_chapter.selectedItem.toString()
+//                val selectedSubject = sp_subject.selectedItem.toString()
+//                val selectedVolume = sp_volume.selectedItem.toString()
+//                val selectedChapter = sp_chapter.selectedItem.toString()
                 putExtra("userId", "${userId}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
@@ -322,62 +313,62 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setVolumeCount(sub: String){
-        Log.d("JOYG", "JOYGSAY: getVolumeCount, sub="+sub)
-        db.collection("MetaData").document(sub)
-            .get()
-            .addOnSuccessListener { document ->
-                var VolumeCount: Int
-                lateinit var volumeList : List<String>
-                lateinit var newSpVolumeAdapter : ArrayAdapter<Any?>
-                if (document != null && document.exists()) {
-                    VolumeCount = document.get("VolumeCount").toString().toInt()
-                    Log.d("Firestore", "JOYGSAY: ${sub}共有 $VolumeCount 冊")
-                    volumeList = (1..VolumeCount).map { "$it" }
-                } else {
-                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
-                    volumeList = listOf("0")
-                }
-                newSpVolumeAdapter = ArrayAdapter(
-                    this@MainActivity,
-                    R.layout.my_spinner_item,
-                    volumeList
-                )
-                sp_volume.adapter = newSpVolumeAdapter
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
-            }
-    }
-
-    private fun setChapterCount(sub: String, vol: String) {
-        Log.d("JOYG", "JOYGSAY: setChapterCount")
-        db.collection("MetaData").document(sub)
-            .get()
-            .addOnSuccessListener { document ->
-                var chapterCount: Int
-                lateinit var chapterList : List<String>
-                lateinit var newSpChapterAdapter : ArrayAdapter<Any?>
-                if (document != null && document.exists()) {
-                    Log.v("JOYG", "JOYGSAY: vol="+vol)
-                    chapterCount = document.get("${vol}ChapterCount").toString().toInt()
-                    Log.d("Firestore", "JOYGSAY: ${sub} 第 ${vol} 冊共有 $chapterCount 個章節")
-                    chapterList = (1..chapterCount).map { "$it" }
-                } else {
-                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
-                    chapterList = listOf("0")
-                }
-                newSpChapterAdapter = ArrayAdapter(
-                    this@MainActivity,
-                    R.layout.my_spinner_item,
-                    chapterList
-                )
-                sp_chapter.adapter = newSpChapterAdapter
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
-            }
-    }
+//    private fun setVolumeCount(sub: String){
+//        Log.d("JOYG", "JOYGSAY: getVolumeCount, sub="+sub)
+//        db.collection("MetaData").document(sub)
+//            .get()
+//            .addOnSuccessListener { document ->
+//                var VolumeCount: Int
+//                lateinit var volumeList : List<String>
+//                lateinit var newSpVolumeAdapter : ArrayAdapter<Any?>
+//                if (document != null && document.exists()) {
+//                    VolumeCount = document.get("VolumeCount").toString().toInt()
+//                    Log.d("Firestore", "JOYGSAY: ${sub}共有 $VolumeCount 冊")
+//                    volumeList = (1..VolumeCount).map { "$it" }
+//                } else {
+//                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
+//                    volumeList = listOf("0")
+//                }
+//                newSpVolumeAdapter = ArrayAdapter(
+//                    this@MainActivity,
+//                    R.layout.my_spinner_item,
+//                    volumeList
+//                )
+//                sp_volume.adapter = newSpVolumeAdapter
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
+//            }
+//    }
+//
+//    private fun setChapterCount(sub: String, vol: String) {
+//        Log.d("JOYG", "JOYGSAY: setChapterCount")
+//        db.collection("MetaData").document(sub)
+//            .get()
+//            .addOnSuccessListener { document ->
+//                var chapterCount: Int
+//                lateinit var chapterList : List<String>
+//                lateinit var newSpChapterAdapter : ArrayAdapter<Any?>
+//                if (document != null && document.exists()) {
+//                    Log.v("JOYG", "JOYGSAY: vol="+vol)
+//                    chapterCount = document.get("${vol}ChapterCount").toString().toInt()
+//                    Log.d("Firestore", "JOYGSAY: ${sub} 第 ${vol} 冊共有 $chapterCount 個章節")
+//                    chapterList = (1..chapterCount).map { "$it" }
+//                } else {
+//                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
+//                    chapterList = listOf("0")
+//                }
+//                newSpChapterAdapter = ArrayAdapter(
+//                    this@MainActivity,
+//                    R.layout.my_spinner_item,
+//                    chapterList
+//                )
+//                sp_chapter.adapter = newSpChapterAdapter
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
+//            }
+//    }
 
     override fun onStart() {
         super.onStart()

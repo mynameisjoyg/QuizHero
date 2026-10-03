@@ -8,7 +8,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class CardAdapter(private val items: MutableList<String>) :
+class CardAdapter(
+    private val items: MutableList<String>,
+    // 1. 新增 Callback 參數，傳出選中的科目名稱 (String)
+    private val onSubjectSelected: (subject: String) -> Unit) :
     RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
 
     class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -38,8 +41,24 @@ class CardAdapter(private val items: MutableList<String>) :
             selectedPosition = holder.adapterPosition
 
             // 刷新舊項目與新項目以切換反白效果
-            //notifyItemChanged(previousSelected)
+            notifyItemChanged(previousSelected)
             notifyItemChanged(selectedPosition)
+
+            val realPosition = holder.adapterPosition
+            if (realPosition != RecyclerView.NO_POSITION) {
+
+                // 根據 position 對應指定的科目名稱
+                val subject = when (realPosition % 3) { // 使用 % 3 可支援循環卡片列表
+                    0 -> "English"
+                    1 -> "Chinese"
+                    2 -> "Geography"
+                    else -> "English"
+                }
+
+                // 將結果回傳給 Activity
+                onSubjectSelected(subject)
+            }
+
         }
     }
 
