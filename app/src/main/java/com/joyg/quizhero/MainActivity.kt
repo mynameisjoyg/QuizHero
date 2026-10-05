@@ -1,15 +1,11 @@
 package com.joyg.quizhero
 
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -30,9 +26,6 @@ private var userTotalCorrectCount: Int = 0
 private var userTotalWrongCount: Int = 0
 // 1. 宣告 FirebaseFirestore 變數
 private lateinit var db: FirebaseFirestore
-//private lateinit var sp_subject : Spinner
-//private lateinit var sp_volume : Spinner
-//private lateinit var sp_chapter : Spinner
 
 private lateinit var adapter: LeaderboardAdapter
 
@@ -44,7 +37,7 @@ class MainActivity : ComponentActivity() {
     //Swipe Card
     private val itemList = mutableListOf("English", "Chinese", "Geography")
     private lateinit var cardAdapter: CardAdapter
-    var selectedSubject = ""
+    var selectedSubject = "English"
     var selectedVolume = ""
     var selectedChapter = ""
 
@@ -57,7 +50,7 @@ class MainActivity : ComponentActivity() {
         cardAdapter = CardAdapter(itemList) { subject ->
             // 這裡會接收到 "English", "Chinese", 或 "Geography"
             this.selectedSubject = subject
-            this.selectedVolume ="1"
+            this.selectedVolume ="2"
             this.selectedChapter ="1"
 
             // (選用) Toast 提示確認更新結果
@@ -85,16 +78,9 @@ class MainActivity : ComponentActivity() {
         itemTouchHelper.attachToRecyclerView(swipeCardRecyclerView)
 
 
-
-        //val bt_add = findViewById<Button>(R.id.bt_add)
-        //val bt_delete = findViewById<Button>(R.id.bt_delete)
-
         val bt_exam: Button = findViewById(R.id.bt_exam)
         val bt_battle: Button = findViewById(R.id.bt_battle)
 
-        //sp_subject = findViewById(R.id.sp_subject)
-        //sp_volume = findViewById(R.id.sp_volume)
-        //sp_chapter = findViewById(R.id.sp_chapter)
 
         //Firestore
         // 2. 初始化 Firestore 實例
@@ -114,61 +100,10 @@ class MainActivity : ComponentActivity() {
             R.layout.my_spinner_item,
             subjects
         )
-        // 設定下拉選單展開時的項目樣式（選填，同樣會套用置中效果）
-//        spSubjectAdapter.setDropDownViewResource(R.layout.my_spinner_item)
-//        sp_subject.adapter = spSubjectAdapter
-//        sp_subject.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                // 取得目前選中的項目字串
-//                selectedSubject = parent?.getItemAtPosition(position).toString()
-//
-//                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
-//                Log.d("Spinner", "JOYGSAY: 目前選中科目：$selectedSubject")
-//                setVolumeCount(selectedSubject)
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // 未選擇任何項目時的處理（通常維持空白即可）
-//            }
-//        }
-//
-//        //sp_Volume
-//        spVolumeAdapter = ArrayAdapter(
-//            this,
-//            R.layout.my_spinner_item,
-//            Volume
-//        )
-//        spVolumeAdapter.setDropDownViewResource(R.layout.my_spinner_item)
-//        sp_volume.adapter = spVolumeAdapter
-//        sp_volume.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                // 取得目前選中的項目字串
-//                val selectedVolume = parent?.getItemAtPosition(position).toString()
-//
-//                // 在這裡處理選中後的邏輯（例如去查詢 MetaData）
-//                Log.d("Spinner", "JOYGSAY: 目前選中冊目：$selectedVolume")
-//                setChapterCount(selectedSubject, "Volume${selectedVolume}")
-//            }
-//
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                // 未選擇任何項目時的處理（通常維持空白即可）
-//            }
-//        }
-//        //sp_chapter
-//        spChapterAdapter = ArrayAdapter(
-//            this,
-//            R.layout.my_spinner_item,
-//            chapter
-//        )
-//        spChapterAdapter.setDropDownViewResource(R.layout.my_spinner_item)
-//        sp_chapter.adapter = spChapterAdapter
 
 
         bt_exam.setOnClickListener {
             val intent = Intent(this, QuizActivity::class.java).apply {
-//                val selectedSubject = sp_subject.selectedItem.toString()
-//                val selectedVolume = sp_volume.selectedItem.toString()
-//                val selectedChapter = sp_chapter.selectedItem.toString()
                 putExtra("userId", "${userId}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
@@ -181,9 +116,6 @@ class MainActivity : ComponentActivity() {
 
         bt_battle.setOnClickListener {
             val intent = Intent(this, BattleActivity::class.java).apply {
-//                val selectedSubject = sp_subject.selectedItem.toString()
-//                val selectedVolume = sp_volume.selectedItem.toString()
-//                val selectedChapter = sp_chapter.selectedItem.toString()
                 putExtra("userId", "${userId}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
@@ -208,46 +140,6 @@ class MainActivity : ComponentActivity() {
             }
             startActivity(intent)
         }
-
-//        bt_add.setOnClickListener {
-//            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
-//            val listView = ListView(this)
-//            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
-//
-//            val dialog = AlertDialog.Builder(this)
-//                .setTitle("Assets Files")
-//                .setView(listView)
-//                .setPositiveButton("OK", null)
-//                .create()
-//
-//            listView.setOnItemClickListener { _, _, position, _ ->
-//                val selectedFileName = fileList[position]
-//                Log.d("MainActivity", "Selected file: $selectedFileName")
-//                readExcelByLifeCycleScope(selectedFileName)
-//                dialog.dismiss()
-//            }
-//            dialog.show()
-//        }
-//
-//        bt_delete.setOnClickListener {
-//            val fileList = assets.list("")?.filter { it.endsWith(".xlsx") } ?: emptyList()
-//            val listView = ListView(this)
-//            listView.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
-//
-//            val dialog = AlertDialog.Builder(this)
-//                .setTitle("Assets Files")
-//                .setView(listView)
-//                .setPositiveButton("OK", null)
-//                .create()
-//
-//            listView.setOnItemClickListener { _, _, position, _ ->
-//                val selectedFileName = fileList[position]
-//                Log.d("MainActivity", "Selected file: $selectedFileName")
-//                deleteDataToFirestore(selectedFileName)
-//                dialog.dismiss()
-//            }
-//            dialog.show()
-//        }
 
         //Leaderboard setting
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewLeaderboard)
@@ -312,63 +204,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-
-//    private fun setVolumeCount(sub: String){
-//        Log.d("JOYG", "JOYGSAY: getVolumeCount, sub="+sub)
-//        db.collection("MetaData").document(sub)
-//            .get()
-//            .addOnSuccessListener { document ->
-//                var VolumeCount: Int
-//                lateinit var volumeList : List<String>
-//                lateinit var newSpVolumeAdapter : ArrayAdapter<Any?>
-//                if (document != null && document.exists()) {
-//                    VolumeCount = document.get("VolumeCount").toString().toInt()
-//                    Log.d("Firestore", "JOYGSAY: ${sub}共有 $VolumeCount 冊")
-//                    volumeList = (1..VolumeCount).map { "$it" }
-//                } else {
-//                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
-//                    volumeList = listOf("0")
-//                }
-//                newSpVolumeAdapter = ArrayAdapter(
-//                    this@MainActivity,
-//                    R.layout.my_spinner_item,
-//                    volumeList
-//                )
-//                sp_volume.adapter = newSpVolumeAdapter
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
-//            }
-//    }
-//
-//    private fun setChapterCount(sub: String, vol: String) {
-//        Log.d("JOYG", "JOYGSAY: setChapterCount")
-//        db.collection("MetaData").document(sub)
-//            .get()
-//            .addOnSuccessListener { document ->
-//                var chapterCount: Int
-//                lateinit var chapterList : List<String>
-//                lateinit var newSpChapterAdapter : ArrayAdapter<Any?>
-//                if (document != null && document.exists()) {
-//                    Log.v("JOYG", "JOYGSAY: vol="+vol)
-//                    chapterCount = document.get("${vol}ChapterCount").toString().toInt()
-//                    Log.d("Firestore", "JOYGSAY: ${sub} 第 ${vol} 冊共有 $chapterCount 個章節")
-//                    chapterList = (1..chapterCount).map { "$it" }
-//                } else {
-//                    Log.d("Firestore", "JOYGSAY: 找不到 ${sub} 的 MetaData 文件")
-//                    chapterList = listOf("0")
-//                }
-//                newSpChapterAdapter = ArrayAdapter(
-//                    this@MainActivity,
-//                    R.layout.my_spinner_item,
-//                    chapterList
-//                )
-//                sp_chapter.adapter = newSpChapterAdapter
-//            }
-//            .addOnFailureListener { exception ->
-//                Log.e("Firestore", "JOYGSAY: 讀取 MetaData 失敗", exception)
-//            }
-//    }
 
     override fun onStart() {
         super.onStart()
@@ -472,7 +307,6 @@ class MainActivity : ComponentActivity() {
         )
 
         // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
-        //db.collection("English_Quiz")
         db.collection(fileName.substringBeforeLast("."))
             .add(question)
             .addOnSuccessListener { documentReference ->
