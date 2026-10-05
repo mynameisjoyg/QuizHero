@@ -1,8 +1,10 @@
 package com.joyg.quizhero // 請改成你專案實際的 package 名稱
 
 import android.os.SystemClock
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
@@ -36,6 +38,17 @@ class MainActivityNavigationTest {
 
     @Test
     fun testNavigateToQuizActivity() {
+        // 定義你想點擊的科目卡片位置 (例如：0 是英文, 1 是國文, 2 是地理)
+        val targetPosition = 0
+
+        // 1. 點擊 RecyclerView 中指定位置 (position) 的卡片
+        onView(withId(R.id.recyclerView))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    targetPosition,
+                    click()
+                )
+            )
 
         // 1. 模擬使用者點擊出發跳轉的按鈕 (請將 R.id.btn_start_quiz 替換成你 MainActivity 裡的按鈕 ID)
         onView(withId(R.id.bt_exam)).perform(click())
