@@ -54,6 +54,13 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.espresso.contrib){
+        // 排除引發衝突的 protobuf 依賴
+        exclude(group = "com.google.protobuf", module = "protobuf-lite")
+        exclude(group = "com.google.protobuf", module = "protobuf-javalite")
+        // (選用) 排除舊版 support 庫避免其他衝突
+        exclude(group = "com.android.support")
+    }
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)

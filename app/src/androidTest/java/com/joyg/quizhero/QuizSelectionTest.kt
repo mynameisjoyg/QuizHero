@@ -3,11 +3,13 @@ package com.joyg.quizhero // 請改成你專案實際的 package 名稱
 import android.os.SystemClock
 import android.util.Log
 import android.widget.ArrayAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
@@ -28,8 +30,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private lateinit var db: FirebaseFirestore
-
 @RunWith(AndroidJUnit4::class)
 class QuizSelectionTest {
 
@@ -48,68 +48,23 @@ class QuizSelectionTest {
 
     @Test
     fun testSelectSpinnerItemsAndStartQuiz_DoesNotCrash() {
-
-        //Test Geography, volume1~5, chapter 1~6.
-        for(volume in 0 until 5){
-            for(chapter in 0 until 6){
-                testSpinnerBySubjectVolumeChapter(2,volume, chapter)
-            }
-        }
-
-        //Test Geography, volume6, chapter 1~4.
-        for(chapter in 0 until 4){
-            testSpinnerBySubjectVolumeChapter(2,5, chapter)
-        }
-
-        //Test Chinese, volume1~4, chapter 1~10.
-        for(volume in 0 until 4){
-            for(chapter in 0 until 10){
-                testSpinnerBySubjectVolumeChapter(1,volume, chapter)
-            }
-        }
-
-        //Test Chinese, volume5, chapter 1~9.
-        for(chapter in 0 until 8){
-            testSpinnerBySubjectVolumeChapter(1,4,chapter)
-        }
-
-        //Test Chinese, volume6, chapter 1~5.
-        for(chapter in 0 until 5){
-            testSpinnerBySubjectVolumeChapter(1,5,chapter)
-        }
-
-
-        //Test English, volume1, chapter 1~6.
-        for(chapter in 0 until 6){
-            testSpinnerBySubjectVolumeChapter(0,0,chapter)
-        }
-
-        //Test English, volume2, chapter 1~4.
-        for(chapter in 0 until 4){
-            testSpinnerBySubjectVolumeChapter(0,1,chapter)
-        }
-
-        //Test English, volume3~5, chapter 1~6.
-        for(volume in 2 until 5){
-            for(chapter in 0 until 6){
-                testSpinnerBySubjectVolumeChapter(0,volume, chapter)
-            }
-        }
+        testSpinnerBySubjectVolumeChapter(0,1, 1)
+        testSpinnerBySubjectVolumeChapter(1,1, 1)
+        testSpinnerBySubjectVolumeChapter(2,1, 1)
     }
 
     private fun testSpinnerBySubjectVolumeChapter(sub: Int, vol: Int, cha: Int){
-        // 1. 選擇 Subject (科目 Spinner)
-        onView(withId(R.id.sp_subject)).perform(click())
-        // 假設 Spinner 內容是 String，這裡模擬點擊第二個選項（或指定字串）
-        onData(allOf(`is`(instanceOf(String::class.java)))).atPosition(sub).perform(click())
+        // 定義你想點擊的科目卡片位置 (例如：0 是英文, 1 是國文, 2 是地理)
+        val targetPosition = sub
 
-        // 2. 選擇 Volume (冊別 Spinner)
-        onView(withId(R.id.sp_volume)).perform(click())
-        onData(allOf(`is`(instanceOf(String::class.java)))).atPosition(vol).perform(click())
-
-        // 3. 選擇 Chapter (章節 Spinner)
-        onView(withId(R.id.sp_chapter)).perform(click())
-        onData(allOf(`is`(instanceOf(String::class.java)))).atPosition(cha).perform(click())
+        // 1. 點擊 RecyclerView 中指定位置 (position) 的卡片
+        onView(withId(R.id.recyclerView))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    targetPosition,
+                    click()
+                )
+            )
 
         // 4. 點擊開始測驗按鈕 (請替換為你的按鈕 ID，例如 btn_start_quiz)
         onView(withId(R.id.bt_exam)).perform(click())
