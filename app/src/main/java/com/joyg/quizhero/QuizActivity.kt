@@ -74,15 +74,6 @@ private val COLOR_TEXT_DISABLED = Color.parseColor("#757575") // 灰色文字
 class QuizActivity : ComponentActivity() {
     private lateinit var tvQuestionTitle: TextView
     private lateinit var tvStatus: TextView
-//    private lateinit var tvTotal: TextView
-//    private lateinit var tvCorrect: TextView
-//    private lateinit var tv_wrong: TextView
-//    private lateinit var tvPercent: TextView
-//    private lateinit var tvFacebookUserName: TextView
-//    private lateinit var btSubmit: Button
-//    private lateinit var btNextQuestion: Button
-//    private lateinit var btExit: Button
-//    private lateinit var radioGroup: RadioGroup
 
     // 1. 宣告 FirebaseFirestore 變數
     private lateinit var db: FirebaseFirestore
@@ -137,17 +128,8 @@ class QuizActivity : ComponentActivity() {
         //記錄開始作答時間
         time_start = getCurrentTimeString()
 
-//        btSubmit = findViewById<Button>(R.id.bt_submit)
-//        btNextQuestion = findViewById<Button>(R.id.bt_next_question)
-//        btExit = findViewById<Button>(R.id.bt_exit)
-//        radioGroup = findViewById<RadioGroup>(R.id.rg_options)
         tvQuestionTitle = findViewById<TextView>(R.id.tvQuestionTitle)
         tvStatus = findViewById(R.id.tvStatus)
-//        tvTotal = findViewById<TextView>(R.id.tv_total)
-//        tvCorrect = findViewById<TextView>(R.id.tv_correct)
-//        tv_wrong = findViewById<TextView>(R.id.tv_wrong)
-//        tvPercent = findViewById<TextView>(R.id.tv_percent)
-//        tvFacebookUserName = findViewById<TextView>(R.id.tv_facebook_user_name)
 
         btnOptionA = findViewById(R.id.btnOptionA)
         btnOptionB = findViewById(R.id.btnOptionB)
@@ -164,57 +146,6 @@ class QuizActivity : ComponentActivity() {
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
 
-//        btExit.setOnClickListener {
-//            showExitDialog()
-//        }
-
-//        btSubmit.setOnClickListener {
-//            //設定可按下一題以及不可以按提交
-//            btNextQuestion.isClickable=true
-//            btSubmit.isClickable=false
-//
-//            //取得資料庫內正確解答
-//            // 假設 RadioGroup 的 ID 是 rg_options
-//            val radioGroup = findViewById<RadioGroup>(R.id.rg_options) // 請確保 RadioGroup 在 XML 有設定 id
-//
-//            // 1. 取得目前被選中的 RadioButton ID
-//            val selectedId = radioGroup.checkedRadioButtonId
-//
-//            // 2. 判斷是否有選擇選項
-//            if (selectedId != -1) {
-//                // 依據 ID 判斷選了哪一個
-//                val selectedAnswer = when (selectedId) {
-//                    R.id.rb_A -> "A"
-//                    R.id.rb_B -> "B"
-//                    R.id.rb_C -> "C"
-//                    R.id.rb_D -> "D"
-//                    else -> ""
-//                }
-//
-//                if (answer == selectedAnswer) {
-//                    Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
-//                    correct = correct+1
-//                    tvCorrect?.setText("正確數："+correct)
-//
-//                } else {
-//                    Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
-//                    wrong= wrong+1
-//                    tv_wrong?.setText("錯誤數："+wrong)
-//                }
-//                total= total+1
-//                tvTotal?.setText("已完成："+total)
-//                percent = calculatePercentage()
-//                Log.v("JOYG", "JOYG: percent = "+ percent)
-//                tvPercent?.setText("正確率："+String.format("%.1f%%", percent))
-//            } else {
-//                println("使用者還沒選擇任何選項！")
-//            }
-//        }
-
-//        btNextQuestion.setOnClickListener {
-//            queryQuestion(subject, volume, chapter)
-//        }
-
         queryQuestion(subject, volume, chapter)
 
         //按下四個選項之一
@@ -226,18 +157,16 @@ class QuizActivity : ComponentActivity() {
             val selectedAnswer = regex.find(selectedOption)?.groupValues?.get(1) ?: ""
 
             Log.v("JOYG", "JOYGSAY: selectedAnswer=${selectedAnswer}, selectedOption=${selectedOption}")
-            //
+
             if (answer == selectedAnswer) {
                 //Toast.makeText(this, "答對了", Toast.LENGTH_SHORT).show()
                 tvStatus.text = "🏆 恭喜你作答成功！"
                 correct = correct+1
-                //tvCorrect?.setText("正確數："+correct)
 
             } else {
                 //Toast.makeText(this, "答錯了", Toast.LENGTH_SHORT).show()
                 tvStatus.text = "❌ 答錯了！"
                 wrong= wrong+1
-                //tv_wrong?.setText("錯誤數："+wrong)
             }
 
             //設定答案顏色
@@ -252,11 +181,8 @@ class QuizActivity : ComponentActivity() {
             }
 
             total= total+1
-            //tvTotal?.setText("已完成："+total)
             percent = calculatePercentage()
             Log.v("JOYG", "JOYG: percent = "+ percent)
-            //tvPercent?.setText("正確率："+String.format("%.1f%%", percent))
-            //
 
             setAnswerButtonsEnabled(false)
 
@@ -338,12 +264,8 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun queryQuestion(sub:String, vol: String, chap: String){
-//        radioGroup.check(R.id.rb_A)
         Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
 
-        //設定不可按下一題以及可以按提交
-//        btNextQuestion.isClickable=false
-//        btSubmit.isClickable=true
 
         var totalCount = 0
         var randomNumber = 1
@@ -514,40 +436,6 @@ class QuizActivity : ComponentActivity() {
     }
 
     private fun saveScoreToFirestore(){
-//        //記錄結束時間
-//        time_end = getCurrentTimeString()
-//
-//        // 生成一個像是 "550e8400-e29b-41d4-a716-446655440000" 的獨一無二字串
-//        val uniqueId: String = UUID.randomUUID().toString()
-//
-//        Log.d("FirestoreDemo", "JOYGSAY: Call saveScoreToFirestore.")
-//        Log.v("JOYG", "JOYGSAY: in saveScoreToFirestore, userId=" + userId)
-//        // 建立要傳入 Firestore 的資料 (HashMap 結構)
-//        val score = hashMapOf(
-//            "id" to uniqueId,
-//            "user_id" to userId,
-//            "subject" to subject,
-//            "volume" to volume,
-//            "chapter" to chapter,
-//            "correct" to correct,
-//            "wrong" to wrong,
-//            "time_start" to time_start,
-//            "time_end" to time_end,
-//        )
-//
-//        // 4. 指定集合名稱 "Score"，並自動產生文件 ID 新增資料 (.add)
-//        db.collection("Score")
-//            .add(score)
-//            .addOnSuccessListener { documentReference ->
-//                // 新增成功時的回呼
-//                Log.d("FirestoreDemo", "JOYGSAY: 記錄新增成功.")
-//                //Toast.makeText(this, "新增成功！ID: ${documentReference.id}", Toast.LENGTH_SHORT).show()
-//            }
-//            .addOnFailureListener { e ->
-//                // 新增失敗時的回呼
-//                Log.w("FirestoreDemo", "JOYGSAY: 新增資料時發生錯誤", e)
-//                //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
-//            }
 
         //先取得最新的totalCorrectCount
         Log.v("JOYG", "JOYGSAY: userId=${userId}")
