@@ -1,0 +1,262 @@
+From 8a037d878942a744e6c6b2ba86ea009b1b6dd405 Mon Sep 17 00:00:00 2001
+From: Joey <mynameisjoyg@gmail.com>
+Date: Sat, 3 Oct 2026 16:42:07 +0800
+Subject: [PATCH] Add swipe card to show different subjects.
+
+---
+ app/build.gradle.kts                          |  1 +
+ .../java/com/joyg/quizhero/CardAdapter.kt     | 52 +++++++++++++++
+ .../com/joyg/quizhero/CardSwipeCallback.kt    | 63 +++++++++++++++++++
+ .../java/com/joyg/quizhero/MainActivity.kt    | 31 +++++++++
+ app/src/main/res/layout/item_card.xml         | 25 ++++++++
+ app/src/main/res/layout/main_activity.xml     |  5 ++
+ 6 files changed, 177 insertions(+)
+ create mode 100644 app/src/main/java/com/joyg/quizhero/CardAdapter.kt
+ create mode 100644 app/src/main/java/com/joyg/quizhero/CardSwipeCallback.kt
+ create mode 100644 app/src/main/res/layout/item_card.xml
+
+diff --git a/app/build.gradle.kts b/app/build.gradle.kts
+index 50f4dcb..4c20704 100644
+--- a/app/build.gradle.kts
++++ b/app/build.gradle.kts
+@@ -49,6 +49,7 @@ dependencies {
+     implementation(libs.androidx.compose.ui.tooling.preview)
+     implementation(libs.androidx.core.ktx)
+     implementation(libs.androidx.lifecycle.runtime.ktx)
++    implementation("androidx.recyclerview:recyclerview:1.2.1")
+     testImplementation(libs.junit)
+     androidTestImplementation(platform(libs.androidx.compose.bom))
+     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+diff --git a/app/src/main/java/com/joyg/quizhero/CardAdapter.kt b/app/src/main/java/com/joyg/quizhero/CardAdapter.kt
+new file mode 100644
+index 0000000..770327b
+--- /dev/null
++++ b/app/src/main/java/com/joyg/quizhero/CardAdapter.kt
+@@ -0,0 +1,52 @@
++package com.joyg.quizhero
++
++import android.view.LayoutInflater
++import android.view.View
++import android.view.ViewGroup
++import android.widget.TextView
++import androidx.recyclerview.widget.RecyclerView
++
++class CardAdapter(private val items: MutableList<String>) :
++    RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
++
++    class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
++        val tvTitle: TextView = view.findViewById(R.id.tvTitle)
++    }
++
++    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
++        val view = LayoutInflater.from(parent.context)
++            .inflate(R.layout.item_card, parent, false)
++        return CardViewHolder(view)
++    }
++
++    override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
++        holder.tvTitle.text = items[position]
++    }
++
++    override fun getItemCount(): Int = items.size
++
++    fun removeItem(position: Int) {
++        items.removeAt(position)
++        notifyItemRemoved(position)
++    }
++
++    /**
++     * 將指定位置的卡片移到列表最底部
++     */
++    fun moveToBottom(fromPosition: Int) {
++        if (fromPosition < 0 || fromPosition >= items.size) return
++
++        // 1. 取出並移出資料
++        val movedItem = items.removeAt(fromPosition)
++
++        // 2. 通知 RecyclerView「頂層卡片已移除」
++        // 這會立刻觸發第二張卡片平滑「由下往上推升」補位的動畫！
++        notifyItemRemoved(fromPosition)
++
++        // 3. 將資料加到最末端
++        items.add(movedItem)
++
++        // 4. 通知 RecyclerView「末端新增了一張卡片」
++        notifyItemInserted(items.size - 1)
++    }
++}
+\ No newline at end of file
+diff --git a/app/src/main/java/com/joyg/quizhero/CardSwipeCallback.kt b/app/src/main/java/com/joyg/quizhero/CardSwipeCallback.kt
+new file mode 100644
+index 0000000..cafd2e8
+--- /dev/null
++++ b/app/src/main/java/com/joyg/quizhero/CardSwipeCallback.kt
+@@ -0,0 +1,63 @@
++package com.joyg.quizhero
++
++import android.graphics.Canvas
++import androidx.recyclerview.widget.ItemTouchHelper
++import androidx.recyclerview.widget.RecyclerView
++import kotlin.math.abs
++
++class CardSwipeCallback(
++    private val onSwipedAction: (position: Int, direction: Int) -> Unit
++) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
++
++    override fun onMove(
++        recyclerView: RecyclerView,
++        viewHolder: RecyclerView.ViewHolder,
++        target: RecyclerView.ViewHolder
++    ): Boolean = false
++
++    // 當卡片滑出螢幕後觸發
++    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
++        val position = viewHolder.bindingAdapterPosition
++        onSwipedAction(position, direction)
++    }
++
++    // 自訂卡片滑動時的動態效果 (旋轉 + 透明度)
++    override fun onChildDraw(
++        c: Canvas,
++        recyclerView: RecyclerView,
++        viewHolder: RecyclerView.ViewHolder,
++        dX: Float,
++        dY: Float,
++        actionState: Int,
++        isCurrentlyActive: Boolean
++    ) {
++        val itemView = viewHolder.itemView
++        val width = recyclerView.width.toFloat()
++
++        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
++            // 計算滑動比例 (-1.0 到 1.0)
++            val swipeRatio = dX / width
++
++            // 1. 動態旋轉：根據滑動距離最多旋轉 15 度
++            val maxRotation = 15f
++            itemView.rotation = swipeRatio * maxRotation
++
++            // 2. 動態漸變透明度：拉得越遠越透明 (最低 alpha 為 0.3)
++            val alpha = 1f - (abs(dX) / width) * 0.7f
++            itemView.alpha = alpha.coerceIn(0.3f, 1.0f)
++
++            // 3. 預設水平位移
++            itemView.translationX = dX
++        } else {
++            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
++        }
++    }
++
++    // 手放開/卡片復原時重置 View 的旋轉角度與透明度
++    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
++        super.clearView(recyclerView, viewHolder)
++        viewHolder.itemView.rotation = 0f
++        viewHolder.itemView.alpha = 1.0f
++        viewHolder.itemView.translationX = 0f
++    }
++}
+\ No newline at end of file
+diff --git a/app/src/main/java/com/joyg/quizhero/MainActivity.kt b/app/src/main/java/com/joyg/quizhero/MainActivity.kt
+index 90c2955..19488cc 100644
+--- a/app/src/main/java/com/joyg/quizhero/MainActivity.kt
++++ b/app/src/main/java/com/joyg/quizhero/MainActivity.kt
+@@ -13,6 +13,7 @@ import android.widget.TextView
+ import android.widget.Toast
+ import androidx.activity.ComponentActivity
+ import androidx.lifecycle.lifecycleScope
++import androidx.recyclerview.widget.ItemTouchHelper
+ import androidx.recyclerview.widget.LinearLayoutManager
+ import androidx.recyclerview.widget.RecyclerView
+ import com.facebook.CallbackManager
+@@ -37,10 +38,40 @@ class MainActivity : ComponentActivity() {
+     //登入臉書用
+     private lateinit var callbackManager: CallbackManager
+ 
++    //Swipe Card
++    private val itemList = mutableListOf("English", "Chinese", "Geography")
++    private lateinit var cardAdapter: CardAdapter
++
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+         setContentView(R.layout.main_activity)
+ 
++
++        val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
++        cardAdapter = CardAdapter(itemList)
++
++        swipeCardRecyclerView.layoutManager = LinearLayoutManager(this)
++        swipeCardRecyclerView.adapter = cardAdapter
++
++        // 設定並附加 ItemTouchHelper
++        val swipeCallback = CardSwipeCallback { position, direction ->
++            when (direction) {
++                ItemTouchHelper.RIGHT -> {
++                    //Toast.makeText(this, "通過/保留: ${itemList[position]}", Toast.LENGTH_SHORT).show()
++                }
++                ItemTouchHelper.LEFT -> {
++                    //Toast.makeText(this, "剔除/不喜歡: ${itemList[position]}", Toast.LENGTH_SHORT).show()
++                }
++            }
++            //cardAdapter.notifyItemRemoved(position)
++            cardAdapter.moveToBottom(position)
++        }
++
++        val itemTouchHelper = ItemTouchHelper(swipeCallback)
++        itemTouchHelper.attachToRecyclerView(swipeCardRecyclerView)
++
++
++
+         //val bt_add = findViewById<Button>(R.id.bt_add)
+         //val bt_delete = findViewById<Button>(R.id.bt_delete)
+ 
+diff --git a/app/src/main/res/layout/item_card.xml b/app/src/main/res/layout/item_card.xml
+new file mode 100644
+index 0000000..906a343
+--- /dev/null
++++ b/app/src/main/res/layout/item_card.xml
+@@ -0,0 +1,25 @@
++<?xml version="1.0" encoding="utf-8"?>
++<com.google.android.material.card.MaterialCardView
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:layout_margin="24dp"
++    app:cardCornerRadius="20dp"
++    app:cardElevation="8dp">
++
++    <RelativeLayout
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:padding="24dp">
++
++        <TextView
++            android:id="@+id/tvTitle"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_centerInParent="true"
++            android:textSize="24sp"
++            android:textStyle="bold" />
++
++    </RelativeLayout>
++</com.google.android.material.card.MaterialCardView>
+\ No newline at end of file
+diff --git a/app/src/main/res/layout/main_activity.xml b/app/src/main/res/layout/main_activity.xml
+index 4bb5626..57e156c 100644
+--- a/app/src/main/res/layout/main_activity.xml
++++ b/app/src/main/res/layout/main_activity.xml
+@@ -71,6 +71,11 @@
+ 
+     </LinearLayout>
+ 
++    <androidx.recyclerview.widget.RecyclerView
++        android:id="@+id/recyclerView"
++        android:layout_width="match_parent"
++        android:layout_height="300dp" />
++
+     <com.google.android.material.button.MaterialButton
+         android:id="@+id/bt_exam"
+         android:layout_width="match_parent"
+-- 
+2.55.0.windows.5
+
