@@ -66,6 +66,7 @@ private var image5: String = ""
 private var image6: String = ""
 private var total: Int  = 0
 private var correct: Int  = 0
+private var totalCorrectCount: Int = 0
 private var wrong: Int =0
 private var percent: Double =0.0
 
@@ -366,8 +367,11 @@ class QuizActivity : ComponentActivity() {
     private fun queryQuestion(sub:String, vol: String, chap: String){
         Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
 
-        //呼叫廣告
-        showInterstitialAdAndProceed{}
+        //答對五題顯示一次廣告
+        if(correct%5==0) {
+            //呼叫廣告
+            showInterstitialAdAndProceed{}
+        }
 
         var totalCount = 0
         var randomNumber = 1
@@ -548,7 +552,7 @@ class QuizActivity : ComponentActivity() {
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     // 取得 totalCorrectCount 欄位，若為 null 或不存在則預設為 0
-                    var totalCorrectCount = querySnapshot.documents[0].getLong("totalCorrectCount")?.toInt() ?: 0
+                    totalCorrectCount = querySnapshot.documents[0].getLong("totalCorrectCount")?.toInt() ?: 0
                     var totalWrongCount = querySnapshot.documents[0].getLong("totalWrongCount")?.toInt() ?: 0
                     totalCorrectCount = totalCorrectCount + correct
                     totalWrongCount = totalWrongCount + wrong
