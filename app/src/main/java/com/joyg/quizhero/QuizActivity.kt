@@ -38,6 +38,13 @@ import java.util.UUID
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import androidx.activity.OnBackPressedCallback
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import kotlinx.coroutines.tasks.await
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -91,17 +98,28 @@ class QuizActivity : ComponentActivity() {
     // 2. 宣告 binding 變數
     private lateinit var binding: ActivityQuizBinding
 
+    private var mInterstitialAd: InterstitialAd? = null
+    private val TAG = "MainActivityAdMob"
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
 
-        // 3. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
+        // 1. 初始化 AdMob SDK
+        MobileAds.initialize(this) {}
+
+        // 2. 預先載入插頁式廣告
+        loadInterstitialAd()
+
+
+        // 1. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
         binding = ActivityQuizBinding.inflate(layoutInflater)
 
-        // 4. 設定內容視圖為 binding.root (代替原本的 R.layout.activity_battle)
+        // 2. 設定內容視圖為 binding.root (代替原本的 R.layout.activity_battle)
         setContentView(binding.root)
 
-        // 5. 這時候就可以順利使用 binding.root 了！
+        // 3. 這時候就可以順利使用 binding.root 了！
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val navigationBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
             // 為底部的選項區塊加上導覽列高度 Padding，避免被切掉
@@ -236,6 +254,88 @@ class QuizActivity : ComponentActivity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    ////Google Ads
+
+    /**
+     * 預先載入插頁廣告
+     */
+    private fun loadInterstitialAd() {
+        val adRequest = AdRequest.Builder().build()
+
+        // 測試用插頁廣告 Unit ID: ca-app-pub-3940256099942544/1033173712
+        // 正式上架請替換為您在 AdMob 後台建立的 Interstitial Ad Unit ID
+        InterstitialAd.load(
+            this,
+            getString(R.string.adUnitId),
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d(TAG, "插頁廣告載入失敗: ${adError.message}")
+                    mInterstitialAd = null
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(TAG, "插頁廣告載入成功！")
+                    mInterstitialAd = interstitialAd
+                    setupAdCallbacks() // 設定廣告關閉與展示狀態監聽
+                }
+            }
+        )
+    }
+
+
+    /**
+     * 設定廣告展示與關閉的回呼 (Callbacks)
+     */
+    private fun setupAdCallbacks() {
+        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                Log.d(TAG, "使用者關閉了插頁廣告")
+                mInterstitialAd = null
+                // 廣告關閉後重新載入下一檔廣告，備供下次使用
+                loadInterstitialAd()
+            }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                Log.d(TAG, "廣告展示失敗: ${adError.message}")
+                mInterstitialAd = null
+            }
+
+            override fun onAdShowedFullScreenContent() {
+                Log.d(TAG, "插頁廣告成功在螢幕展示")
+            }
+        }
+    }
+
+
+    /**
+     * 顯示廣告並執行後續流程
+     */
+    private fun showInterstitialAdAndProceed(onComplete: () -> Unit) {
+        if (mInterstitialAd != null) {
+            // 在廣告關閉時自動觸發 onComplete 動作
+            mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    mInterstitialAd = null
+                    loadInterstitialAd() // 預載下一檔
+                    onComplete() // 執行主要業務邏輯 (如頁面跳轉)
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    mInterstitialAd = null
+                    onComplete() // 顯示失敗時依然讓使用者繼續操作
+                }
+            }
+            mInterstitialAd?.show(this)
+        } else {
+            Log.d(TAG, "廣告尚未載入完成，直接執行下一步驟")
+            onComplete()
+        }
+    }
+
+
+    ////End of Google Ads
+
     fun fetchUserInfoWithGraphApi(accessToken: AccessToken, textView: TextView?) {
         // 建立 Graph API 請求，目標為 "me" (目前登入的使用者)
         val request = GraphRequest.newMeRequest(accessToken) { jsonObject, response ->
@@ -266,6 +366,8 @@ class QuizActivity : ComponentActivity() {
     private fun queryQuestion(sub:String, vol: String, chap: String){
         Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
 
+        //呼叫廣告
+        showInterstitialAdAndProceed{}
 
         var totalCount = 0
         var randomNumber = 1
@@ -554,6 +656,8 @@ suspend fun readExcelFromAssets(
         }
     }
 }
+
+
 
 data class Quiz(
     val id: Int = 0,

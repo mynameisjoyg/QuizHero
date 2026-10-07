@@ -123,21 +123,18 @@ class MainActivity : ComponentActivity() {
 
 
         bt_exam.setOnClickListener {
-
-            showInterstitialAdAndProceed {
-
-                // 這裡放您原本點擊按鈕後要執行的邏輯 (例如：切換到考試 Activity)
-                val intent = Intent(this, QuizActivity::class.java).apply {
-                    putExtra("userId", "${userId}")
-                    putExtra("subject", "${selectedSubject}")
-                    putExtra("volume", "${selectedVolume}")
-                    putExtra("chapter", "${selectedChapter}")
-                    Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
-                    setPackage(packageName)
-                }
-                startActivity(intent)
-
+            // 這裡放您原本點擊按鈕後要執行的邏輯 (例如：切換到考試 Activity)
+            val intent = Intent(this, QuizActivity::class.java).apply {
+                putExtra("userId", "${userId}")
+                putExtra("subject", "${selectedSubject}")
+                putExtra("volume", "${selectedVolume}")
+                putExtra("chapter", "${selectedChapter}")
+                Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
+                setPackage(packageName)
             }
+            startActivity(intent)
+
+            //showInterstitialAdAndProceed {}
         }
 
         bt_battle.setOnClickListener {
@@ -188,7 +185,7 @@ class MainActivity : ComponentActivity() {
         // 正式上架請替換為您在 AdMob 後台建立的 Interstitial Ad Unit ID
         InterstitialAd.load(
             this,
-            "ca-app-pub-3940256099942544/1033173712",
+            getString(R.string.adUnitId),
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
