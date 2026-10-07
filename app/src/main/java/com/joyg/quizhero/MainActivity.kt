@@ -48,8 +48,8 @@ class MainActivity : ComponentActivity() {
     private val itemList = mutableListOf("English", "Chinese", "Geography")
     private lateinit var cardAdapter: CardAdapter
     var selectedSubject = "English"
-    var selectedVolume = ""
-    var selectedChapter = ""
+    var selectedVolume = "1"
+    var selectedChapter = "1"
 
     private var mInterstitialAd: InterstitialAd? = null
     private val TAG = "MainActivityAdMob"
