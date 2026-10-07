@@ -120,4 +120,9 @@ dependencies {
 
     //Material Components 支持
     implementation("com.google.android.material:material:1.11.0")
+
+    //Google Ad
+    implementation("com.google.android.gms:play-services-ads:25.5.0") // 請確認使用最新版本
+    //implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.5.0")
 }
+

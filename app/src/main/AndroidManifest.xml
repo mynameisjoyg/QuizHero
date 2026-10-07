@@ -60,6 +60,9 @@
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token"/>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-6867643704609594~8768113350"/> <!-- 測試用 App ID -->
 
         <activity
             android:name="com.facebook.FacebookActivity"

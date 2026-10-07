@@ -14,11 +14,21 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.CallbackManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.FullScreenContentCallback
 
 private var tv_facebook_user_name: TextView?=null
 private var userId : String = ""
@@ -41,9 +51,19 @@ class MainActivity : ComponentActivity() {
     var selectedVolume = ""
     var selectedChapter = ""
 
+    private var mInterstitialAd: InterstitialAd? = null
+    private val TAG = "MainActivityAdMob"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
+
+        // 1. 初始化 AdMob SDK
+        MobileAds.initialize(this) {}
+
+        // 2. 預先載入插頁式廣告
+        loadInterstitialAd()
+
 
 
         val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -103,15 +123,21 @@ class MainActivity : ComponentActivity() {
 
 
         bt_exam.setOnClickListener {
-            val intent = Intent(this, QuizActivity::class.java).apply {
-                putExtra("userId", "${userId}")
-                putExtra("subject", "${selectedSubject}")
-                putExtra("volume", "${selectedVolume}")
-                putExtra("chapter", "${selectedChapter}")
-                Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
-                setPackage(packageName)
+
+            showInterstitialAdAndProceed {
+
+                // 這裡放您原本點擊按鈕後要執行的邏輯 (例如：切換到考試 Activity)
+                val intent = Intent(this, QuizActivity::class.java).apply {
+                    putExtra("userId", "${userId}")
+                    putExtra("subject", "${selectedSubject}")
+                    putExtra("volume", "${selectedVolume}")
+                    putExtra("chapter", "${selectedChapter}")
+                    Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
+                    setPackage(packageName)
+                }
+                startActivity(intent)
+
             }
-            startActivity(intent)
         }
 
         bt_battle.setOnClickListener {
@@ -151,6 +177,85 @@ class MainActivity : ComponentActivity() {
         // 模擬從資料庫或伺服器獲取的排行榜資料
         fetchAndRefreshLeaderboard()
     }
+
+    /**
+     * 預先載入插頁廣告
+     */
+    private fun loadInterstitialAd() {
+        val adRequest = AdRequest.Builder().build()
+
+        // 測試用插頁廣告 Unit ID: ca-app-pub-3940256099942544/1033173712
+        // 正式上架請替換為您在 AdMob 後台建立的 Interstitial Ad Unit ID
+        InterstitialAd.load(
+            this,
+            "ca-app-pub-3940256099942544/1033173712",
+            adRequest,
+            object : InterstitialAdLoadCallback() {
+                override fun onAdFailedToLoad(adError: LoadAdError) {
+                    Log.d(TAG, "插頁廣告載入失敗: ${adError.message}")
+                    mInterstitialAd = null
+                }
+
+                override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                    Log.d(TAG, "插頁廣告載入成功！")
+                    mInterstitialAd = interstitialAd
+                    setupAdCallbacks() // 設定廣告關閉與展示狀態監聽
+                }
+            }
+        )
+    }
+
+
+    /**
+     * 設定廣告展示與關閉的回呼 (Callbacks)
+     */
+    private fun setupAdCallbacks() {
+        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                Log.d(TAG, "使用者關閉了插頁廣告")
+                mInterstitialAd = null
+                // 廣告關閉後重新載入下一檔廣告，備供下次使用
+                loadInterstitialAd()
+            }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                Log.d(TAG, "廣告展示失敗: ${adError.message}")
+                mInterstitialAd = null
+            }
+
+            override fun onAdShowedFullScreenContent() {
+                Log.d(TAG, "插頁廣告成功在螢幕展示")
+            }
+        }
+    }
+
+
+    /**
+     * 顯示廣告並執行後續流程
+     */
+    private fun showInterstitialAdAndProceed(onComplete: () -> Unit) {
+        if (mInterstitialAd != null) {
+            // 在廣告關閉時自動觸發 onComplete 動作
+            mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdDismissedFullScreenContent() {
+                    mInterstitialAd = null
+                    loadInterstitialAd() // 預載下一檔
+                    onComplete() // 執行主要業務邏輯 (如頁面跳轉)
+                }
+
+                override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                    mInterstitialAd = null
+                    onComplete() // 顯示失敗時依然讓使用者繼續操作
+                }
+            }
+            mInterstitialAd?.show(this)
+        } else {
+            Log.d(TAG, "廣告尚未載入完成，直接執行下一步驟")
+            onComplete()
+        }
+    }
+
+
 
     private fun fetchAndRefreshLeaderboard() {
         // 1. 使用 lifecycleScope 啟動協程
