@@ -30,6 +30,8 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.FullScreenContentCallback
 
+import com.google.android.gms.ads.AdView
+
 private var tv_facebook_user_name: TextView?=null
 private var userId : String = ""
 private var userTotalCorrectCount: Int = 0
@@ -54,6 +56,8 @@ class MainActivity : ComponentActivity() {
     private var mInterstitialAd: InterstitialAd? = null
     private val TAG = "MainActivityAdMob"
 
+    private lateinit var adView: AdView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -63,6 +67,15 @@ class MainActivity : ComponentActivity() {
 
         // 2. 預先載入插頁式廣告
         loadInterstitialAd()
+
+        // 3. Banner廣告
+        // 初始化 Google Mobile Ads SDK
+        MobileAds.initialize(this) {}
+
+        // 綁定並載入廣告
+        adView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
 
 
 
