@@ -63,10 +63,10 @@ class MainActivity : ComponentActivity() {
         setContentView(R.layout.main_activity)
 
         // 1. 初始化 AdMob SDK
-        MobileAds.initialize(this) {}
+        //MobileAds.initialize(this) {}
 
         // 2. 預先載入插頁式廣告
-        loadInterstitialAd()
+        //loadInterstitialAd()
 
         // 3. Banner廣告
         // 初始化 Google Mobile Ads SDK
@@ -76,7 +76,6 @@ class MainActivity : ComponentActivity() {
         adView = findViewById(R.id.adView)
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
-
 
 
         val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -198,7 +197,7 @@ class MainActivity : ComponentActivity() {
         // 正式上架請替換為您在 AdMob 後台建立的 Interstitial Ad Unit ID
         InterstitialAd.load(
             this,
-            getString(R.string.adUnitId),
+            getString(R.string.interstitialAdUnitId),
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {

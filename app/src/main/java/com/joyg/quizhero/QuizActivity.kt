@@ -210,7 +210,14 @@ class QuizActivity : ComponentActivity() {
                 delay(5000) // 延遲 5000 毫秒（非阻塞）
 
                 // 5 秒後要執行的程式碼（依然在主執行緒）
-                queryQuestion(subject, volume, chapter)
+                //答對五題顯示一次廣告
+                if(correct%5==0) {
+                    //呼叫廣告
+                    showInterstitialAdAndProceed{
+                        queryQuestion(subject, volume, chapter)
+                    }
+                }
+
                 setAnswerButtonsEnabled(true)
                 tvStatus.text = "❓ 題目來了！請作答！"
                 // 設定選項顏色
@@ -267,7 +274,7 @@ class QuizActivity : ComponentActivity() {
         // 正式上架請替換為您在 AdMob 後台建立的 Interstitial Ad Unit ID
         InterstitialAd.load(
             this,
-            getString(R.string.adUnitId),
+            getString(R.string.interstitialAdUnitId),
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
@@ -366,12 +373,6 @@ class QuizActivity : ComponentActivity() {
 
     private fun queryQuestion(sub:String, vol: String, chap: String){
         Log.v("JOYG", "JOYGSAY: queryQuestion, sub=$sub, vol=$vol, chap=$chap")
-
-        //答對五題顯示一次廣告
-        if(correct%5==0) {
-            //呼叫廣告
-            showInterstitialAdAndProceed{}
-        }
 
         var totalCount = 0
         var randomNumber = 1
