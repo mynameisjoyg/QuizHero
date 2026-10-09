@@ -102,6 +102,7 @@ class QuizActivity : ComponentActivity() {
     private var mInterstitialAd: InterstitialAd? = null
     private val TAG = "MainActivityAdMob"
 
+    private lateinit var adManager: RewardedAdManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,6 +113,11 @@ class QuizActivity : ComponentActivity() {
 
         // 2. 預先載入插頁式廣告
         loadInterstitialAd()
+
+        // 3. 獎勵式廣告
+        // 初始化廣告管理器並預載
+        adManager = RewardedAdManager(this)
+        adManager.loadAd()
 
 
         // 1. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
@@ -212,10 +218,13 @@ class QuizActivity : ComponentActivity() {
                 // 5 秒後要執行的程式碼（依然在主執行緒）
                 //每答了2題顯示一次廣告
                 if(total%2==0) {
-                    //呼叫廣告
-                    showInterstitialAdAndProceed{
-                        queryQuestion(subject, volume, chapter)
-                    }
+//                    //呼叫插頁式廣告
+//                    showInterstitialAdAndProceed{
+//                        queryQuestion(subject, volume, chapter)
+//                    }
+
+                    // 呼叫獎勵式廣告
+                    handleHintRequest()
                 } else {
                     queryQuestion(subject, volume, chapter)
                 }
@@ -344,6 +353,35 @@ class QuizActivity : ComponentActivity() {
         }
     }
 
+    // 獎勵式廣告
+    private fun handleHintRequest() {
+        if (adManager.isAdReady()) {
+            // 顯示廣告
+            adManager.showAd(
+                activity = this,
+                onUserEarnedReward = { amount, type ->
+                    // 1. 給予使用者獎勵（例如：解鎖提示、復活一次）
+                    grantHintReward()
+                },
+                onAdClosed = {
+                    // 2. 廣告關閉後的畫面處理（例如：恢復遊戲計時）
+                    resumeQuizTimer()
+                }
+            )
+        } else {
+            Toast.makeText(this, "廣告載入中，請稍後再試", Toast.LENGTH_SHORT).show()
+            adManager.loadAd() // 再次嘗試載入
+        }
+    }
+
+    private fun grantHintReward() {
+        // 實作給予提示的邏輯
+        //Toast.makeText(this, "已獲得提示！", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun resumeQuizTimer() {
+        // 繼續倒數計時
+    }
 
     ////End of Google Ads
 
