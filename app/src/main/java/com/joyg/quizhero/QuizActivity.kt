@@ -210,8 +210,8 @@ class QuizActivity : ComponentActivity() {
                 delay(5000) // 延遲 5000 毫秒（非阻塞）
 
                 // 5 秒後要執行的程式碼（依然在主執行緒）
-                //每答了五題顯示一次廣告
-                if(total%5==0) {
+                //每答了2題顯示一次廣告
+                if(total%2==0) {
                     //呼叫廣告
                     showInterstitialAdAndProceed{
                         queryQuestion(subject, volume, chapter)

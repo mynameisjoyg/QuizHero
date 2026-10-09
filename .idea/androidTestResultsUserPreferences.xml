@@ -9,7 +9,9 @@
               <option name="preferredColumnWidths">
                 <map>
                   <entry key="Duration" value="90" />
+                  <entry key="Status" value="80" />
                   <entry key="Tests" value="360" />
+                  <entry key="Xiaomi 21051182G" value="120" />
                   <entry key="samsung SM-S7110" value="120" />
                 </map>
               </option>
