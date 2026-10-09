@@ -216,6 +216,8 @@ class QuizActivity : ComponentActivity() {
                     showInterstitialAdAndProceed{
                         queryQuestion(subject, volume, chapter)
                     }
+                } else {
+                    queryQuestion(subject, volume, chapter)
                 }
 
                 setAnswerButtonsEnabled(true)
