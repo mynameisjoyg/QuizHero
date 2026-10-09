@@ -16,6 +16,8 @@ import com.facebook.login.widget.LoginButton
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.auth.FacebookAuthProvider
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : ComponentActivity() {
     private var tv_facebook_user_name: TextView?=null
@@ -57,6 +59,7 @@ class LoginActivity : ComponentActivity() {
                 fetchUserInfoWithGraphApi(result.accessToken, findViewById<TextView>(R.id.tv_facebook_user_name))
 
                 // TODO: 可將 accessToken 傳送至自家 Server 或 Firebase 進行認證
+                handleFacebookAccessToken(result.accessToken)
             }
 
             override fun onCancel() {
@@ -177,6 +180,28 @@ class LoginActivity : ComponentActivity() {
                 // 新增失敗時的回呼
                 Log.w("FirestoreDemo", "JOYGSAY: facebook info 新增資料時發生錯誤", e)
                 //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+    fun handleFacebookAccessToken(token: AccessToken) {
+        // 1. 利用 Facebook AccessToken 建立 Firebase 憑證
+        val credential = FacebookAuthProvider.getCredential(token.token)
+
+        // 2. 傳給 FirebaseAuth 進行認證
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // 登入成功！此時 request.auth 已不為 null
+                    val user = FirebaseAuth.getInstance().currentUser
+                    val uid = user?.uid
+
+                    // 現在可以安全地將成績寫入 Firestore 了
+                    Log.v("LoginActivity", "JOYGSAY: FirebaseAuth認證成功！")
+                } else {
+                    // 認證失敗處理
+                    Log.e("Auth", "Firebase auth failed", task.exception)
+                }
             }
     }
 }

@@ -132,5 +132,10 @@ dependencies {
     //Google Ad
     implementation("com.google.android.gms:play-services-ads:25.5.0") // 請確認使用最新版本
     //implementation("com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.5.0")
+
+    //Firebase OAuth
+    // 加入 Firebase Authentication 依賴項
+    implementation("com.google.firebase:firebase-auth")
+
 }
 
