@@ -72,4 +72,21 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- 加入一個彈性伸展空間，將 AdView 推至最底部 -->
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- 置底的 AdMob Banner 廣告 -->
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        app:adSize="BANNER"
+        app:adUnitId="@string/bannerAdUnitId" />
+
 </LinearLayout>

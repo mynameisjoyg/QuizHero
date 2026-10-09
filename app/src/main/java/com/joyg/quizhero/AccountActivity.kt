@@ -3,7 +3,12 @@ package com.joyg.quizhero
 import android.os.Bundle
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.MobileAds
 
+import com.google.android.gms.ads.AdView
+private lateinit var adView: AdView
 class AccountActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,5 +29,17 @@ class AccountActivity : ComponentActivity() {
         tvUserId.text = "User ID: $userId"
         tvTotalCorrectCount.text = "總答對題數: $totalCorrectCount"
         tvTotalWrongCount.text = "總答錯題數: $totalWrongCount"
+
+
+        adView = findViewById<AdView>(R.id.adView)
+
+        // 3. Banner廣告
+        // 初始化 Google Mobile Ads SDK
+        MobileAds.initialize(this) {}
+
+        // 綁定並載入廣告
+        adView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
     }
 }
