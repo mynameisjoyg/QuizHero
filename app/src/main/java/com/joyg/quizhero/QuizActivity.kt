@@ -219,6 +219,7 @@ class QuizActivity : ComponentActivity() {
                 } else {
                     queryQuestion(subject, volume, chapter)
                 }
+                
 
                 setAnswerButtonsEnabled(true)
                 tvStatus.text = "❓ 題目來了！請作答！"
