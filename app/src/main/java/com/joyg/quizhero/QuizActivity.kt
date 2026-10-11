@@ -216,19 +216,9 @@ class QuizActivity : ComponentActivity() {
                 delay(5000) // 延遲 5000 毫秒（非阻塞）
 
                 // 5 秒後要執行的程式碼（依然在主執行緒）
-                //每答了2題顯示一次廣告
-                if(total%2==0) {
-//                    //呼叫插頁式廣告
-//                    showInterstitialAdAndProceed{
-//                        queryQuestion(subject, volume, chapter)
-//                    }
-
-                    // 呼叫獎勵式廣告
-                    handleHintRequest()
-                } else {
-                    queryQuestion(subject, volume, chapter)
-                }
-
+                // 呼叫獎勵式廣告
+                handleHintRequest()
+                queryQuestion(subject, volume, chapter)
 
                 setAnswerButtonsEnabled(true)
                 tvStatus.text = "❓ 題目來了！請作答！"
