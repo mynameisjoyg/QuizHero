@@ -118,6 +118,11 @@ class QuizActivity : ComponentActivity() {
         // 初始化廣告管理器並預載
         adManager = RewardedAdManager(this)
         adManager.loadAd()
+        lifecycleScope.launch {
+            delay(5000) // 延遲 5000 毫秒（非阻塞）
+            // 呼叫獎勵式廣告
+            handleHintRequest()
+        }
 
 
         // 1. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
@@ -167,6 +172,7 @@ class QuizActivity : ComponentActivity() {
         wrong=0
         percent=0.0
 
+
         //Firestore
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
@@ -215,9 +221,10 @@ class QuizActivity : ComponentActivity() {
             lifecycleScope.launch {
                 delay(5000) // 延遲 5000 毫秒（非阻塞）
 
-                // 5 秒後要執行的程式碼（依然在主執行緒）
                 // 呼叫獎勵式廣告
                 handleHintRequest()
+
+                // 5 秒後要執行的程式碼（依然在主執行緒）
                 queryQuestion(subject, volume, chapter)
 
                 setAnswerButtonsEnabled(true)
