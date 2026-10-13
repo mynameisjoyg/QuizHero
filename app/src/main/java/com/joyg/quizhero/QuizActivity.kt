@@ -177,7 +177,7 @@ class QuizActivity : ComponentActivity() {
         // 2. 初始化 Firestore 實例
         db = Firebase.firestore
 
-        queryQuestion(subject, volume, chapter)
+        //queryQuestion(subject, volume, chapter)
 
         //按下四個選項之一
         val answerClickListener = View.OnClickListener { view ->

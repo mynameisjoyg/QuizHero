@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-10-12T13:57:39.449739700Z">
+        <DropdownSelection timestamp="2026-10-13T07:42:52.847324700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8M32MJHHJ" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8N82X75GW" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -27,7 +27,7 @@
         </DialogSelection>
       </SelectionState>
       <SelectionState runConfigName="QuizActivityNavigationTest">
-        <option name="selectionMode" value="DROPDOWN" />
+        <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2026-10-12T14:17:33.112866400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -40,6 +40,11 @@
             <Target type="DEFAULT_BOOT">
               <handle>
                 <DeviceId pluginId="PhysicalDevice" identifier="serial=R5CWA0DFDFD" />
+              </handle>
+            </Target>
+            <Target type="DEFAULT_BOOT">
+              <handle>
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8N82X75GW" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
