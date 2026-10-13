@@ -216,13 +216,8 @@ class QuizActivity : ComponentActivity() {
                 delay(5000) // 延遲 5000 毫秒（非阻塞）
 
                 // 5 秒後要執行的程式碼（依然在主執行緒）
-                //每答了2題顯示一次廣告
-                if(total%2==0) {
-//                    //呼叫插頁式廣告
-//                    showInterstitialAdAndProceed{
-//                        queryQuestion(subject, volume, chapter)
-//                    }
-
+                //每答了10題顯示一次廣告
+                if(total%10==0) {
                     // 呼叫獎勵式廣告
                     handleHintRequest()
                 } else {
@@ -369,8 +364,13 @@ class QuizActivity : ComponentActivity() {
                 }
             )
         } else {
-            Toast.makeText(this, "廣告載入中，請稍後再試", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "廣告載入中，請稍後再試", Toast.LENGTH_SHORT).show()
             adManager.loadAd() // 再次嘗試載入
+
+            //如果獎勵式廣告失敗，改呼叫插頁式廣告
+            showInterstitialAdAndProceed{
+                queryQuestion(subject, volume, chapter)
+            }
         }
     }
 
