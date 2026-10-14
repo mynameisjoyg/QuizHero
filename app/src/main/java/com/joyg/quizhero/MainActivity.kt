@@ -47,7 +47,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var callbackManager: CallbackManager
 
     //Swipe Card
-    private val itemList = mutableListOf("English", "Chinese", "Geography")
+    //private val itemList = mutableListOf("English", "Chinese", "Geography")
+    private val itemList = mutableListOf("英文會考歷屆真題", "Chinese", "Geography")
     private lateinit var cardAdapter: CardAdapter
     var selectedSubject = "English"
     var selectedVolume = "1"
@@ -81,8 +82,9 @@ class MainActivity : ComponentActivity() {
         val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         cardAdapter = CardAdapter(itemList) { subject ->
             // 這裡會接收到 "English", "Chinese", 或 "Geography"
+            Log.v("", "JOYGSAY: subject=${subject}")
             this.selectedSubject = subject
-            this.selectedVolume ="2"
+            this.selectedVolume ="1"
             this.selectedChapter ="1"
 
             // (選用) Toast 提示確認更新結果
@@ -185,6 +187,14 @@ class MainActivity : ComponentActivity() {
 
         // 模擬從資料庫或伺服器獲取的排行榜資料
         fetchAndRefreshLeaderboard()
+
+
+//        val bt_add = findViewById<Button>(R.id.bt_add)
+//        bt_add.setOnClickListener {
+//            //讀取英文會考歷屆題庫的Excel
+//            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+//            readExcelByLifeCycleScope("English_CAP_Quiz.xlsx")
+//        }
     }
 
     /**
@@ -336,6 +346,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun readExcelByLifeCycleScope(execelFileName: String){
+        Log.v("MainActivity", "JOYGSAY: readExcelByLifeCycleScope, excelFileName=${execelFileName}")
         // 在 Activity 或 Fragment 中：
         lifecycleScope.launch {
             readExcelFromAssets(

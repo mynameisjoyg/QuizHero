@@ -17,8 +17,8 @@ android {
         applicationId = "com.joyg.quizhero"
         minSdk = 26
         targetSdk = 37
-        versionCode = 8
-        versionName = "20261012"
+        versionCode = 9
+        versionName = "20261014"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

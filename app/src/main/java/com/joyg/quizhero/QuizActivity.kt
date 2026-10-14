@@ -434,7 +434,7 @@ class QuizActivity : ComponentActivity() {
                     //利用第一題的ID+隨機數字，組成隨機ID，來取得題目、解答和詳解
                     val randomId = QuestionFirstId + randomNumber
                     Log.v("JOYG", "JOYGSAY: randomId=${randomId}")
-                    db.collection("${sub}_Quiz")
+                    db.collection("${sub}")
                         .whereEqualTo("volume", vol)
                         .whereEqualTo("chapter", chap)
                         .whereEqualTo("id", randomId)
