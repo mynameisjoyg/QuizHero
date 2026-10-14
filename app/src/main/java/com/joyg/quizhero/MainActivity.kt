@@ -48,7 +48,8 @@ class MainActivity : ComponentActivity() {
 
     //Swipe Card
     //private val itemList = mutableListOf("English", "Chinese", "Geography")
-    private val itemList = mutableListOf("英文會考歷屆真題", "國文會考歷屆真題", "社會會考歷屆真題")
+    //private val itemList = mutableListOf("英文會考歷屆真題", "國文會考歷屆真題", "社會會考歷屆真題")
+    val itemList: MutableList<String> = mutableListOf()
     private lateinit var cardAdapter: CardAdapter
     var selectedSubject = "English"
     var selectedVolume = "1"
@@ -78,6 +79,37 @@ class MainActivity : ComponentActivity() {
         val adRequest = AdRequest.Builder().build()
         adView.loadAd(adRequest)
 
+        //Firestore
+        // 2. 初始化 Firestore 實例
+        db = Firebase.firestore
+
+        // 讀取 MetaData 集合中的所有文件
+        db.collection("MetaData")
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    // 取得字串型態的 title 欄位
+                    val title = document.getString("title")
+
+                    // 確保 title 不為空才加入列表
+                    if (!title.isNullOrEmpty()
+                        && title != "英文題庫"
+                        && title != "國文題庫"
+                        && title != "地理題庫") {
+                        itemList.add(title)
+                        Log.v("MainActivity.kt", "JOYGSAY: title=${title}")
+                    }
+                }
+
+                // 檢查結果（此時 itemList 已經包含所有標題）
+                println("成功載入的標題：$itemList")
+                // 關鍵：通知 Adapter 資料已改變，請重新渲染畫面
+                cardAdapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener { exception ->
+                // 處理撈取失敗的例外狀況
+                exception.printStackTrace()
+            }
 
         val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         cardAdapter = CardAdapter(itemList) { subject ->
@@ -114,11 +146,6 @@ class MainActivity : ComponentActivity() {
 
         val bt_exam: Button = findViewById(R.id.bt_exam)
         val bt_battle: Button = findViewById(R.id.bt_battle)
-
-
-        //Firestore
-        // 2. 初始化 Firestore 實例
-        db = Firebase.firestore
 
 
         var subjects = listOf("English","Chinese", "Geography")
