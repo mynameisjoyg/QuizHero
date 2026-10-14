@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
             this.selectedChapter ="1"
 
             // (選用) Toast 提示確認更新結果
-            Toast.makeText(this, "選擇科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
+            //Toast.makeText(this, "選擇科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
         }
 
         swipeCardRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -189,12 +189,12 @@ class MainActivity : ComponentActivity() {
         fetchAndRefreshLeaderboard()
 
 
-        val bt_add = findViewById<Button>(R.id.bt_add)
-        bt_add.setOnClickListener {
-            //讀取英文會考歷屆題庫的Excel
-            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-            readExcelByLifeCycleScope("Society_CAP_Quiz.xlsx")
-        }
+//        val bt_add = findViewById<Button>(R.id.bt_add)
+//        bt_add.setOnClickListener {
+//            //讀取英文會考歷屆題庫的Excel
+//            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+//            readExcelByLifeCycleScope("Society_CAP_Quiz.xlsx")
+//        }
     }
 
     /**
