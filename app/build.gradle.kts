@@ -17,8 +17,8 @@ android {
         applicationId = "com.joyg.quizhero"
         minSdk = 26
         targetSdk = 37
-        versionCode = 9
-        versionName = "20261014"
+        versionCode = 11
+        versionName = "20261014_3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,14 +29,7 @@ android {
                 enable = false
             }
         }
-        getByName("release") {
-            isMinifyEnabled = false
-            isShrinkResources = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
