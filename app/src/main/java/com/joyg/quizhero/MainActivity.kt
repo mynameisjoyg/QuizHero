@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 
     //Swipe Card
     //private val itemList = mutableListOf("English", "Chinese", "Geography")
-    private val itemList = mutableListOf("英文會考歷屆真題", "國文會考歷屆真題", "Geography")
+    private val itemList = mutableListOf("英文會考歷屆真題", "國文會考歷屆真題", "社會會考歷屆真題")
     private lateinit var cardAdapter: CardAdapter
     var selectedSubject = "English"
     var selectedVolume = "1"
@@ -189,17 +189,12 @@ class MainActivity : ComponentActivity() {
         fetchAndRefreshLeaderboard()
 
 
-//        val bt_add = findViewById<Button>(R.id.bt_add)
-//        bt_add.setOnClickListener {
-//            //讀取英文會考歷屆題庫的Excel
-//            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-//            readExcelByLifeCycleScope("Chinese_CAP_Quiz.xlsx")
-//        }        val bt_add = findViewById<Button>(R.id.bt_add)
-//        bt_add.setOnClickListener {
-//            //讀取英文會考歷屆題庫的Excel
-//            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-//            readExcelByLifeCycleScope("Chinese_CAP_Quiz.xlsx")
-//        }
+        val bt_add = findViewById<Button>(R.id.bt_add)
+        bt_add.setOnClickListener {
+            //讀取英文會考歷屆題庫的Excel
+            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+            readExcelByLifeCycleScope("Society_CAP_Quiz.xlsx")
+        }
     }
 
     /**

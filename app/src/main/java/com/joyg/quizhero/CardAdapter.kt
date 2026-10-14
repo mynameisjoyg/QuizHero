@@ -62,7 +62,7 @@ class CardAdapter(
                 val subject = when (realPosition % 3) {
                     0 -> "English_CAP_Quiz"
                     1 -> "Chinese_CAP_Quiz"
-                    2 -> "Geography"
+                    2 -> "Society_CAP_Quiz"
                     else -> "English_CAP_Quiz"
                 }
                 onSubjectSelected(subject)
