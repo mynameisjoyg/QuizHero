@@ -61,9 +61,9 @@ class CardAdapter(
                 // 4. 先處理科目邏輯與觸發題庫讀取 (確保 callback 順利執行)
                 val subject = when (realPosition % 3) {
                     0 -> "English_CAP_Quiz"
-                    1 -> "Chinese"
+                    1 -> "Chinese_CAP_Quiz"
                     2 -> "Geography"
-                    else -> "English"
+                    else -> "English_CAP_Quiz"
                 }
                 onSubjectSelected(subject)
 
