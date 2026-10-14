@@ -133,14 +133,13 @@
 <!--                android:text="新增"-->
 <!--                android:visibility="visible" />-->
 
-    <!--        <Button-->
-    <!--            android:id="@+id/bt_delete"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:clickable="true"-->
-    <!--            android:text="刪除"-->
-    <!--            android:visibility="visible" />-->
-    <!--    </LinearLayout>-->
+<!--            <Button-->
+<!--                android:id="@+id/bt_delete"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:clickable="true"-->
+<!--                android:text="刪除"-->
+<!--                android:visibility="visible" />-->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewLeaderboard"
