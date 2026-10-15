@@ -107,6 +107,8 @@ class QuizActivity : ComponentActivity() {
 
     private lateinit var adManager: RewardedAdManager
 
+    var remainingHints = 3
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
@@ -141,6 +143,8 @@ class QuizActivity : ComponentActivity() {
         // 漂浮按鈕
         // 啟用可拖曳 FAB
         setupDraggableFab()
+
+
 
         //取得MainActivity傳送過來的subject
         // 1. 綁定 TextView 元件
@@ -284,12 +288,18 @@ class QuizActivity : ComponentActivity() {
         var dX = 0f
         var dY = 0f
 
+        // 1. 記錄按下時的手指絕對座標
+        var startRawX = 0f
+        var startRawY = 0f
+
         fab.setOnTouchListener { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     // 記錄按下時的初始偏移量
                     dX = view.x - event.rawX
                     dY = view.y - event.rawY
+                    startRawX = event.rawX
+                    startRawY = event.rawY
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -313,17 +323,35 @@ class QuizActivity : ComponentActivity() {
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    // 判斷是否為單純點擊（如果移動距離極小，則觸發點擊事件）
-                    val clickThreshold = 10f
-                    if (Math.abs(event.rawX + dX - view.x) < clickThreshold &&
-                        Math.abs(event.rawY + dY - view.y) < clickThreshold) {
-                        view.performClick()
+                    // 2. 透過計算手指移動的總距離來判斷是否為點擊
+                    val distanceX = Math.abs(event.rawX - startRawX)
+                    val distanceY = Math.abs(event.rawY - startRawY)
+                    val clickThreshold = 10f // 容許的微小晃動範圍 (像素)
+                    Log.v("JOYG", "JOYG: distanceX=${distanceX}, distanceY=${distanceY}")
+
+                    if (distanceX < clickThreshold && distanceY < clickThreshold) {
+                        view.performClick() // 觸發點擊事件
+                        // 假設你將這三張圖片分別命名為 ic_hint_3, ic_hint_2, ic_hint_1 放入 drawable 資料夾
+                        remainingHints -=1
+                        when (remainingHints) {
+                            3 -> fab.setImageResource(R.drawable.delete_option3)
+                            2 -> fab.setImageResource(R.drawable.delete_option2)
+                            1 -> fab.setImageResource(R.drawable.delete_option1)
+                            else -> {
+                                // 次數用完時隱藏或禁用按鈕
+                                //fab.isEnabled = false
+                                fab.setImageResource(R.drawable.delete_option0)
+                                fab.alpha = 0.5f
+                            }
+                        }
                     }
                     true
+
                 }
                 else -> false
             }
         }
+
     }
 
     ////Google Ads
