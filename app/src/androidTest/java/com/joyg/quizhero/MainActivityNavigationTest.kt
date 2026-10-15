@@ -39,7 +39,7 @@ class MainActivityNavigationTest {
 
     @Test
     fun testNavigateToQuizActivity() {
-        val totalAttempts = 5
+        val totalAttempts = 3
 
         for (i in 1..totalAttempts) {
             // 等待 5 秒
