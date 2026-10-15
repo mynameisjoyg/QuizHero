@@ -6,8 +6,8 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.abs
 
 class CardSwipeCallback(
-    private val onSwipedAction: (position: Int, direction: Int) -> Unit
-) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+    //private val onSwipedAction: (position: Int, direction: Int) -> Unit) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+    private val onSwipedAction: (position: Int, direction: Int) -> Unit) : ItemTouchHelper.SimpleCallback(0, 0) { // 將這裡的左右滑動參數改為 0 就無法左右滑動
 
     override fun onMove(
         recyclerView: RecyclerView,

@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
     //private val itemList = mutableListOf("English", "Chinese", "Geography")
     //private val itemList = mutableListOf("英文會考歷屆真題", "國文會考歷屆真題", "社會會考歷屆真題")
     val itemList: MutableList<String> = mutableListOf()
+    val subjectEnglishListList: MutableList<String> = mutableListOf()
     private lateinit var cardAdapter: CardAdapter
     var selectedSubject = "English"
     var selectedVolume = "1"
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
                 for (document in documents) {
                     // 取得字串型態的 title 欄位
                     val title = document.getString("title")
+                    val documentName = document.id
 
                     // 確保 title 不為空才加入列表
                     if (!title.isNullOrEmpty()
@@ -97,6 +99,7 @@ class MainActivity : ComponentActivity() {
                         && title != "國文題庫"
                         && title != "地理題庫") {
                         itemList.add(title)
+                        subjectEnglishListList.add(documentName)
                         Log.v("MainActivity.kt", "JOYGSAY: title=${title}")
                     }
                 }
@@ -112,10 +115,10 @@ class MainActivity : ComponentActivity() {
             }
 
         val swipeCardRecyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        cardAdapter = CardAdapter(itemList) { subject ->
+        cardAdapter = CardAdapter(itemList) { position ->
             // 這裡會接收到 "English", "Chinese", 或 "Geography"
             Log.v("", "JOYGSAY: subject=${subject}")
-            this.selectedSubject = subject
+            this.selectedSubject = subjectEnglishListList[position]
             this.selectedVolume ="1"
             this.selectedChapter ="1"
 

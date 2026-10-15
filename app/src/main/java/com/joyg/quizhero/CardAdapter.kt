@@ -12,7 +12,7 @@ import android.graphics.Color
 class CardAdapter(
     private val items: MutableList<String>,
     // 1. 新增 Callback 參數，傳出選中的科目名稱 (String)
-    private val onSubjectSelected: (subject: String) -> Unit) :
+    private val onSubjectSelected: (pos: Int) -> Unit) :
     RecyclerView.Adapter<CardAdapter.CardViewHolder>() {
 
     class CardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -45,42 +45,12 @@ class CardAdapter(
             cardView.setCardBackgroundColor(Color.WHITE) // 未選中/點擊後：反白 (白色)
         }
 
-// 點擊事件：切換反白與讀取題庫
+        // 點擊事件：切換反白與讀取題庫
         holder.itemView.setOnClickListener {
             val realPosition = holder.adapterPosition
-
-            // 1. 確保 position 有效才進行後續處理
-            if (realPosition != RecyclerView.NO_POSITION) {
-
-                // 2. 記錄舊的選中位置
-                val previousSelected = selectedPosition
-
-                // 3. 更新 selectedPosition（支援點擊切換：若點擊已選中的則切換回 -1，否則切換為當前 position）
-                selectedPosition = if (selectedPosition == realPosition) -1 else realPosition
-
-                // 4. 先處理科目邏輯與觸發題庫讀取 (確保 callback 順利執行)
-                val subject = when (realPosition % 3) {
-//                    0 -> "Chinese"
-//                    1 -> "Chinese_CAP_Quiz"
-//                    2 -> "English"
-//                    3 -> "English_CAP_Quiz"
-//                    4 -> "Geography"
-//                    5 -> "Society_CAP_Quiz"
-                    0 -> "Chinese_CAP_Quiz"
-                    1 -> "English_CAP_Quiz"
-                    2 -> "Society_CAP_Quiz"
-                    else -> "English_CAP_Quiz"
-                }
-                onSubjectSelected(subject)
-
-                // 5. 最後才更新 UI 畫面（加入安全邊界檢查，避免 -1 導致 crash）
-                if (previousSelected != RecyclerView.NO_POSITION && previousSelected < itemCount) {
-                    notifyItemChanged(previousSelected)
-                }
-                if (selectedPosition != RecyclerView.NO_POSITION && selectedPosition < itemCount) {
-                    notifyItemChanged(selectedPosition)
-                }
-            }
+            onSubjectSelected(realPosition)
+            Log.v("","JOYG: items[realPosition]=${items[realPosition]}")
+            notifyItemChanged(selectedPosition)
         }
     }
 
