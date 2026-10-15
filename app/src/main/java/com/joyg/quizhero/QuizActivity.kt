@@ -423,7 +423,10 @@ class QuizActivity : ComponentActivity() {
      */
     fun getRandomWrongOption(options: ArrayList<String>, correctAnswer: String): String? {
         // 過濾掉開頭包含正確答案代號的選項（例如：排除開頭是 "(D)" 的選項）
-        val wrongOptions = options.filter { !it.trim().startsWith("($answer)") }
+        var wrongOptions = options.filter { !it.trim().startsWith("($answer)") }
+        if (answer=="C") {
+            wrongOptions = options.filter { !it.trim().startsWith("(${answer} )") }
+        }
 
         // 如果有剩餘的錯誤選項，就隨機回傳其中一個
         return if (wrongOptions.isNotEmpty()) {
