@@ -7,6 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StrikethroughSpan
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -98,6 +101,16 @@ class QuizActivity : ComponentActivity() {
     private lateinit var btnOptionB: Button
     private lateinit var btnOptionC: Button
     private lateinit var btnOptionD: Button
+
+    private lateinit var optionA : String
+    private lateinit var optionB : String
+    private lateinit var optionC : String
+    private lateinit var optionD : String
+    // 1. 將四個字串加入 ArrayList<String>
+    lateinit var optionList : ArrayList<String>
+
+    lateinit var fab : FloatingActionButton
+
 
     // 2. 宣告 binding 變數
     private lateinit var binding: ActivityQuizBinding
@@ -227,13 +240,11 @@ class QuizActivity : ComponentActivity() {
 
                 // 5 秒後要執行的程式碼（依然在主執行緒）
                 //每答了10題顯示一次廣告
-                if(total%10==0) {
+                if(total%1==0) {
                     // 呼叫獎勵式廣告
                     handleHintRequest()
-                } else {
-                    queryQuestion(subject, volume, chapter)
                 }
-
+                queryQuestion(subject, volume, chapter)
 
                 setAnswerButtonsEnabled(true)
                 tvStatus.text = "❓ 題目來了！請作答！"
@@ -283,7 +294,7 @@ class QuizActivity : ComponentActivity() {
     // 漂浮按鈕
     @SuppressLint("ClickableViewAccessibility")
     private fun setupDraggableFab() {
-        val fab = findViewById<FloatingActionButton>(R.id.fabAction)
+        fab = findViewById<FloatingActionButton>(R.id.fabAction)
 
         var dX = 0f
         var dY = 0f
@@ -331,19 +342,12 @@ class QuizActivity : ComponentActivity() {
 
                     if (distanceX < clickThreshold && distanceY < clickThreshold) {
                         view.performClick() // 觸發點擊事件
-                        // 假設你將這三張圖片分別命名為 ic_hint_3, ic_hint_2, ic_hint_1 放入 drawable 資料夾
-                        remainingHints -=1
-                        when (remainingHints) {
-                            3 -> fab.setImageResource(R.drawable.delete_option3)
-                            2 -> fab.setImageResource(R.drawable.delete_option2)
-                            1 -> fab.setImageResource(R.drawable.delete_option1)
-                            else -> {
-                                // 次數用完時隱藏或禁用按鈕
-                                //fab.isEnabled = false
-                                fab.setImageResource(R.drawable.delete_option0)
-                                fab.alpha = 0.5f
-                            }
+
+                        if(remainingHints>0) {
+                            randomDeleteWrongOption()
+                            remainingHints -=1
                         }
+                        setFABUI()
                     }
                     true
 
@@ -352,6 +356,86 @@ class QuizActivity : ComponentActivity() {
             }
         }
 
+    }
+
+    fun setFABUI(){
+        when (remainingHints) {
+            3 -> fab.setImageResource(R.drawable.delete_option3)
+            2 -> fab.setImageResource(R.drawable.delete_option2)
+            1 -> fab.setImageResource(R.drawable.delete_option1)
+            else -> {
+                // 次數用完時隱藏或禁用按鈕
+                //fab.isEnabled = false
+                fab.setImageResource(R.drawable.delete_option0)
+                fab.alpha = 0.5f
+                Toast.makeText(this, "收看廣告以獲得3次提示！", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun randomDeleteWrongOption() {
+        // 隨機抽一個錯誤答案來淘汰
+        val selectedWrongOption = getRandomWrongOption(optionList, answer)
+        Log.v(TAG, "JOYG:randomDeleteWrongOption, answer=${answer}, selectedWrongOption=${selectedWrongOption}")
+
+        // 判斷抽到哪一個並對該按鈕做刪除線處理
+        when (selectedWrongOption) {
+            optionA -> {
+                val spanStr = SpannableString(optionA).apply {
+                    setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                btnOptionA.text = spanStr
+                btnOptionA.isEnabled = false
+                btnOptionA.alpha = 0.5f
+            }
+            optionB -> {
+                val spanStr = SpannableString(optionB).apply {
+                    setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                btnOptionB.text = spanStr
+                btnOptionB.isEnabled = false
+                btnOptionB.alpha = 0.5f
+            }
+            optionC -> {
+                val spanStr = SpannableString(optionC).apply {
+                    setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                btnOptionC.text = spanStr
+                btnOptionC.isEnabled = false
+                btnOptionC.alpha = 0.5f
+            }
+            optionD -> {
+                val spanStr = SpannableString(optionD).apply {
+                    setSpan(StrikethroughSpan(), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                btnOptionD.text = spanStr
+                btnOptionD.isEnabled = false
+                btnOptionD.alpha = 0.5f
+            }
+        }
+    }
+
+    /**
+     * 隨機從清單中抽出一個「非正確答案」的選項
+     * @param options 包含所有選項的清單 (optionList)
+     * @param correctAnswer 正確答案的字串
+     * @return 被抽中淘汰的錯誤選項字串，若找不到則傳回 null
+     */
+    fun getRandomWrongOption(options: ArrayList<String>, correctAnswer: String): String? {
+        // 過濾掉開頭包含正確答案代號的選項（例如：排除開頭是 "(D)" 的選項）
+        val wrongOptions = options.filter { !it.trim().startsWith("($answer)") }
+
+        // 如果有剩餘的錯誤選項，就隨機回傳其中一個
+        return if (wrongOptions.isNotEmpty()) {
+            val selectedWrong = wrongOptions.random()
+
+            // 3. 從原本的 options 串列中將它移除，避免下次重複抽到
+            options.remove(selectedWrong)
+
+            return selectedWrong
+        } else {
+            null
+        }
     }
 
     ////Google Ads
@@ -461,7 +545,11 @@ class QuizActivity : ComponentActivity() {
 
     private fun grantHintReward() {
         // 實作給予提示的邏輯
-        //Toast.makeText(this, "已獲得提示！", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "已獲得3次提示！", Toast.LENGTH_SHORT).show()
+        fab.alpha = 1f
+        remainingHints=3
+        setFABUI()
+        queryQuestion(subject, volume, chapter)
     }
 
     private fun resumeQuizTimer() {
@@ -589,28 +677,34 @@ class QuizActivity : ComponentActivity() {
                                                 firstOptionIndex
                                             ).trim() else tvQuestionTitle.text.trim()) as String
 
-                                        var optionA = options.get(0)
-                                        var optionB = options.get(1)
-                                        var optionC = options.get(2)
-                                        var optionD = options.get(3)
+                                        optionA = options.get(0).toString()
+                                        optionB = options.get(1).toString()
+                                        optionC = options.get(2).toString()
+                                        optionD = options.get(3).toString()
 
-                                        if(answer == "A"){
-                                            optionA = optionA + "."
-                                        } else if(answer =="B"){
-                                            optionB = optionB  + "."
-                                        } else if(answer == "C"){
-                                            optionC = optionC  + "."
-                                        } else{
-                                            optionD = optionD + "."
-                                        }
+                                        optionList = arrayListOf(optionA, optionB, optionC, optionD)
+
+//                                        if(answer == "A"){
+//                                            optionA = optionA + "."
+//                                        } else if(answer =="B"){
+//                                            optionB = optionB  + "."
+//                                        } else if(answer == "C"){
+//                                            optionC = optionC  + "."
+//                                        } else{
+//                                            optionD = optionD + "."
+//                                        }
 
                                         btnOptionA.setText(optionA)
                                         btnOptionB.setText(optionB)
                                         btnOptionC.setText(optionC)
                                         btnOptionD.setText(optionD)
 
-                                        tvQuestionTitle.setText(stem)
+                                        btnOptionA.alpha = 1f
+                                        btnOptionB.alpha = 1f
+                                        btnOptionC.alpha = 1f
+                                        btnOptionD.alpha = 1f
 
+                                        tvQuestionTitle.setText(stem)
                                     }
                                 } else {
                                     tvQuestionTitle?.text = "找不到題目"
@@ -723,7 +817,6 @@ class QuizActivity : ComponentActivity() {
             0.0
         }
     }
-    
 }
 
 // 讀取 Excel 的 Listener
