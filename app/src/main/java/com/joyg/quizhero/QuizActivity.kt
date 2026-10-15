@@ -549,7 +549,6 @@ class QuizActivity : ComponentActivity() {
         fab.alpha = 1f
         remainingHints=3
         setFABUI()
-        queryQuestion(subject, volume, chapter)
     }
 
     private fun resumeQuizTimer() {
