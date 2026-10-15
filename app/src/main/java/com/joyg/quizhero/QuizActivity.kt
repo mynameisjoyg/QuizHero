@@ -311,8 +311,8 @@ class QuizActivity : ComponentActivity() {
                     val parentWidth = (view.parent as View).width.toFloat()
                     val parentHeight = (view.parent as View).height.toFloat()
 
-                    newX = newX.coerceIn(0f, parentWidth - view.width)
-                    newY = newY.coerceIn(0f, parentHeight - view.height)
+                    newX = newX.coerceIn(100f, parentWidth - view.width - 100)
+                    newY = newY.coerceIn(100f, parentHeight - view.height - 100)
 
                     // 移動按鈕
                     view.animate()
