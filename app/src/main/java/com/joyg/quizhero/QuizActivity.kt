@@ -1,12 +1,14 @@
 package com.joyg.quizhero
 
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -45,6 +47,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.tasks.await
 
 private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -135,6 +138,9 @@ class QuizActivity : ComponentActivity() {
         }
 
 
+        // 漂浮按鈕
+        // 啟用可拖曳 FAB
+        setupDraggableFab()
 
         //取得MainActivity傳送過來的subject
         // 1. 綁定 TextView 元件
@@ -267,6 +273,57 @@ class QuizActivity : ComponentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         callbackManager.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+
+    // 漂浮按鈕
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setupDraggableFab() {
+        val fab = findViewById<FloatingActionButton>(R.id.fabAction)
+
+        var dX = 0f
+        var dY = 0f
+
+        fab.setOnTouchListener { view, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    // 記錄按下時的初始偏移量
+                    dX = view.x - event.rawX
+                    dY = view.y - event.rawY
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    // 計算新座標
+                    var newX = event.rawX + dX
+                    var newY = event.rawY + dY
+
+                    // 限制按鈕不超出螢幕邊界（可選）
+                    val parentWidth = (view.parent as View).width.toFloat()
+                    val parentHeight = (view.parent as View).height.toFloat()
+
+                    newX = newX.coerceIn(0f, parentWidth - view.width)
+                    newY = newY.coerceIn(0f, parentHeight - view.height)
+
+                    // 移動按鈕
+                    view.animate()
+                        .x(newX)
+                        .y(newY)
+                        .setDuration(0)
+                        .start()
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    // 判斷是否為單純點擊（如果移動距離極小，則觸發點擊事件）
+                    val clickThreshold = 10f
+                    if (Math.abs(event.rawX + dX - view.x) < clickThreshold &&
+                        Math.abs(event.rawY + dY - view.y) < clickThreshold) {
+                        view.performClick()
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     ////Google Ads
