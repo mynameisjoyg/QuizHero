@@ -60,7 +60,7 @@ class MainActivityNavigationTest {
         intended(hasComponent(QuizActivity::class.java.name))
 
         // 等待畫面載入
-        //SystemClock.sleep(2000)
+        SystemClock.sleep(2000)
 
         // 返回 MainActivity
         Espresso.pressBack()
