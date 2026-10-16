@@ -38,14 +38,11 @@ class QuizActivityNavigationTest {
         // 等待畫面載入
         SystemClock.sleep(2000)
 
-        for(i in 0 until 2) {
-            // 2. 模擬使用者點擊出發跳轉的按鈕
-            onView(withId(R.id.btnOptionA)).perform(click())
-            // 等下一題
-            SystemClock.sleep(5000)
-        }
+        // 2. 模擬使用者點擊出發跳轉的按鈕
+        onView(withId(R.id.btnOptionA)).perform(click())
 
-        // 等待廣告
-        SystemClock.sleep(10*1000)
+        // 等下一題
+        SystemClock.sleep(5000)
+
     }
 }

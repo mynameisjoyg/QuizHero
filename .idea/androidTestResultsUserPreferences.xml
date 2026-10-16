@@ -40,6 +40,7 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Tests" value="360" />
+                  <entry key="samsung SM-G970F" value="120" />
                   <entry key="samsung SM-S7110" value="120" />
                 </map>
               </option>
@@ -53,6 +54,7 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Tests" value="360" />
+                  <entry key="samsung SM-G970F" value="120" />
                   <entry key="samsung SM-S7110" value="120" />
                 </map>
               </option>
@@ -81,6 +83,7 @@
                   <entry key="Duration" value="90" />
                   <entry key="Tests" value="360" />
                   <entry key="samsung SM-G970F" value="120" />
+                  <entry key="samsung SM-S7110" value="120" />
                 </map>
               </option>
             </AndroidTestResultsTableState>
