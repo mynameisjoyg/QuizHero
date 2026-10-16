@@ -48,12 +48,12 @@ class QuizSelectionTest {
 
     @Test
     fun testSelectSpinnerItemsAndStartQuiz_DoesNotCrash() {
-        testCardViewBySubjectVolumeChapter(0,1, 1)
-        testCardViewBySubjectVolumeChapter(1,1, 1)
-        testCardViewBySubjectVolumeChapter(2,1, 1)
+        testSpinnerBySubjectVolumeChapter(0,1, 1)
+        testSpinnerBySubjectVolumeChapter(1,1, 1)
+        testSpinnerBySubjectVolumeChapter(2,1, 1)
     }
 
-    private fun testCardViewBySubjectVolumeChapter(sub: Int, vol: Int, cha: Int){
+    private fun testSpinnerBySubjectVolumeChapter(sub: Int, vol: Int, cha: Int){
         // 定義你想點擊的科目卡片位置 (例如：0 是英文, 1 是國文, 2 是地理)
         val targetPosition = sub
 
