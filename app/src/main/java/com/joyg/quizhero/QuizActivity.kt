@@ -126,17 +126,20 @@ class QuizActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
 
-        // 1. 初始化 AdMob SDK
-        MobileAds.initialize(this) {}
+        // 檢查是否正在執行 UI 測試
+        if (!isRunningTest()) {
+            // 正常環境下：載入廣告
+            // 1. 初始化 AdMob SDK
+            MobileAds.initialize(this) {}
 
-        // 2. 預先載入插頁式廣告
-        loadInterstitialAd()
+            // 2. 預先載入插頁式廣告
+            loadInterstitialAd()
 
-        // 3. 獎勵式廣告
-        // 初始化廣告管理器並預載
-        adManager = RewardedAdManager(this)
-        adManager.loadAd()
-
+            // 3. 獎勵式廣告
+            // 初始化廣告管理器並預載
+            adManager = RewardedAdManager(this)
+            adManager.loadAd()
+        }
 
         // 1. 初始化 binding (將 layout XML 膨脹/載入成視圖物件)
         binding = ActivityQuizBinding.inflate(layoutInflater)
@@ -241,8 +244,10 @@ class QuizActivity : ComponentActivity() {
                 // 5 秒後要執行的程式碼（依然在主執行緒）
                 //每答了10題顯示一次廣告
                 if(total%1==0) {
-                    // 呼叫獎勵式廣告
-                    handleHintRequest()
+                    if(!isRunningTest()){
+                        // 呼叫獎勵式廣告
+                        handleHintRequest()
+                    }
                 }
                 queryQuestion(subject, volume, chapter)
 
@@ -288,6 +293,16 @@ class QuizActivity : ComponentActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         callbackManager.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    // 用來檢查目前是否正在跑測試的共用函式
+    private fun isRunningTest(): Boolean {
+        return try {
+            Class.forName("androidx.test.espresso.Espresso")
+            true
+        } catch (e: ClassNotFoundException) {
+            false
+        }
     }
 
 
@@ -537,7 +552,10 @@ class QuizActivity : ComponentActivity() {
             )
         } else {
             //Toast.makeText(this, "廣告載入中，請稍後再試", Toast.LENGTH_SHORT).show()
-            adManager.loadAd() // 再次嘗試載入
+            if (!isRunningTest()) {
+                adManager.loadAd() // 再次嘗試載入
+            }
+
 
             //如果獎勵式廣告失敗，改呼叫插頁式廣告
             showInterstitialAdAndProceed{
