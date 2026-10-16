@@ -73,12 +73,12 @@ class MainActivity : ComponentActivity() {
 
         // 3. Banner廣告
         // 初始化 Google Mobile Ads SDK
-        //MobileAds.initialize(this) {}
+        MobileAds.initialize(this) {}
 
         // 綁定並載入廣告
-        //adView = findViewById(R.id.adView)
-        //val adRequest = AdRequest.Builder().build()
-        //adView.loadAd(adRequest)
+        adView = findViewById(R.id.adView)
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
 
         //Firestore
         // 2. 初始化 Firestore 實例
