@@ -368,6 +368,10 @@ class QuizActivity : ComponentActivity() {
         } else {
             Toast.makeText(this, "廣告載入中，請稍後再試", Toast.LENGTH_SHORT).show()
             adManager.loadAd() // 再次嘗試載入
+
+            //改播放插頁式廣告
+            loadInterstitialAd()
+
         }
     }
 
