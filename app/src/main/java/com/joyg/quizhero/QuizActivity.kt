@@ -243,7 +243,7 @@ class QuizActivity : ComponentActivity() {
 
                 // 5 秒後要執行的程式碼（依然在主執行緒）
                 //每答了10題顯示一次廣告
-                if(total%1==0) {
+                if(total%10==0) {
                     if(!isRunningTest()){
                         // 呼叫獎勵式廣告
                         handleHintRequest()
