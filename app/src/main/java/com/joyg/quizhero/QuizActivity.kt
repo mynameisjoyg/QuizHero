@@ -288,11 +288,13 @@ class QuizActivity : ComponentActivity() {
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(adError: LoadAdError) {
                     Log.d(TAG, "插頁廣告載入失敗: ${adError.message}")
+                    Toast.makeText(this@QuizActivity, "插頁廣告載入失敗", Toast.LENGTH_SHORT).show()
                     mInterstitialAd = null
                 }
 
                 override fun onAdLoaded(interstitialAd: InterstitialAd) {
                     Log.d(TAG, "插頁廣告載入成功！")
+                    Toast.makeText(this@QuizActivity, "插頁廣告載入成功", Toast.LENGTH_SHORT).show()
                     mInterstitialAd = interstitialAd
                     setupAdCallbacks() // 設定廣告關閉與展示狀態監聽
                 }
@@ -346,6 +348,7 @@ class QuizActivity : ComponentActivity() {
             mInterstitialAd?.show(this)
         } else {
             Log.d(TAG, "廣告尚未載入完成，直接執行下一步驟")
+            Toast.makeText(this, "廣告尚未載入完成，直接執行下一步驟", Toast.LENGTH_SHORT).show()
             onComplete()
         }
     }
@@ -366,11 +369,12 @@ class QuizActivity : ComponentActivity() {
                 }
             )
         } else {
-            Toast.makeText(this, "廣告載入中，請稍後再試", Toast.LENGTH_SHORT).show()
-            adManager.loadAd() // 再次嘗試載入
+            Toast.makeText(this, "獎勵式廣告失敗，請稍後再試", Toast.LENGTH_SHORT).show()
+            //adManager.loadAd() // 再次嘗試載入
 
             //改播放插頁式廣告
             loadInterstitialAd()
+            showInterstitialAdAndProceed {}
 
         }
     }
