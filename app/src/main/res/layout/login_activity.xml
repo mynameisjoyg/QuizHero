@@ -10,19 +10,61 @@
         android:gravity="center"
         android:orientation="vertical">
 
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/btnFacebookSignIn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_facebook_user_name"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="58dp"
+                android:layout_height="wrap_content"
+                android:text="帳號：" />
+
+            <EditText
+                android:id="@+id/et_name"
+                android:layout_width="201dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_password"
+                android:layout_width="58dp"
+                android:layout_height="wrap_content"
+                android:text="密碼：" />
+
+            <EditText
+                android:id="@+id/ed_Password"
+                android:layout_width="201dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="textPassword" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/bt_loggin"
+            android:layout_width="261dp"
+            android:layout_height="49dp"
+            android:text="登入" />
+
+        <Button
+            android:id="@+id/bt_registor"
+            android:layout_width="261dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="未登入"
-            android:textSize="18sp" />
+            android:layout_weight="1"
+            android:text="註冊" />
 
     </LinearLayout>
+
+
 
 </LinearLayout>
