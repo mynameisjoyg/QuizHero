@@ -559,9 +559,7 @@ class QuizActivity : ComponentActivity() {
 
 
             //如果獎勵式廣告失敗，改呼叫插頁式廣告
-            showInterstitialAdAndProceed{
-                queryQuestion(subject, volume, chapter)
-            }
+            showInterstitialAdAndProceed{}
         }
     }
 
@@ -735,7 +733,7 @@ class QuizActivity : ComponentActivity() {
 
                 } else{
                     Log.v("JOYG", "JOYGSAY: in queryQuestion, MetaData中找不到${sub}")
-                    Toast.makeText(this, "MetaData中找不到${sub}", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "MetaData中找不到${sub}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
