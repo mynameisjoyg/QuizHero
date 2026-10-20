@@ -36,7 +36,7 @@ class LeaderboardAdapter : ListAdapter<LeaderboardUser, LeaderboardAdapter.Leade
     // 比對新舊排行榜資料，確保效能與動畫平滑
     companion object DiffCallback : DiffUtil.ItemCallback<LeaderboardUser>() {
         override fun areItemsTheSame(oldItem: LeaderboardUser, newItem: LeaderboardUser): Boolean {
-            return oldItem.userId == newItem.userId
+            return oldItem.name == newItem.name
         }
 
         override fun areContentsTheSame(oldItem: LeaderboardUser, newItem: LeaderboardUser): Boolean {

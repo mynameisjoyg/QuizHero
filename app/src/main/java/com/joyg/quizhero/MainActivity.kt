@@ -32,8 +32,8 @@ import com.google.android.gms.ads.FullScreenContentCallback
 
 import com.google.android.gms.ads.AdView
 
-private var tv_facebook_user_name: TextView?=null
-private var userId : String = ""
+private var tvName: TextView?=null
+//private var userId : String = ""
 private var userTotalCorrectCount: Int = 0
 private var userTotalWrongCount: Int = 0
 // 1. 宣告 FirebaseFirestore 變數
@@ -60,6 +60,8 @@ class MainActivity : ComponentActivity() {
     private val TAG = "MainActivityAdMob"
 
     private lateinit var adView: AdView
+
+    private lateinit var name: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -169,7 +171,8 @@ class MainActivity : ComponentActivity() {
         bt_exam.setOnClickListener {
             // 這裡放您原本點擊按鈕後要執行的邏輯 (例如：切換到考試 Activity)
             val intent = Intent(this, QuizActivity::class.java).apply {
-                putExtra("userId", "${userId}")
+                //putExtra("userId", "${userId}")
+                putExtra("name", "${name}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
                 putExtra("chapter", "${selectedChapter}")
@@ -183,7 +186,6 @@ class MainActivity : ComponentActivity() {
 
         bt_battle.setOnClickListener {
             val intent = Intent(this, BattleActivity::class.java).apply {
-                putExtra("userId", "${userId}")
                 putExtra("subject", "${selectedSubject}")
                 putExtra("volume", "${selectedVolume}")
                 putExtra("chapter", "${selectedChapter}")
@@ -193,13 +195,11 @@ class MainActivity : ComponentActivity() {
             startActivity(intent)
         }
         //登入臉書用
-        var name = intent.getStringExtra("name") ?: "未登入"
-        userId = intent.getStringExtra("userId") ?: "未登入"
-        tv_facebook_user_name = findViewById<TextView>(R.id.tv_facebook_user_name)
-        tv_facebook_user_name?.text = "歡迎， $name"
-        tv_facebook_user_name?.setOnClickListener {
+        name = intent.getStringExtra("name") ?: "未登入"
+        tvName = findViewById<TextView>(R.id.tv_name)
+        tvName?.text = "歡迎， $name"
+        tvName?.setOnClickListener {
             val intent = Intent(this, AccountActivity::class.java).apply {
-                putExtra("userId", userId)
                 putExtra("name", name)
                 putExtra("totalCorrectCount", userTotalCorrectCount)
                 putExtra("totalWrongCount", userTotalWrongCount)
@@ -326,8 +326,8 @@ class MainActivity : ComponentActivity() {
 
                 // 2. 逐一取出使用者
                 for (userDoc in userSnapshots.documents) {
-                    val id = userDoc.getString("id") ?: continue
-                    val name = userDoc.getString("name") ?: "Unknown"
+                    //val id = userDoc.getString("id") ?: continue
+                    val nameInDoc = userDoc.getString("name") ?: "Unknown"
                     var totalCorrectCount = userDoc.getLong("totalCorrectCount")
                         ?: userDoc.getLong("totalCorrectCount")
                         ?: 0L
@@ -335,17 +335,15 @@ class MainActivity : ComponentActivity() {
                         ?: userDoc.getLong("totalWrongCount")
                         ?: 0L
 
-                    if (id == userId) {
+                    if (name == nameInDoc) {
                         userTotalCorrectCount = totalCorrectCount.toInt()
                         userTotalWrongCount = totalWrongCount.toInt()
                     }
 
-                    Log.v("JOYG", "JOYGSAY: id=$id, name=$name, totalCorrectCount=${totalCorrectCount}, totalWrongCount=\${totalWrongCount}")
-
-                    Log.v("JOYG", "JOYGSAY: name=$name, totalCorrectCount=$totalCorrectCount")
+                    Log.v("JOYG", "JOYGSAY: nameInDoc=$nameInDoc, totalCorrectCount=$totalCorrectCount, , totalWrongCount=\${totalWrongCount}")
 
                     // 5. 將該位使用者的總分加入暫存列表
-                    newLeaderboardList.add(LeaderboardUser(id, name, totalCorrectCount.toString()))
+                    newLeaderboardList.add(LeaderboardUser(nameInDoc, totalCorrectCount.toString()))
 
                 }
 
@@ -486,7 +484,6 @@ class MainActivity : ComponentActivity() {
 }
 
 data class LeaderboardUser(
-    var userId: String,
     var name: String,
     var correct: String,
     val rank: Int = 0 // 🌟 新增名次欄位

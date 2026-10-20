@@ -56,7 +56,7 @@ import kotlinx.coroutines.tasks.await
 private lateinit var firebaseAnalytics: FirebaseAnalytics
 
 private var id: Int = 0
-private lateinit var userId: String
+private lateinit var name: String
 
 var subject: String = ""
 var volume: String =""
@@ -167,11 +167,12 @@ class QuizActivity : ComponentActivity() {
 //        val tvSelectedSubject: TextView = findViewById(R.id.tv_selected_subject)
 
         // 2. 接收從 MainActivity 傳過來的字串，若沒有傳值則設定預設值
-        userId = intent.getStringExtra("userId") ?: "未選擇"
+        //userId = intent.getStringExtra("userId") ?: "未選擇"
+        name = intent.getStringExtra("name") ?: "未選擇"
         val subject = intent.getStringExtra("subject") ?: "未選擇"
         val volume = intent.getStringExtra("volume")?:"未選擇"
         val chapter = intent.getStringExtra("chapter")?:"未選擇"
-        Log.v("JOYG", "JOYGSAY: getStringExtra, userId=$userId, subject=$subject, volume=$volume, chapter=$chapter")
+        Log.v("JOYG", "JOYGSAY: getStringExtra, subject=$subject, volume=$volume, chapter=$chapter")
 
         // 3. 將取得的資料顯示在 TextView 上
   //      tvSelectedSubject.text = "科目：${subject}\t\t冊目：${volume}\t\t章節：${chapter}"
@@ -785,9 +786,9 @@ class QuizActivity : ComponentActivity() {
     private fun saveScoreToFirestore(){
 
         //先取得最新的totalCorrectCount
-        Log.v("JOYG", "JOYGSAY: userId=${userId}")
+        Log.v("JOYG", "JOYGSAY: name=${name}")
         val db = FirebaseFirestore.getInstance()
-        db.collection("User").whereEqualTo("id", userId)
+        db.collection("User").whereEqualTo("name", name)
             .limit(1)
             .get()
             .addOnSuccessListener { querySnapshot ->
