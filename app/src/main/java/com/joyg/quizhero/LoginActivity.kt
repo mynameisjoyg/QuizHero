@@ -21,13 +21,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import java.util.UUID
 
 class LoginActivity : ComponentActivity() {
 //    private var tv_facebook_user_name: TextView?=null
 //    //登入臉書用
 //    private lateinit var callbackManager: CallbackManager
 //    private lateinit var accessTokenTracker: AccessTokenTracker
-//    private var userId : String = ""
+    private var userId : String = ""
     private var name : String = ""
     private var password : String = ""
 //    private var email : String = ""
@@ -61,6 +62,7 @@ class LoginActivity : ComponentActivity() {
                     if (exists) {
                         // 使用者存在的處理邏輯
                         val intent = Intent(this, MainActivity::class.java).apply {
+                            putExtra("userId", userId)
                             putExtra("name", name)
                             putExtra("password", password)
                             setPackage(packageName)
@@ -86,7 +88,8 @@ class LoginActivity : ComponentActivity() {
                     if (exists) {
                         Toast.makeText(this, "該帳號：${name} 已存在！", Toast.LENGTH_LONG).show()
                     } else{
-                        saveUserInfoToFirestore( etName.text.toString(), etPassword.text.toString())
+                        userId = UUID.randomUUID().toString()
+                        saveUserInfoToFirestore(userId, etName.text.toString(), etPassword.text.toString())
                         Toast.makeText(this, "註冊帳號：${name} 完成！", Toast.LENGTH_LONG).show()
                         val intent = Intent(this, MainActivity::class.java).apply {
                             putExtra("name", name)
@@ -193,11 +196,11 @@ class LoginActivity : ComponentActivity() {
             }
     }
 
-    private fun saveUserInfoToFirestore(name: String, password: String) {
+    private fun saveUserInfoToFirestore(userId:String, name: String, password: String) {
         Log.d("FirestoreDemo", "JOYGSAY: Call saveUserInfoToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val userInformation = hashMapOf(
-            "id" to 0,
+            "id" to userId,
             "name" to name,
             "email" to "",
             "photoUrl" to "",
