@@ -153,6 +153,7 @@ class BattleActivity : AppCompatActivity() {
             onResultReceived = { result ->
                 runOnUiThread {
                     setAnswerButtonsEnabled(false) // 搶答結束，鎖定按鈕
+                    Log.v("JOYG", "JOYG:result.winnerId=${result.winnerId}, userId=${userId}")
                     if (result.winnerId == userId && result.isCorrect) {
                         tvStatus.text = "🏆 恭喜你搶答成功！"
                         correct = correct +1;

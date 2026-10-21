@@ -187,6 +187,11 @@ class LoginActivity : ComponentActivity() {
                     Log.v("JOYG", "JOYGSAY: name= $name 不存在")
                     onResult(false) // 透過 callback 回傳 false
                 } else {
+                    for (document in querySnapshot) {
+                        // 假設 userId 欄位是字串型態
+                        userId = document.getString("id").toString()
+                        Log.v("JOYG", "找到使用者，userId = $userId")
+                    }
                     onResult(true)  // 透過 callback 回傳 true
                 }
             }
