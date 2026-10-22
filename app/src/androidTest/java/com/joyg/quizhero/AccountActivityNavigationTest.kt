@@ -39,7 +39,7 @@ class AccountActivityNavigationTest {
 
         for (i in 1..totalAttempts) {
             // 1. 模擬使用者點擊使用者資訊的按鈕
-            onView(withId(R.id.tvAccountTitle)).perform(click())
+            onView(withId(R.id.tv_name)).perform(click())
 
             // 3. 驗證系統是否有發出前往 AccountActivity 的 Intent
             intended(hasComponent(AccountActivity::class.java.name))
