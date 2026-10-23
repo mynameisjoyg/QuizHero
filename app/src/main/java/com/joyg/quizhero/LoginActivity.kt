@@ -50,28 +50,59 @@ class LoginActivity : ComponentActivity() {
         btLogin.setOnClickListener {
             name = etName.text.toString()
             password = etPassword.text.toString()
-
             if (name=="" || password=="") {
                 Toast.makeText(this, "請輸入完整帳號密碼！", Toast.LENGTH_LONG).show()
             } else {
-                fetchUserInfoFromFirestore(name, password) { exists ->
-                    if (exists) {
-                        // 使用者存在的處理邏輯
-                        updateUserInfoToFirestore(name, password)
+                // 初始化工具
+                val auth: FirebaseAuth = FirebaseAuth.getInstance()
+                val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-                        val intent = Intent(this, MainActivity::class.java).apply {
-                            putExtra("userId", userId)
-                            putExtra("name", name)
-                            putExtra("password", password)
-                            setPackage(packageName)
+                // 1. 先從 Firestore 的 User 集合中，根據 name 欄位尋找對應的文件
+                db.collection("User")
+                    .whereEqualTo("name", name)
+                    .get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (!querySnapshot.isEmpty && querySnapshot.documents.isNotEmpty()) {
+                            // 2. 找到了對應的使用者帳號，取得第一筆文件的資料
+                            val document = querySnapshot.documents[0]
+                            val email = document.getString("email") // 假設您在 Firestore 裡存有 email 欄位
+                            val userId = document.getString("id") // 如果有存 userId 的話
+
+                            if (!email.isNullOrEmpty()) {
+                                // 3. 取得 email 後，正式呼叫 Firebase Auth 進行密碼驗證與登入
+                                auth.signInWithEmailAndPassword(email, password)
+                                    .addOnCompleteListener(this) { task ->
+                                        if (task.isSuccessful) {
+                                            // 登入成功！
+                                            //val currentUserId = auth.currentUser?.uid
+                                            Toast.makeText(this, "登入成功！", Toast.LENGTH_SHORT).show()
+
+                                            // 跳轉到主畫面
+                                            val intent = Intent(this, MainActivity::class.java).apply {
+                                                putExtra("userId", userId)
+                                                putExtra("name", name)
+                                                setPackage(packageName)
+                                            }
+                                            startActivity(intent)
+                                            finish()
+                                        } else {
+                                            // 密碼錯誤或其他驗證失敗
+                                            val errorMsg = task.exception?.localizedMessage ?: "密碼錯誤"
+                                            Toast.makeText(this, "登入失敗：$errorMsg", Toast.LENGTH_LONG).show()
+                                        }
+                                    }
+                            } else {
+                                Toast.makeText(this, "該帳號資料異常（找不到對應的 Email）", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            // Firestore 裡面完全找不到這個 name
+                            Toast.makeText(this, "帳號：$name 不存在", Toast.LENGTH_LONG).show()
                         }
-                        startActivity(intent)
-                        finish()
-                    } else {
-                        // 使用者不存在的處理邏輯
-                        Toast.makeText(this, "帳號：${name}不存在", Toast.LENGTH_LONG).show()
                     }
-                }
+                    .addOnFailureListener { e ->
+                        // Firestore 查詢發生錯誤（例如網路斷線）
+                        Toast.makeText(this, "連線錯誤：${e.message}", Toast.LENGTH_SHORT).show()
+                    }
             }
         }
         var bt_registor = findViewById<Button>(R.id.bt_registor)
@@ -222,7 +253,7 @@ class LoginActivity : ComponentActivity() {
 
     }
 
-    private fun saveUserInfoToFirestore(userId:String, name: String, password: String, email : String) {
+    private fun saveUserInfoToFirestore(userId:String, name: String, email : String) {
         Log.d("FirestoreDemo", "JOYGSAY: Call saveUserInfoToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val userInformation = hashMapOf(
@@ -234,7 +265,6 @@ class LoginActivity : ComponentActivity() {
             "heart" to 3,
             "heartContainer" to 3,
             "level" to 1,
-            "password" to password
         )
 
         // 4. 指定集合名稱 "EnglishQuiz"，並自動產生文件 ID 新增資料 (.add)
@@ -332,7 +362,7 @@ class LoginActivity : ComponentActivity() {
 
                                             // 存入我自己的Firestore端
                                             userId = UUID.randomUUID().toString()
-                                            saveUserInfoToFirestore(userId, account, password, email)
+                                            saveUserInfoToFirestore(userId, account, email)
                                         }
                                     }
                             }

@@ -29,8 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="請輸入密碼"
-        android:inputType="textEmailAddress"
-        android:autofillHints="emailAddress"/>
+        android:inputType="textPassword" />
 
     <!-- Email 輸入框 -->
     <EditText
