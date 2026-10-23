@@ -11,17 +11,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
 import com.facebook.AccessToken
-import com.facebook.AccessTokenTracker
-import com.facebook.CallbackManager
-import com.facebook.FacebookCallback
-import com.facebook.FacebookException
-import com.facebook.GraphRequest
-import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
-import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import java.util.UUID
 
@@ -33,10 +25,11 @@ class LoginActivity : ComponentActivity() {
     private var userId : String = ""
     private var name : String = ""
     private var password : String = ""
-//    private var email : String = ""
+    private var email : String = ""
 
     private lateinit var etName: EditText
     private lateinit var etPassword: EditText
+    private lateinit var etEmail: EditText
 
     private lateinit var db: FirebaseFirestore
 
@@ -51,6 +44,7 @@ class LoginActivity : ComponentActivity() {
 
         etName = findViewById<EditText>(R.id.et_name)
         etPassword = findViewById<EditText>(R.id.et_password)
+        etEmail = findViewById<EditText>(R.id.et_email)
 
         val btLogin = findViewById<Button>(R.id.bt_loggin)
         btLogin.setOnClickListener {
@@ -63,6 +57,8 @@ class LoginActivity : ComponentActivity() {
                 fetchUserInfoFromFirestore(name, password) { exists ->
                     if (exists) {
                         // 使用者存在的處理邏輯
+                        updateUserInfoToFirestore(name, password)
+
                         val intent = Intent(this, MainActivity::class.java).apply {
                             putExtra("userId", userId)
                             putExtra("name", name)
@@ -80,31 +76,8 @@ class LoginActivity : ComponentActivity() {
         }
         var bt_registor = findViewById<Button>(R.id.bt_registor)
         bt_registor.setOnClickListener {
-            name = etName.text.toString()
-            password = etPassword.text.toString()
-
-            if (name=="" || password=="") {
-                Toast.makeText(this, "請輸入完整帳號密碼！", Toast.LENGTH_LONG).show()
-            }else if (name!="" && password!="") {
-                fetchUserInfoFromFirestore(name, password) { exists ->
-                    if (exists) {
-                        Toast.makeText(this, "該帳號：${name} 已存在！", Toast.LENGTH_LONG).show()
-                    } else{
-                        userId = UUID.randomUUID().toString()
-                        saveUserInfoToFirestore(userId, etName.text.toString(), etPassword.text.toString())
-                        Toast.makeText(this, "註冊帳號：${name} 完成！", Toast.LENGTH_LONG).show()
-                        val intent = Intent(this, MainActivity::class.java).apply {
-                            putExtra("name", name)
-                            putExtra("password", password)
-                            setPackage(packageName)
-                        }
-                        startActivity(intent)
-                        finish()
-                    }
-                }
-            }
+            showRegisterDialog()
         }
-        //
 
         val tv_forgetpw = findViewById<TextView>(R.id.tv_forgetpw)
         tv_forgetpw.setOnClickListener {
@@ -208,13 +181,54 @@ class LoginActivity : ComponentActivity() {
             }
     }
 
-    private fun saveUserInfoToFirestore(userId:String, name: String, password: String) {
+    private fun updateUserInfoToFirestore(name: String, password: String){
+        val updatedData = hashMapOf(
+            "name" to name,
+            "password" to password
+        )
+
+        // 先去 User 集合中查詢 "userId" 欄位等於 currentUserId 的文件
+        db.collection("User")
+            .whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // 3. 找到了對應的文件（通常只會有一筆）
+                    for (document in querySnapshot.documents) {
+                        val documentId = document.id // 取得該文件的真實 ID
+
+                        // 4. 利用真實的 documentId 進行更新
+                        db.collection("User")
+                            .document(documentId)
+                            .set(updatedData, com.google.firebase.firestore.SetOptions.merge())
+                            .addOnSuccessListener {
+                                Log.d("FirestoreDemo", "JOYGSAY: 使用者資料更新成功.")
+                                Toast.makeText(this, "資料更新成功！", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w("FirestoreDemo", "JOYGSAY: 更新使用者資料時發生錯誤", e)
+                                Toast.makeText(this, "更新失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                } else {
+                    Log.w("FirestoreDemo", "JOYGSAY: 找不到 userId 等於 $userId 的文件")
+                    Toast.makeText(this, "找不到對應的使用者資料", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w("FirestoreDemo", "JOYGSAY: 查詢使用者資料失敗", e)
+                Toast.makeText(this, "查詢失敗: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+
+    }
+
+    private fun saveUserInfoToFirestore(userId:String, name: String, password: String, email : String) {
         Log.d("FirestoreDemo", "JOYGSAY: Call saveUserInfoToFirestore.")
         // 建立要傳入 Firestore 的資料 (HashMap 結構)
         val userInformation = hashMapOf(
             "id" to userId,
             "name" to name,
-            "email" to "",
+            "email" to email,
             "photoUrl" to "",
             "locale" to "",
             "heart" to 3,
@@ -254,8 +268,77 @@ class LoginActivity : ComponentActivity() {
 
                 // 3. 檢查輸入並執行後續邏輯 (例如呼叫後端 API)
                 if (account.isNotEmpty() && email.isNotEmpty()) {
+                    val auth: FirebaseAuth = FirebaseAuth.getInstance()
                     // TODO: 在這裡發送重設密碼請求
-                    Toast.makeText(this, "已送出！將發送驗證信至 $email", Toast.LENGTH_LONG).show()
+                    // 這裡直接呼叫 Firebase Auth 發送密碼重設信：
+                    auth.sendPasswordResetEmail(email)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Toast.makeText(
+                                    this,
+                                    "密碼重設信已發送至 $email，請至信箱收信並重新設定密碼",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            } else {
+                                // 發送失敗（例如：該 Email 尚未註冊、格式錯誤等）
+                                val errorMsg = task.exception?.localizedMessage ?: "發送失敗"
+                                Toast.makeText(this, "錯誤: $errorMsg", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                } else {
+                    Toast.makeText(this, "帳號與 Email 皆不能為空", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("取消") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    private fun showRegisterDialog() {
+        // 1. 載入自定義的 Dialog 介面
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_register, null)
+        val etAccount = dialogView.findViewById<EditText>(R.id.et_account)
+        val etPassword = dialogView.findViewById<EditText>(R.id.et_password)
+        val etEmail = dialogView.findViewById<EditText>(R.id.et_email)
+
+        // 建立註冊用的AlertDialog
+        AlertDialog.Builder(this)
+            .setTitle("註冊")
+            .setView(dialogView) // 設定自定義佈局
+            .setPositiveButton("送出") { dialog, _ ->
+                val account = etAccount.text.toString().trim()
+                val password = etPassword.text.toString().trim()
+                val email = etEmail.text.toString().trim()
+
+                Log.v("JOYG", "JOYG:account=${account}, password=${password}, email=${email}")
+                // 檢查輸入並執行後續邏輯 (例如呼叫後端 API)
+                if (account.isNotEmpty() && email.isNotEmpty()) {
+                    val auth: FirebaseAuth = FirebaseAuth.getInstance()
+                    // TODO: 在這裡發送重設密碼請求
+                    // 這裡直接呼叫 Firebase Auth 發送註冊驗證信：
+                    // 用Firebase authentication寄送驗證信
+                    Log.v("JOYG", "JOYG:password=${password}, email=${email}")
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                // 註冊成功後，立即發送 Firebase 內建驗證信
+                                auth.currentUser?.sendEmailVerification()
+                                    ?.addOnCompleteListener { verifyTask ->
+                                        if (verifyTask.isSuccessful) {
+                                            // 提示使用者去收信驗證
+                                            Toast.makeText(this, "註冊驗證信已發送至 $email，請至信箱收信並重新設定密碼", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(this, "請至信箱收信並重新設定密碼", Toast.LENGTH_LONG).show()
+
+                                            // 存入我自己的Firestore端
+                                            userId = UUID.randomUUID().toString()
+                                            saveUserInfoToFirestore(userId, account, password, email)
+                                        }
+                                    }
+                            }
+                        }
+
+
                 } else {
                     Toast.makeText(this, "帳號與 Email 皆不能為空", Toast.LENGTH_SHORT).show()
                 }
