@@ -25,7 +25,7 @@
             android:name=".LoginActivity"
             android:exported="true"
             android:label="QuizHero"
-            android:theme="@style/Theme.QuizHero"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -3,11 +3,13 @@ package com.joyg.quizhero
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AlertDialog
 import com.facebook.AccessToken
 import com.facebook.AccessTokenTracker
 import com.facebook.CallbackManager
@@ -103,6 +105,11 @@ class LoginActivity : ComponentActivity() {
             }
         }
         //
+
+        val tv_forgetpw = findViewById<TextView>(R.id.tv_forgetpw)
+        tv_forgetpw.setOnClickListener {
+            showForgotPasswordDialog()
+        }
 
 
 //        //登入臉書用
@@ -229,5 +236,33 @@ class LoginActivity : ComponentActivity() {
                 Log.w("FirestoreDemo", "JOYGSAY: user Information 新增資料時發生錯誤", e)
                 //Toast.makeText(this, "新增失敗: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun showForgotPasswordDialog() {
+        // 1. 載入自定義的 Dialog 介面
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_forgot_password, null)
+        val etAccount = dialogView.findViewById<EditText>(R.id.etDialogAccount)
+        val etEmail = dialogView.findViewById<EditText>(R.id.etDialogEmail)
+
+        // 2. 建立 AlertDialog
+        AlertDialog.Builder(this)
+            .setTitle("找回密碼")
+            .setView(dialogView) // 設定自定義佈局
+            .setPositiveButton("送出") { dialog, _ ->
+                val account = etAccount.text.toString().trim()
+                val email = etEmail.text.toString().trim()
+
+                // 3. 檢查輸入並執行後續邏輯 (例如呼叫後端 API)
+                if (account.isNotEmpty() && email.isNotEmpty()) {
+                    // TODO: 在這裡發送重設密碼請求
+                    Toast.makeText(this, "已送出！將發送驗證信至 $email", Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "帳號與 Email 皆不能為空", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("取消") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }
