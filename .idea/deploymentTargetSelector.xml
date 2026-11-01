@@ -3,7 +3,7 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DIALOG" />
+        <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-10-21T13:05:30.302804800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -27,10 +27,6 @@
         </DialogSelection>
       </SelectionState>
       <SelectionState runConfigName="QuizActivityNavigationTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="testSelectSpinnerItemsAndStartQuiz_DoesNotCrash()">
         <option name="selectionMode" value="DROPDOWN" />
         <DialogSelection />
       </SelectionState>
