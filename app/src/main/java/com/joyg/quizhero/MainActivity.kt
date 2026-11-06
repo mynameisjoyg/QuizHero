@@ -225,14 +225,14 @@ class MainActivity : ComponentActivity() {
 //        bt_add.setOnClickListener {
 //            //讀取英文會考歷屆題庫的Excel
 //            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-//            readExcelByLifeCycleScope("Chinese_CAP_Quiz.xlsx")
+//            readExcelByLifeCycleScope("Science_PJE_Quiz.xlsx")
 //        }
 //
 //        val bt_delete = findViewById<Button>(R.id.bt_delete)
 //        bt_delete.setOnClickListener {
 //            //刪除英文會考歷屆題庫的Excel
 //            //Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-//            deleteDataToFirestore("Chinese_CAP_Quiz.xlsx")
+//            deleteDataToFirestore("Science_PJE_Quiz.xlsx")
 //        }
 
     }
