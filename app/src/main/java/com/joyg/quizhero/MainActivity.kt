@@ -310,10 +310,25 @@ class MainActivity : ComponentActivity() {
         // 點擊 ListView 當中的某一項時的動作（可在此接續您原本讀取或刪除 Excel 的邏輯）
         listView.setOnItemClickListener { _, _, position, _ ->
             val selectedFileName = fileList[position]
-            Toast.makeText(this, "您點選了檔案: $selectedFileName", Toast.LENGTH_SHORT).show()
 
-            // 範例：若您想點擊後直接執行讀取，可呼叫您原有的方法：
-            readExcelByLifeCycleScope(selectedFileName)
+            // 🌟 點擊後再次彈出「確認對話框」
+            AlertDialog.Builder(this)
+                .setTitle("確認匯入")
+                .setMessage("您確定要選擇匯入檔案 [ $selectedFileName ] 嗎？")
+                .setPositiveButton("確定") { confirmDialog, _ ->
+                    // 使用者按下了確定：執行原本的方法，並關閉所有對話框
+                    readExcelByLifeCycleScope(selectedFileName)
+                    //fileListDialog.dismiss()
+                    confirmDialog.dismiss()
+
+                }
+                .setNegativeButton("取消") { confirmDialog, _ ->
+                    // 🌟 使用者按下了取消：關閉確認視窗，保留原本的檔案列表視窗
+                    confirmDialog.dismiss()
+                }
+                .setCancelable(false)
+                .show()
+
 
             dialog.dismiss()
         }
@@ -346,10 +361,24 @@ class MainActivity : ComponentActivity() {
         // 點擊 ListView 當中的某一項時的動作（可在此接續您原本讀取或刪除 Excel 的邏輯）
         listView.setOnItemClickListener { _, _, position, _ ->
             val selectedFileName = fileList[position]
-            Toast.makeText(this, "您點選了檔案: $selectedFileName", Toast.LENGTH_SHORT).show()
 
-            // 範例：若您想點擊後直接執行讀取，可呼叫您原有的方法：
-            deleteDataToFirestore(selectedFileName)
+            // 🌟 點擊後再次彈出「確認對話框」
+            AlertDialog.Builder(this)
+                .setTitle("確認刪除")
+                .setMessage("您確定要選擇刪除檔案 [ $selectedFileName ] 嗎？")
+                .setPositiveButton("確定") { confirmDialog, _ ->
+                    // 使用者按下了確定：執行原本的方法，並關閉所有對話框
+                    deleteDataToFirestore(selectedFileName)
+                    confirmDialog.dismiss()
+
+                }
+                .setNegativeButton("取消") { confirmDialog, _ ->
+                    // 🌟 使用者按下了取消：關閉確認視窗，保留原本的檔案列表視窗
+                    confirmDialog.dismiss()
+                }
+                .setCancelable(false)
+                .show()
+
             dialog.dismiss()
         }
 
