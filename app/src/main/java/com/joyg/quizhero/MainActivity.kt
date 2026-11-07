@@ -1,11 +1,14 @@
 package com.joyg.quizhero
 
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -221,20 +224,104 @@ class MainActivity : ComponentActivity() {
         fetchAndRefreshLeaderboard()
 
 
-//        val bt_add = findViewById<Button>(R.id.bt_add)
-//        bt_add.setOnClickListener {
-//            //讀取英文會考歷屆題庫的Excel
-//            Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-//            readExcelByLifeCycleScope("Science_PJE_Quiz.xlsx")
-//        }
-//
-//        val bt_delete = findViewById<Button>(R.id.bt_delete)
-//        bt_delete.setOnClickListener {
-//            //刪除英文會考歷屆題庫的Excel
-//            //Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-//            deleteDataToFirestore("Science_PJE_Quiz.xlsx")
-//        }
+        val bt_add = findViewById<Button>(R.id.bt_add)
+        val bt_delete = findViewById<Button>(R.id.bt_delete)
+        if(name=="Joyg"){
 
+            bt_add.setOnClickListener {
+                //讀取英文會考歷屆題庫的Excel
+                Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+                //readExcelByLifeCycleScope("Science_PJE_Quiz.xlsx")
+                showAssetsExcelDialogThenAdd()
+            }
+
+            val bt_delete = findViewById<Button>(R.id.bt_delete)
+            bt_delete.setOnClickListener {
+                //刪除英文會考歷屆題庫的Excel
+                //Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+                //deleteDataToFirestore("Science_PJE_Quiz.xlsx")
+                showAssetsExcelDialogThenDelete()
+            }
+        } else {
+            // 如果不是 Joyg：隱藏按鈕（GONE 代表隱藏且不佔用任何排版空間）
+            bt_add.visibility = View.GONE
+            bt_delete.visibility = View.GONE
+        }
+
+    }
+
+    /**
+     * 3. 顯示彈出視窗（AlertDialog），以 ListView 呈現 assets 內的所有 .xlsx 檔案
+     */
+    private fun showAssetsExcelDialogThenAdd() {
+        // 取得 assets 資料夾內結尾為 .xlsx 的檔案清單
+        val fileList =
+            assets.list("")?.filter { it.endsWith(".xlsx", ignoreCase = true) } ?: emptyList()
+
+        if (fileList.isEmpty()) {
+            Toast.makeText(this, "Assets 資料夾中找不到任何 .xlsx 檔案", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 建立 ListView 並設定 Adapter
+        val listView = ListView(this)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
+        listView.adapter = adapter
+
+        // 建立 AlertDialog
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("📦 Assets 內的 Excel 題庫")
+            .setView(listView)
+            .setNegativeButton("關閉", null)
+            .create()
+
+        // 點擊 ListView 當中的某一項時的動作（可在此接續您原本讀取或刪除 Excel 的邏輯）
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedFileName = fileList[position]
+            Toast.makeText(this, "您點選了檔案: $selectedFileName", Toast.LENGTH_SHORT).show()
+
+            // 範例：若您想點擊後直接執行讀取，可呼叫您原有的方法：
+            readExcelByLifeCycleScope(selectedFileName)
+
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showAssetsExcelDialogThenDelete() {
+        // 取得 assets 資料夾內結尾為 .xlsx 的檔案清單
+        val fileList =
+            assets.list("")?.filter { it.endsWith(".xlsx", ignoreCase = true) } ?: emptyList()
+
+        if (fileList.isEmpty()) {
+            Toast.makeText(this, "Assets 資料夾中找不到任何 .xlsx 檔案", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 建立 ListView 並設定 Adapter
+        val listView = ListView(this)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, fileList)
+        listView.adapter = adapter
+
+        // 建立 AlertDialog
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("📦 Assets 內的 Excel 題庫")
+            .setView(listView)
+            .setNegativeButton("關閉", null)
+            .create()
+
+        // 點擊 ListView 當中的某一項時的動作（可在此接續您原本讀取或刪除 Excel 的邏輯）
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedFileName = fileList[position]
+            Toast.makeText(this, "您點選了檔案: $selectedFileName", Toast.LENGTH_SHORT).show()
+
+            // 範例：若您想點擊後直接執行讀取，可呼叫您原有的方法：
+            deleteDataToFirestore(selectedFileName)
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     /**
