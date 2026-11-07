@@ -66,6 +66,14 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var name: String
 
+    // 用於計算 RecyclerView 的連續點擊次數與時間
+    private var swipeClickCount = 0
+    private var swipeLastClickTime = 0L
+    private val swipeClickInterval = 5000L // 5 秒內必須點完 10 下
+
+    private lateinit var bt_add : Button
+    private lateinit var bt_delete : Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
@@ -129,32 +137,57 @@ class MainActivity : ComponentActivity() {
 
             // (選用) Toast 提示確認更新結果
             //Toast.makeText(this, "選擇科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
+
+            // 2. 檢查使用者名稱是否為 "Joyg"
+            Log.v("JOYG", "JOYGSAY:name=${name}")
+            if (name == "Joyg") {
+                val currentTime = System.currentTimeMillis()
+
+                // 如果距離上次點擊超過 5 秒，則重置計數
+                if (currentTime - swipeLastClickTime > swipeClickInterval) {
+                    swipeClickCount = 1
+                } else {
+                    swipeClickCount++
+                }
+                swipeLastClickTime = currentTime
+
+                Log.v("JOYG", "JOYGSAY:點擊RecyclerView次數 = $swipeClickCount")
+
+                // 3. 如果 5 秒內連續點擊超過 10 下
+                if (swipeClickCount >= 10) {
+                    swipeClickCount = 0 // 重置計數器
+
+                    // 顯示新增與刪除按鈕
+                    bt_add.visibility = View.VISIBLE
+                    bt_delete.visibility = View.VISIBLE
+
+                    Toast.makeText(this, "🎉 隱藏管理員按鈕已解鎖！", Toast.LENGTH_SHORT).show()
+
+                    bt_add.setOnClickListener {
+                        //讀取英文會考歷屆題庫的Excel
+                        Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+                        showAssetsExcelDialogThenAdd()
+                    }
+
+                    val bt_delete = findViewById<Button>(R.id.bt_delete)
+                    bt_delete.setOnClickListener {
+                        //刪除英文會考歷屆題庫的Excel
+                        //Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
+                        showAssetsExcelDialogThenDelete()
+                    }
+                }
+            } else {
+                // 如果不是 Joyg，點了也沒反應或重置
+                swipeClickCount = 0
+            }
+
         }
 
         swipeCardRecyclerView.layoutManager = LinearLayoutManager(this)
         swipeCardRecyclerView.adapter = cardAdapter
 
-        // 設定並附加 ItemTouchHelper
-        val swipeCallback = CardSwipeCallback { position, direction ->
-            when (direction) {
-                ItemTouchHelper.RIGHT -> {
-                    //Toast.makeText(this, "通過/保留: ${itemList[position]}", Toast.LENGTH_SHORT).show()
-                }
-                ItemTouchHelper.LEFT -> {
-                    //Toast.makeText(this, "剔除/不喜歡: ${itemList[position]}", Toast.LENGTH_SHORT).show()
-                }
-            }
-            //cardAdapter.notifyItemRemoved(position)
-            cardAdapter.moveToBottom(position)
-        }
-
-        val itemTouchHelper = ItemTouchHelper(swipeCallback)
-        itemTouchHelper.attachToRecyclerView(swipeCardRecyclerView)
-
-
         val bt_exam: Button = findViewById(R.id.bt_exam)
         val bt_battle: Button = findViewById(R.id.bt_battle)
-
 
         var subjects = listOf("English","Chinese", "Geography")
         var Volume = listOf("1","2","3","4","5")
@@ -224,29 +257,28 @@ class MainActivity : ComponentActivity() {
         fetchAndRefreshLeaderboard()
 
 
-        val bt_add = findViewById<Button>(R.id.bt_add)
-        val bt_delete = findViewById<Button>(R.id.bt_delete)
-        if(name=="Joyg"){
-
-            bt_add.setOnClickListener {
-                //讀取英文會考歷屆題庫的Excel
-                Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-                //readExcelByLifeCycleScope("Science_PJE_Quiz.xlsx")
-                showAssetsExcelDialogThenAdd()
+        bt_add = findViewById<Button>(R.id.bt_add)
+        bt_delete = findViewById<Button>(R.id.bt_delete)
+        // 預設先將新增、刪除按鈕隱藏
+        bt_add.visibility = View.GONE
+        bt_delete.visibility = View.GONE
+        // 設定並附加 ItemTouchHelper
+        val swipeCallback = CardSwipeCallback { position, direction ->
+            when (direction) {
+                ItemTouchHelper.RIGHT -> {
+                    //Toast.makeText(this, "通過/保留: ${itemList[position]}", Toast.LENGTH_SHORT).show()
+                }
+                ItemTouchHelper.LEFT -> {
+                    //Toast.makeText(this, "剔除/不喜歡: ${itemList[position]}", Toast.LENGTH_SHORT).show()
+                }
             }
-
-            val bt_delete = findViewById<Button>(R.id.bt_delete)
-            bt_delete.setOnClickListener {
-                //刪除英文會考歷屆題庫的Excel
-                //Log.v("onCreate", "JOYGSAY: onCreate, readExcelByLifeCycleScope: onCreate, readExcelByLifeCycleScope.")
-                //deleteDataToFirestore("Science_PJE_Quiz.xlsx")
-                showAssetsExcelDialogThenDelete()
-            }
-        } else {
-            // 如果不是 Joyg：隱藏按鈕（GONE 代表隱藏且不佔用任何排版空間）
-            bt_add.visibility = View.GONE
-            bt_delete.visibility = View.GONE
+            //cardAdapter.notifyItemRemoved(position)
+            cardAdapter.moveToBottom(position)
         }
+
+        val itemTouchHelper = ItemTouchHelper(swipeCallback)
+        itemTouchHelper.attachToRecyclerView(swipeCardRecyclerView)
+
 
     }
 
