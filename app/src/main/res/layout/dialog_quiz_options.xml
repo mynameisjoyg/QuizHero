@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="請選擇互動模式"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="20dp"/>
+
+    <Button
+        android:id="@+id/dialog_bt_exam"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📝 個人測驗 (Exam)"
+        android:layout_marginBottom="12dp"/>
+
+    <Button
+        android:id="@+id/dialog_bt_battle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚔️ 對戰模式 (Battle)"/>
+
+</LinearLayout>

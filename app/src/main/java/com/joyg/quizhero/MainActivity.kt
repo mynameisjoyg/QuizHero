@@ -135,8 +135,7 @@ class MainActivity : ComponentActivity() {
             this.selectedVolume ="1"
             this.selectedChapter ="1"
 
-            // (選用) Toast 提示確認更新結果
-            //Toast.makeText(this, "選擇科目為: $selectedSubject", Toast.LENGTH_SHORT).show()
+            showModeSelectionDialog(subject)
 
             // 2. 檢查使用者名稱是否為 "Joyg"
             Log.v("JOYG", "JOYGSAY:name=${name}")
@@ -188,6 +187,8 @@ class MainActivity : ComponentActivity() {
 
         val bt_exam: Button = findViewById(R.id.bt_exam)
         val bt_battle: Button = findViewById(R.id.bt_battle)
+        bt_exam.visibility=View.GONE
+        bt_battle.visibility=View.GONE
 
         var subjects = listOf("English","Chinese", "Geography")
         var Volume = listOf("1","2","3","4","5")
@@ -278,9 +279,56 @@ class MainActivity : ComponentActivity() {
 
         val itemTouchHelper = ItemTouchHelper(swipeCallback)
         itemTouchHelper.attachToRecyclerView(swipeCardRecyclerView)
-
-
     }
+
+    private fun showModeSelectionDialog(subject: String) {
+        // 1. 載入自訂的對話框 Layout
+        val dialogView = layoutInflater.inflate(R.layout.dialog_quiz_options, null)
+
+        val btnExam = dialogView.findViewById<Button>(R.id.dialog_bt_exam)
+        val btnBattle = dialogView.findViewById<Button>(R.id.dialog_bt_battle)
+
+        // 2. 建立 AlertDialog
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        // 3. 點擊「測驗 (Exam)」按鈕的動作
+        btnExam.setOnClickListener {
+            // 這裡放您原本點擊按鈕後要執行的邏輯 (例如：切換到考試 Activity)
+            val intent = Intent(this, QuizActivity::class.java).apply {
+                putExtra("userId", "${userId}")
+                putExtra("name", "${name}")
+                putExtra("subject", "${selectedSubject}")
+                putExtra("volume", "${selectedVolume}")
+                putExtra("chapter", "${selectedChapter}")
+                Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
+                setPackage(packageName)
+            }
+            startActivity(intent)
+
+            dialog.dismiss()
+        }
+
+        // 4. 點擊「對戰 (Battle)」按鈕的動作
+        btnBattle.setOnClickListener {
+            val intent = Intent(this, BattleActivity::class.java).apply {
+                putExtra("userId", "${userId}")
+                putExtra("subject", "${selectedSubject}")
+                putExtra("volume", "${selectedVolume}")
+                putExtra("chapter", "${selectedChapter}")
+                Log.v("JOYG", "JOYGSAY: putExtra, subject=$selectedSubject, volume=$selectedVolume, chapter=$selectedChapter")
+                setPackage(packageName)
+            }
+            startActivity(intent)
+            dialog.dismiss()
+        }
+
+        // 5. 顯示對話框
+        dialog.show()
+    }
+
 
     /**
      * 3. 顯示彈出視窗（AlertDialog），以 ListView 呈現 assets 內的所有 .xlsx 檔案
