@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -16,6 +17,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.google.firebase.auth.FirebaseAuth
 import java.util.UUID
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 
 class LoginActivity : ComponentActivity() {
 //    private var tv_facebook_user_name: TextView?=null
@@ -32,7 +35,7 @@ class LoginActivity : ComponentActivity() {
     private lateinit var etEmail: EditText
 
     private lateinit var db: FirebaseFirestore
-
+    private lateinit var cbRememberMe: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +48,10 @@ class LoginActivity : ComponentActivity() {
         etName = findViewById<EditText>(R.id.et_name)
         etPassword = findViewById<EditText>(R.id.et_password)
         etEmail = findViewById<EditText>(R.id.et_email)
+        cbRememberMe = findViewById(R.id.cb_remember_me)
+
+        // 🌟 1. 畫面啟動時，自動讀取並填入上次儲存的帳密
+        loadSavedCredentials()
 
         val btLogin = findViewById<Button>(R.id.bt_loggin)
         btLogin.setOnClickListener {
@@ -103,6 +110,8 @@ class LoginActivity : ComponentActivity() {
                         // Firestore 查詢發生錯誤（例如網路斷線）
                         Toast.makeText(this, "連線錯誤：${e.message}", Toast.LENGTH_SHORT).show()
                     }
+
+                saveCredentials(name, password)
             }
         }
         var bt_registor = findViewById<Button>(R.id.bt_registor)
@@ -378,4 +387,62 @@ class LoginActivity : ComponentActivity() {
             }
             .show()
     }
+
+
+    /**
+     * 從加密喜好設定中讀取帳密並填入欄位
+     */
+    private fun loadSavedCredentials() {
+        try {
+            val masterKey = MasterKey.Builder(this)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                this,
+                "secure_login_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+            val savedName = sharedPreferences.getString("KEY_SAVED_NAME", "")
+            val savedPassword = sharedPreferences.getString("KEY_SAVED_PASSWORD", "")
+            val isRemembered = sharedPreferences.getBoolean("KEY_IS_REMEMBERED", false)
+
+            if (!savedName.isNullOrEmpty() && !savedPassword.isNullOrEmpty()) {
+                etName.setText(savedName)
+                etPassword.setText(savedPassword)
+                cbRememberMe.isChecked = isRemembered
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun saveCredentials(email: String, password: String) {
+        try {
+            val masterKey = MasterKey.Builder(this)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            val sharedPreferences = EncryptedSharedPreferences.create(
+                this,
+                "secure_login_prefs",
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+            sharedPreferences.edit().apply {
+                putString("KEY_SAVED_NAME", name)
+                putString("KEY_SAVED_PASSWORD", password)
+                putBoolean("KEY_IS_REMEMBERED", true)
+                apply()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
 }

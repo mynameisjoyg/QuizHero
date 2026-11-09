@@ -129,6 +129,6 @@ dependencies {
     //Firebase OAuth
     // 加入 Firebase Authentication 依賴項
     implementation("com.google.firebase:firebase-auth")
-
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }
 

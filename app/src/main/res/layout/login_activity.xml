@@ -72,6 +72,12 @@
             android:layout_weight="1"
             android:text="註冊" />
 
+        <CheckBox
+            android:id="@+id/cb_remember_me"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="記住我" />
+
         <TextView
             android:id="@+id/tv_forgetpw"
             android:layout_width="wrap_content"
